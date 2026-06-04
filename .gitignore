@@ -1,0 +1,59 @@
+# ============================================================
+# Raw data — NEVER commit (large 10x Xenium output bundles)
+# ============================================================
+kidney_10x/data/
+kidney_10x_preview/data/
+
+# Large binary formats anywhere in the tree (belt-and-suspenders)
+*.ome.tif
+*.tif
+*.parquet
+*.zarr
+*.zarr.zip
+*.zarr/
+*.h5
+*.h5ad
+*.rds
+*.mtx
+*.mtx.gz
+
+# Large generated objects (regenerate from scripts; document in README)
+outputs/objects/
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+env/
+*.egg-info/
+
+# ============================================================
+# R / RStudio
+# ============================================================
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# renv: keep renv.lock under version control, ignore the local library
+renv/library/
+renv/staging/
+renv/python/
+
+# ============================================================
+# OS / editors
+# ============================================================
+.DS_Store
+.vscode/
+.idea/
+
+# ============================================================
+# Secrets — never commit
+# ============================================================
+.env
+*.key
+*.pem

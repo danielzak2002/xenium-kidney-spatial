@@ -1,0 +1,37 @@
+# Create with:  conda env create -f environment.yml
+# Then:         conda activate spatial
+# Register a Jupyter kernel: python -m ipykernel install --user --name spatial
+#
+# Apple-silicon note: install from conda-forge (geometry/imaging deps like GEOS/GDAL
+# resolve far more cleanly here than via pip wheels). The fast-moving spatialdata
+# stack is pulled from PyPI.
+
+name: spatial
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - scikit-image
+  - scikit-learn
+  - anndata
+  - scanpy
+  - squidpy
+  - leidenalg
+  - python-igraph
+  - dask
+  - zarr
+  - pyarrow          # read transcripts.parquet / cells.parquet
+  - h5py             # read cell_feature_matrix.h5
+  - tifffile         # OME-TIFF morphology images (lazy)
+  - matplotlib
+  - seaborn
+  - jupyterlab
+  - ipykernel
+  - pip
+  - pip:
+      - spatialdata
+      - spatialdata-io
+      - spatialdata-plot
