@@ -9,8 +9,11 @@ Both datasets are public 10x Genomics Xenium human-kidney datasets, released und
 **Creative Commons Attribution 4.0 (CC BY 4.0)**, © 10x Genomics. When presenting or
 publishing any results derived from them, attribute 10x Genomics as the data source.
 
-- `kidney_10x/` — _dataset title + URL, fill in from the readme.txt_
-- `kidney_10x_preview/` — _dataset title + URL, fill in from the readme.txt_
+- `kidney_10x/` — *Xenium Protein FFPE Human Renal Carcinoma* (gene + protein):
+  https://www.10xgenomics.com/datasets/xenium-protein-ffpe-human-renal-carcinoma
+- `kidney_10x_preview/` — *Human Kidney Preview Data (Xenium Human Multi-Tissue and Cancer Panel)*;
+  the `data/` bundle here is the **cancer (PRCC) section** (`hKidney_cancer_section`):
+  https://www.10xgenomics.com/datasets/human-kidney-preview-data-xenium-human-multi-tissue-and-cancer-panel-1-standard
 
 (Each folder's `readme.txt` holds the background pasted from the 10x dataset page.)
 

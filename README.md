@@ -20,11 +20,16 @@ included in this repository — see [DATA.md](DATA.md) for download and placemen
 
 | Folder | Dataset | Panel / modality | Cells |
 |---|---|---|---|
-| `kidney_10x/` | _finalized after panel assessment_ | _TBD_ | _TBD_ |
-| `kidney_10x_preview/` | _finalized after panel assessment_ | _TBD_ | _TBD_ |
+| `kidney_10x/` | Xenium Protein FFPE Human Renal Cell Carcinoma (Stage III, T3a N1 MX) | 405 genes / 430 probes (Human Multi-Tissue & Cancer + 28-gene custom add-on, 25 boosted) **+ 27-plex protein** — gene + protein | 465,534 |
+| `kidney_10x_preview/` | Human Kidney Preview — **cancer (PRCC) section only** (`hKidney_cancer_section`) | 377 genes (Human Multi-Tissue & Cancer, dev v1.5.0) — gene only | 56,510 ⟵ **validation target** |
 
-(The table is populated from `gene_panel.json` and `metrics_summary.csv` during the first
-analysis step.)
+Populated from `gene_panel.json` + `metrics_summary.csv` (panel assessment step). Two
+notes: (1) the `kidney_10x_preview/data/` bundle on disk is the **cancer/PRCC section**
+of the preview release (56,510 cells), not the paired non-diseased section (97,560);
+(2) it has the fewer cells, so it is the small→big validation target. Both panels share
+the same 377-gene Human Multi-Tissue & Cancer base and the same 20 negative-control
+probes / 41 negative-control codewords; only `kidney_10x` adds the custom genes and the
+27-plex protein assay.
 
 ## Approach
 1. **Panel assessment** — parse each `gene_panel.json`; report panel size and confirm
