@@ -22,6 +22,17 @@ install.packages(c(
 remotes::install_github("immunogenomics/presto")  # fast Wilcoxon DE for markers
 remotes::install_github("bnprks/BPCells/r")        # on-disk matrices for the big RCC run
 
+# Reference-based annotation (Bioconductor): SingleR + celldex (Monaco immune ref).
+# macOS arm64 note: celldex pulls alabaster.base, which links OpenSSL. If the build
+# fails with `ld: library 'ssl' not found`, install Homebrew OpenSSL and point the
+# linker at it, e.g.:
+#     brew install openssl@3
+#     LIBRARY_PATH="$(brew --prefix openssl@3)/lib" Rscript setup_R.R
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("SingleR", "celldex"), update = FALSE, ask = FALSE)
+# The Monaco immune reference is fetched + cached on first use by 04_reference_
+# annotation.R via celldex::fetchReference() (cached in the user dir, not the repo).
+
 cat("
 Installed. Next steps for the RStudio MCP:
 

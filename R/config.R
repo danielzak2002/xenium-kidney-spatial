@@ -61,6 +61,7 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     dir_log      = file.path(out, "logs"),
     obj_01       = file.path(out, "objects", paste0(ds$label, "_01_qc.rds")),
     obj_02       = file.path(out, "objects", paste0(ds$label, "_02_annotated.rds")),
+    obj_04       = file.path(out, "objects", paste0(ds$label, "_04_refann.rds")),
 
     # reproducibility
     seed         = 1234L,
@@ -96,6 +97,14 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     de_min_pct    = 0.10,
     de_logfc      = 0.25,
     de_top_n      = 10L,
+
+    # ---- Reference annotation (SingleR; layered onto marker-based clusters) -
+    # Immune layer: celldex Monaco immune reference (blood-derived, fine subsets).
+    ref_monaco_version = "2024-02-26",
+    ref_consensus_min  = 0.50,  # min within-cluster agreement to adopt a SingleR label
+    # Marker types kept as-is (reference can't classify these well): tumour,
+    # LowQ, and Mast (no mast class in the blood-derived Monaco reference).
+    ref_keep_marker    = c("Tumor_RCC", "LowQ_MTRNR2L", "Mast"),
 
     # ---- Spatial smoke-test (lightweight; real stats are Phase B / squidpy) -
     run_spatial_smoke = TRUE,

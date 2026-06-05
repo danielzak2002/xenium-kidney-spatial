@@ -47,3 +47,10 @@ coordinates, so the in-memory footprint is a small fraction of the on-disk size
 `gene_panel.json` is small and useful as documentation — if you want it under version
 control, copy it out of the (git-ignored) `data/` folder into `outputs/tables/` and
 commit that copy.
+
+## Reference data (cell-type annotation)
+Reference-based annotation (`R/04_reference_annotation.R`) uses the **Monaco immune**
+reference from the Bioconductor `celldex` package. It is downloaded and cached
+automatically on first use (`celldex::fetchReference("monaco_immune", ...)`) into the
+user cache directory — **outside this repository**, so nothing reference-related is
+committed. No manual download is required; just install the packages via `setup_R.R`.
