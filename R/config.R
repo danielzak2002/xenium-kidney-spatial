@@ -206,7 +206,7 @@ marker_sets <- function() list(
 
 # Immune cell-type sets used by the spatial smoke-test (which clusters are immune).
 IMMUNE_TYPES <- c("T_cell","NK_cell","B_cell","Plasma","Myeloid","DC",
-                  "pDC","Mast","Neutrophil","mregDC")
+                  "pDC","Mast","Neutrophil","mregDC","CCR7+ T (naive/CM)")
 
 # Lineage-gate marker panel for the conflict resolver (05_kidney_reference.R).
 # Intersected with rownames() at use. CD3 (T_lineage) is the primary T-vs-non-T

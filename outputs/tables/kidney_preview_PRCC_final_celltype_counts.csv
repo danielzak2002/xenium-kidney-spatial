@@ -13,4 +13,5 @@
 "Switched memory B cells",1019
 "T regulatory cells",6317
 "Tumor_RCC",2503
-"mregDC/CCR7+ T (mixed)",189
+"mregDC",94
+"CCR7+ T (naive/CM)",95
