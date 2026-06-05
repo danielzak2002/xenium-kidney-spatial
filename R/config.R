@@ -20,18 +20,30 @@ XENIUM_ROOT <- Sys.getenv("XENIUM_ROOT", unset = getwd())
 # (PRCC) section, NOT the paired non-diseased section.
 .DATASETS <- list(
   preview = list(
-    label       = "kidney_preview_PRCC",
+    label       = "kidney_preview_PRCC", platform = "xenium",
     data_dir    = "kidney_10x_preview/data",
     has_protein = FALSE,
     n_cells     = 56510L,
     tissue_desc = "papillary renal cell carcinoma (PRCC) section"
   ),
   big = list(
-    label       = "kidney_RCC_protein",
+    label       = "kidney_RCC_protein", platform = "xenium",
     data_dir    = "kidney_10x/data",
     has_protein = TRUE,   # 27-plex protein assay; see scale-up notes in 02
     n_cells     = 465534L,
     tissue_desc = "renal cell carcinoma (Stage III, T3a N1 MX) section"
+  ),
+  # NanoString CosMx 1000-plex, childhood-onset lupus nephritis (Danaher 2024).
+  # Multi-sample (14 slides: 4 control + 10 SLE regions); raw integer counts in
+  # cleaneddata.RData; neg-probes not in matrix (per-cell rate = annot$negmean).
+  cln_cosmx = list(
+    label       = "cln_cosmx", platform = "cosmx",
+    data_dir    = "Danaher24/data", data_file = "cleaneddata.RData",
+    has_protein = FALSE, multi_sample = TRUE,
+    sample_col  = "slidename", condition_col = "class",
+    coord_units = "mm",
+    n_cells     = 532392L,
+    tissue_desc = "childhood-onset lupus nephritis kidney (CosMx 1000-plex; 8 cLN + 4 control)"
   )
 )
 
@@ -44,12 +56,21 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
   data_dir <- file.path(XENIUM_ROOT, ds$data_dir)
   out      <- file.path(XENIUM_ROOT, "outputs")
 
+  platform <- if (is.null(ds$platform)) "xenium" else ds$platform
   cfg <- list(
     dataset      = dataset,
     label        = ds$label,
+    platform     = platform,
     has_protein  = ds$has_protein,
     n_cells_meta = ds$n_cells,
     tissue_desc  = ds$tissue_desc,
+
+    # multi-sample (CosMx); single-section Xenium leaves these inert
+    multi_sample = isTRUE(ds$multi_sample),
+    sample_col   = if (is.null(ds$sample_col)) NA_character_ else ds$sample_col,
+    condition_col = if (is.null(ds$condition_col)) NA_character_ else ds$condition_col,
+    coord_units  = if (is.null(ds$coord_units)) "um" else ds$coord_units,
+    data_file    = ds$data_file,
 
     # paths
     data_dir     = data_dir,
@@ -73,6 +94,8 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     drop_flagged           = FALSE,   # keep flagged cells; record flags only
     neg_frac_flag          = 0.02,    # per-cell neg-control (probe+codeword) fraction
     blank_frac_flag        = 0.02,    # per-cell blank/unassigned-codeword fraction
+    cosmx_neg_ratio_flag   = 1.0,     # CosMx: flag if negmean*n_genes/nCount > this
+                                      # (per-probe background >= mean per-gene signal)
     seg_merge_count_quantile = 0.99,  # candidate segmentation merges: high counts ...
     seg_merge_area_quantile  = 0.99,  # ... AND large cell area
     lowq_mtrnr2l_frac        = 0.5,   # per-cell: counts dominated by MTRNR2L pseudogene
@@ -121,9 +144,11 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     spatial_k         = 20L,        # kNN on centroids
     immune_nbr_frac   = 0.60        # candidate immune-aggregate threshold
   )
-  cfg$assay <- "Xenium"
-  # BIG carries 15 'Deprecated Codeword' features that LoadXenium 5.5.0 cannot
-  # map -> load it via the manual h5 path proactively (see load_xenium_lean).
+  # Assay name + clustering reduction depend on platform. CosMx is multi-sample:
+  # integrate (Harmony by slidename) so clusters aren't patient-driven; condition
+  # (class) is metadata ONLY, never a correction covariate.
+  cfg$assay     <- if (platform == "cosmx") "RNA" else "Xenium"
+  cfg$reduction <- if (cfg$multi_sample) "harmony" else "pca"
   cfg$force_manual_load <- identical(dataset, "big")
   cfg
 }
@@ -158,6 +183,27 @@ load_xenium_lean <- function(cfg) {
     LoadXenium(cfg$data_dir, assay = cfg$assay, cell.centroids = TRUE,
                molecule.coordinates = FALSE),
     error = function(e) manual(paste("LoadXenium failed:", conditionMessage(e))))
+}
+
+# ---- CosMx loader (Danaher cLN .RData) -------------------------------------
+# Builds a Seurat object from the authors' `raw` integer counts (genes x cells),
+# carrying coords (customlocs, mm), per-cell metadata (annot), and the authors'
+# 35-type calls (`clust`) as a benchmark column. Aborts if matrix/annot/clust are
+# not cell_ID-aligned (so author_celltype can never be silently mis-assigned).
+load_cosmx <- function(cfg) {
+  f <- file.path(cfg$data_dir, cfg$data_file)
+  if (!file.exists(f)) stop("CosMx data not found: ", f)
+  e <- new.env(); load(f, envir = e)
+  raw <- e$raw; annot <- e$annot; clust <- e$clust; loc <- e$customlocs
+  if (!identical(colnames(raw), annot$cell_ID))
+    stop("ABORT: raw columns not aligned to annot$cell_ID")
+  if (is.null(names(clust)) || !identical(names(clust), annot$cell_ID))
+    stop("ABORT: clust (author cell types) not keyed to cell_ID")
+  rownames(annot) <- annot$cell_ID
+  obj <- CreateSeuratObject(counts = raw, assay = cfg$assay, meta.data = annot)
+  obj$x_centroid <- loc[, 1]; obj$y_centroid <- loc[, 2]   # mm
+  obj$author_celltype <- unname(clust[colnames(obj)])
+  obj
 }
 
 ensure_dirs <- function(cfg) {
