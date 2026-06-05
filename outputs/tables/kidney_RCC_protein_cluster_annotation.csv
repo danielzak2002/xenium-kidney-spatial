@@ -22,7 +22,7 @@
 21,5221,"Neutrophil","Low-density neutrophils","Immune",0.815,"none",0.431,0.591,0.021,0.029,0.012,0.014,1.251,NA,"",FALSE,FALSE,"Low-density neutrophils"
 22,5126,"pDC","Plasmacytoid dendritic cells","Immune",0.973,"none",0.685,0.688,0.028,0.048,0.022,0.009,2.079,NA,"",FALSE,FALSE,"Plasmacytoid dendritic cells"
 23,4344,"Mast","Mast","Immune",0.91,"none",0.646,0.65,0.02,0.038,0.049,0.01,1.772,NA,"",FALSE,FALSE,"Mast"
-24,3980,"DC","DC","Immune",0.985,"DC_Treg",0.8,0.76,0.952,0.103,0.02,0.019,2.071,TRUE,"CD3-high (pct=0.80), FOXP3 pct=0.10 -> Treg",TRUE,FALSE,"Treg"
+24,3980,"DC","DC","Immune",0.985,"DC_Tmix(adjudicated)",0.8,0.76,0.952,0.103,0.02,0.019,2.071,NA,"ADJUDICATED mixed (mregDC + CCR7+ naive/CM T; sub-cluster to resolve): FOXP3 pct=0.10 vs Treg-ref 0.84 (NOT Treg); LAMP3 mean=5.4 (95%+); CCR7/IL7R pct=0.44/0.51, cytotoxic(GZMB/PRF1/NKG7) pct=0.05/0.12/0.15; seg-merge=0.0000 vs 0.0072, area 47 vs 57, nCount 54 vs 70 (NOT doublet); LAMP3~CD3 rho=-0.33 (double+=76%); protein CD3=2.07 HLA-DR=1.82 CD11c=0.19",FALSE,TRUE,"mregDC/CCR7+ T (mixed)"
 25,2089,"Proliferating","Proliferating","Immune",0.883,"Epi_Immune",0.273,0.241,0,0.001,0.001,0.002,1.093,NA,"ambiguous (PTPRC pct=0.24, epi pct=0.00) -> keep Proliferating (review)",FALSE,TRUE,"Proliferating"
 26,2012,"T_cell","Effector memory CD8 T cells","Immune",0.957,"none",0.787,0.739,0.012,0.032,0.021,0.013,2.337,NA,"",FALSE,FALSE,"Effector memory CD8 T cells"
 27,1678,"LowQ_MTRNR2L","LowQ_MTRNR2L","Immune",0.546,"none",0.136,0.099,0,0,0,0.001,1.287,NA,"",FALSE,FALSE,"LowQ_MTRNR2L"

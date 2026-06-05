@@ -6,10 +6,11 @@
 "Intercalated",3979
 "Intermediate monocytes",9399
 "Mast",443
-"Myeloid dendritic cells",1922
+"Myeloid dendritic cells",1733
 "Natural killer cells",1776
 "Plasmablasts",1410
 "Stroma_mural",2827
 "Switched memory B cells",1019
 "T regulatory cells",6317
 "Tumor_RCC",2503
+"mregDC/CCR7+ T (mixed)",189
