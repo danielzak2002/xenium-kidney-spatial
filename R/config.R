@@ -23,13 +23,15 @@ XENIUM_ROOT <- Sys.getenv("XENIUM_ROOT", unset = getwd())
     label       = "kidney_preview_PRCC",
     data_dir    = "kidney_10x_preview/data",
     has_protein = FALSE,
-    n_cells     = 56510L
+    n_cells     = 56510L,
+    tissue_desc = "papillary renal cell carcinoma (PRCC) section"
   ),
   big = list(
     label       = "kidney_RCC_protein",
     data_dir    = "kidney_10x/data",
     has_protein = TRUE,   # 27-plex protein assay; see scale-up notes in 02
-    n_cells     = 465534L
+    n_cells     = 465534L,
+    tissue_desc = "renal cell carcinoma (Stage III, T3a N1 MX) section"
   )
 )
 
@@ -47,6 +49,7 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     label        = ds$label,
     has_protein  = ds$has_protein,
     n_cells_meta = ds$n_cells,
+    tissue_desc  = ds$tissue_desc,
 
     # paths
     data_dir     = data_dir,

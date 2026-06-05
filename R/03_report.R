@@ -54,6 +54,34 @@ names(csum) <- c("cluster","provisional_type","n_cells","top_markers (avg_log2FC
 
 modality <- if (cfg$has_protein) "gene + 27-plex protein" else "gene only"
 
+# ---- data-driven conclusion bits (read from this dataset's own tables) ------
+# Top markers of the largest cluster assigned each provisional type, so the
+# narrative reflects THIS section rather than hard-coded biology.
+mk_for <- function(type) {
+  r <- csum[csum$provisional_type == type, , drop = FALSE]
+  if (nrow(r)) r[["top_markers (avg_log2FC)"]][1] else NA_character_
+}
+.comp_label <- c(Tumor_RCC = "tumour", Myeloid = "myeloid", Endothelial = "endothelium",
+                 T_cell = "T cell", B_cell = "B cell", Plasma = "plasma")
+comp_txt <- vapply(names(.comp_label), function(t) {
+  m <- mk_for(t); if (is.na(m)) "" else paste0(.comp_label[[t]], " (", esc(m), ")")
+}, character(1))
+comp_txt <- paste(comp_txt[nzchar(comp_txt)], collapse = "; ")
+immune_pct <- round(100 * sum(ctc$Freq[ctc$cell_type %in% IMMUNE_TYPES]) / sum(ctc$Freq))
+b_mk <- mk_for("B_cell"); p_mk <- mk_for("Plasma")
+bp_li <- (if (!is.na(b_mk) && !is.na(p_mk))
+  paste0("<li><b>B-cell / plasma biology is resolvable</b> despite CD79B being absent from
+the panel: distinct B-cell (", b_mk, ") and plasma (", p_mk, ") clusters separate cleanly
+and localise to discrete foci (B/plasma-signal panel) — a promising substrate for the
+immune-aggregate / TLS question.</li>")
+  else "<li>No distinct B-cell <i>and</i> plasma clusters were resolved at this resolution;
+revisit if immune aggregates are a focus.</li>")
+protein_li <- (if (cfg$has_protein)
+  "<li><b>The 27-plex protein assay is loaded</b> as a separate, CLR-normalized assay and
+excluded from clustering — available for orthogonal validation of these RNA-defined types
+(e.g. CD20 / CD3E / CD68 / CD138 protein) without confounding the gene-based clustering.</li>"
+  else "")
+
 # ---- assemble HTML ----------------------------------------------------------
 css <- "
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
@@ -140,32 +168,33 @@ fig("spatial_immune_aggregates.png", "Immune-neighbourhood fraction (k=20); high
 (median ", esc(qc$median_counts[1]), " transcripts / ", esc(qc$median_genes[1]),
 " genes per cell), and clustering is biologically coherent on the first pass.</div>",
 "<ul>",
-"<li><b>Biology tracks the known sample.</b> This is a papillary RCC section, and the
-clusters recover its hallmarks: an exhausted CD8 T-cell programme (LAG3 / TNFRSF9 / CD8A),
-a <b>MET</b>/CD70 tumour compartment (MET is the papillary-RCC driver), M2-like macrophages
-(VSIG4 / CD163), endothelium (VWF / EGFL7), and distinct plasma (MZB1) and B-cell
-(MS4A1 / CD79A) clusters — consistent with the dataset's immune-rich description.</li>",
-"<li><b>B-cell / plasma biology is resolvable</b> on this panel despite the absence of
-CD79B: MS4A1 / CD79A / CD19 plus MZB1 / DERL3 cleanly separate B and plasma clusters,
-and they localise to discrete foci (B/plasma-signal panel) — a promising substrate for the
-immune-aggregate / TLS question.</li>",
-"<li><b>The immune-heavy composition is real, not only a scorer artefact.</b> The section
-is a tumour with extensive infiltrate; epithelial (nephron) representation is
-correspondingly sparse here, which also makes tubular cell-typing the weakest part of the
-provisional labels.</li>",
-"<li><b>QC flags are low and spatially unremarkable</b> (mean neg-control fraction ",
+"<li><b>Biology tracks the known sample.</b> This ", esc(cfg$tissue_desc), " recovers
+coherent compartments, named here by each cluster's own top markers: ", comp_txt, ".
+Immune lineages account for ~", esc(immune_pct), "% of provisional labels — consistent with
+the dataset's immune-rich, infiltrated description.</li>",
+bp_li,
+"<li><b>The immune-heavy composition is largely real, not only a scorer artefact.</b> The
+section is a tumour with extensive infiltrate; epithelial (nephron) representation is
+correspondingly sparse, which also makes tubular cell-typing the weakest part of the
+provisional (z-scored marker-argmax) labels.</li>",
+protein_li,
+"<li><b>QC flags are low</b> (mean neg-control fraction ",
 esc(formatC(qc$mean_neg_frac[1], format='g', digits=2)), "; ",
-esc(qc$n_flag_seg_merge[1]), " candidate segmentation merges) — segmentation looks
-trustworthy for cell-level analysis.</li>",
+esc(qc$n_flag_seg_merge[1]), " candidate segmentation merges of ", esc(qc$n_cells_kept[1]),
+" cells) — segmentation looks trustworthy for cell-level analysis.</li>",
 "</ul>",
 "<div class='note'><b>Caveats &amp; next steps.</b><ul>",
 "<li>Cell-type labels are provisional (marker argmax). Replace with reference-based label
 transfer (e.g. a kidney/immune atlas) before any quantitative cell-type claim.</li>",
 "<li>The spatial smoke-test is a sanity check only; neighbourhood enrichment, co-occurrence,
 Moran's I and niche detection are done in Phase B (squidpy / spatialdata).</li>",
-"<li>Scale-up to the full multimodal section (<code>XENIUM_DATASET=big</code>) adds the
-27-plex protein (CLR-normalized, separate assay) and must handle the panel's
-<code>Deprecated Codeword</code> features that <code>LoadXenium</code> does not map.</li>",
+if (cfg$has_protein)
+  "<li>Next: use the CLR-normalized protein assay to cross-check RNA cell types, then Phase-B
+spatial statistics and immune-aggregate / TLS detection.</li>"
+else
+  "<li>This is the smaller validation section; the full multimodal section
+(<code>XENIUM_DATASET=big</code>) adds the 27-plex protein and is loaded via the manual h5
+path that handles the panel's <code>Deprecated Codeword</code> features.</li>",
 "</ul></div>",
 
 "<p class='meta'>Generated by <code>R/03_report.R</code>. Figures in
