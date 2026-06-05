@@ -57,6 +57,21 @@ obj$flag_neg   <- obj$neg_frac   > cfg$neg_frac_flag
 obj$flag_blank <- obj$blank_frac > cfg$blank_frac_flag
 obj$flag_seg_merge <- (nc > count_thr) & (obj$cell_area > area_thr)
 
+# Low-quality signal (flag, do NOT filter): per-cell fraction of counts from
+# MTRNR2L mito-pseudogene features + complexity (nFeature/nCount). MTRNR2L-
+# dominated, low-complexity cells are ambient/degraded, not real cell types.
+cmat <- GetAssayData(obj, assay = cfg$assay, layer = "counts")
+mt_rows <- grep("^MTRNR2L", rownames(cmat), value = TRUE)
+mt_counts <- (if (length(mt_rows)) Matrix::colSums(cmat[mt_rows, , drop = FALSE])
+              else rep(0, ncol(obj)))
+obj$mtrnr2l_frac <- as.numeric(mt_counts) / pmax(nc, 1)
+obj$complexity   <- obj$nFeature_Xenium / pmax(nc, 1)
+obj$flag_lowq    <- obj$mtrnr2l_frac > cfg$lowq_mtrnr2l_frac |
+                    obj$complexity   < cfg$lowq_complexity
+message("  MTRNR2L features: ", length(mt_rows),
+        " (", paste(mt_rows, collapse = ", "), "); flag_lowq cells: ",
+        sum(obj$flag_lowq))
+
 # ---- Apply minimal removal: zero-count cells only ---------------------------
 n0 <- ncol(obj)
 keep <- which(!obj$flag_zero)
@@ -80,6 +95,9 @@ qc <- data.frame(
   n_flag_neg         = sum(obj$flag_neg),
   n_flag_blank       = sum(obj$flag_blank),
   n_flag_seg_merge   = sum(obj$flag_seg_merge),
+  n_flag_lowq        = sum(obj$flag_lowq),
+  mean_mtrnr2l_frac  = mean(obj$mtrnr2l_frac),
+  median_complexity  = median(obj$complexity),
   seg_merge_count_thr = as.numeric(count_thr),
   seg_merge_area_thr  = as.numeric(area_thr))
 write.csv(qc, tab_path(cfg, "qc_summary.csv"), row.names = FALSE)

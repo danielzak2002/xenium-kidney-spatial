@@ -73,6 +73,8 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     blank_frac_flag        = 0.02,    # per-cell blank/unassigned-codeword fraction
     seg_merge_count_quantile = 0.99,  # candidate segmentation merges: high counts ...
     seg_merge_area_quantile  = 0.99,  # ... AND large cell area
+    lowq_mtrnr2l_frac        = 0.5,   # per-cell: counts dominated by MTRNR2L pseudogene
+    lowq_complexity          = 0.2,   # per-cell: nFeature/nCount below this = low complexity
 
     # ---- Normalization (operator choice: LogNormalize; SCT kept as switch) ---
     norm_method        = "LogNormalize",  # or "SCT"
@@ -176,12 +178,16 @@ marker_sets <- function() list(
   Plasma            = c("MZB1","DERL3","TNFRSF17","SDC1","PRDM1"),
   Myeloid           = c("CD68","CD163","LYZ","ITGAM","C1QA","C1QB","CD14"),
   DC                = c("LAMP3","CLEC9A","ITGAX","CD1C"),
+  pDC               = c("LILRA4","IL3RA","CLEC4C","PLD4","GZMB","TCL1A","IRF7","JCHAIN"),
+  Mast              = c("TPSAB1","TPSB2","CPA3","MS4A2","KIT","GATA2","CMA1","HPGDS"),
+  Neutrophil        = c("S100A12","S100A8","S100A9","FCGR3B","CSF3R","MCEMP1","AQP9","CXCR2"),
   Proliferating     = c("MKI67","TOP2A","PCNA"),
   Tumor_RCC         = c("CA9","NDUFA4L2","VEGFA","CD70","ANGPTL4")
 )
 
 # Immune cell-type sets used by the spatial smoke-test (which clusters are immune).
-IMMUNE_TYPES <- c("T_cell","NK_cell","B_cell","Plasma","Myeloid","DC")
+IMMUNE_TYPES <- c("T_cell","NK_cell","B_cell","Plasma","Myeloid","DC",
+                  "pDC","Mast","Neutrophil")
 
 # ---- Native Leiden on a Seurat SNN graph (no python/reticulate) -------------
 # Seurat's algorithm=4 routes through leiden(py) via reticulate, which is a

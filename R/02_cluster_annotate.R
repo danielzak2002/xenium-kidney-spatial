@@ -81,12 +81,32 @@ cell_scores <- sapply(present, function(g)
 clus <- obj$seurat_clusters
 clus_scores <- t(apply(cell_scores, 2, function(v) tapply(v, clus, mean)))  # type x cluster
 clus_scores <- t(clus_scores)                                              # cluster x type
-assign_type <- colnames(clus_scores)[max.col(clus_scores, ties.method = "first")]
-names(assign_type) <- rownames(clus_scores)
+argmax_type <- colnames(clus_scores)[max.col(clus_scores, ties.method = "first")]
+names(argmax_type) <- rownames(clus_scores)
+
+# Surface per-cluster low-quality signal and override MTRNR2L-dominated clusters
+# to "LowQ_MTRNR2L" so they are visibly flagged, not silently typed. Trigger:
+# MTRNR2L is a top-N marker of the cluster (the real signal — these clusters are
+# defined by ambient mito-pseudogene enrichment, not by count fraction), OR the
+# per-cell MTRNR2L count-fraction average exceeds the threshold (degraded cells).
+clu_mt   <- tapply(obj$mtrnr2l_frac, clus, mean)[rownames(clus_scores)]
+clu_lowq <- tapply(obj$flag_lowq,    clus, mean)[rownames(clus_scores)]
+mt_feats <- grep("^MTRNR2L", rownames(obj), value = TRUE)
+mt_marker_cl <- as.character(unique(top$cluster[top$gene %in% mt_feats]))
+lowq_cl <- intersect(union(rownames(clus_scores)[clu_mt > cfg$lowq_mtrnr2l_frac],
+                           mt_marker_cl), rownames(clus_scores))
+assign_type <- argmax_type
+assign_type[lowq_cl] <- "LowQ_MTRNR2L"
+if (length(lowq_cl))
+  message("  LowQ (MTRNR2L) clusters: ",
+          paste(sprintf("%s (mt_frac=%.3f, argmax=%s)", lowq_cl, clu_mt[lowq_cl],
+                        argmax_type[lowq_cl]), collapse = "; "))
 
 ann <- data.frame(cluster = rownames(clus_scores), round(clus_scores, 3),
-                  assigned = assign_type, n_cells = as.integer(table(clus)),
-                  check.names = FALSE)
+                  argmax = argmax_type, assigned = assign_type,
+                  mean_mtrnr2l_frac = round(as.numeric(clu_mt), 3),
+                  frac_lowq = round(as.numeric(clu_lowq), 3),
+                  n_cells = as.integer(table(clus)), check.names = FALSE)
 write.csv(ann, tab_path(cfg, "cluster_celltype_scores.csv"), row.names = FALSE)
 obj$cell_type <- factor(unname(assign_type[as.character(clus)]))
 ct_counts <- as.data.frame(table(cell_type = obj$cell_type))

@@ -1,2 +1,2 @@
-"dataset","n_cells_loaded","n_cells_kept","median_counts","median_genes","mean_neg_frac","mean_blank_frac","median_cell_area","median_nuc_cyto","n_flag_neg","n_flag_blank","n_flag_seg_merge","seg_merge_count_thr","seg_merge_area_thr"
-"kidney_RCC_protein",465534,465228,70,32,9.01836643268211e-05,2.39606331501295e-05,57.3935958333313,0.491098567086409,415,92,3337,649,419.667301171012
+"dataset","n_cells_loaded","n_cells_kept","median_counts","median_genes","mean_neg_frac","mean_blank_frac","median_cell_area","median_nuc_cyto","n_flag_neg","n_flag_blank","n_flag_seg_merge","n_flag_lowq","mean_mtrnr2l_frac","median_complexity","seg_merge_count_thr","seg_merge_area_thr"
+"kidney_RCC_protein",465534,465228,70,32,9.01836643268211e-05,2.39606331501295e-05,57.3935958333313,0.491098567086409,415,92,3337,17620,0.00219454156411333,0.448275862068966,649,419.667301171012
