@@ -109,6 +109,9 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     ref_kidney_dir     = file.path(XENIUM_ROOT, "refs", "azimuth_kidney"),  # ref.Rds + idx.annoy
     ref_kidney_level   = "annotation.l1",   # 16 robust nephron/stroma/endo classes
     ref_kidney_score_min = 0.50,            # per-cell prediction-score floor (low-conf flag)
+    # Conflict resolver (05): per-cluster percent-positive cutoffs for the lineage gate.
+    gate_pos_high = 0.50,                    # "high"  = clear majority of cells positive
+    gate_pos_neg  = 0.15,                    # "neg"   = near-zero positivity
     # Marker types kept as-is (reference can't classify these well): tumour,
     # LowQ, and Mast (no mast class in the blood-derived Monaco reference).
     ref_keep_marker    = c("Tumor_RCC", "LowQ_MTRNR2L", "Mast"),
@@ -203,7 +206,20 @@ marker_sets <- function() list(
 
 # Immune cell-type sets used by the spatial smoke-test (which clusters are immune).
 IMMUNE_TYPES <- c("T_cell","NK_cell","B_cell","Plasma","Myeloid","DC",
-                  "pDC","Mast","Neutrophil")
+                  "pDC","Mast","Neutrophil","mregDC")
+
+# Lineage-gate marker panel for the conflict resolver (05_kidney_reference.R).
+# Intersected with rownames() at use. CD3 (T_lineage) is the primary T-vs-non-T
+# discriminator; PTPRC the immune-vs-epithelial one.
+lineage_gate_markers <- function() list(
+  T_lineage  = c("CD3D","CD3E","CD3G","TRAC"),
+  Treg       = c("FOXP3","IL2RA","CTLA4"),
+  mregDC     = c("LAMP3","CCR7","CD83","FSCN1","HLA-DRA"),
+  NK         = c("NCAM1","KLRD1","NKG7","GNLY","KLRF1"),
+  CD8_T      = c("CD8A","CD8B"),
+  PanImmune  = c("PTPRC"),
+  Epithelial = c("FXYD2","CDH16","LRP2","CUBN","SLC34A1")
+)
 
 # ---- Native Leiden on a Seurat SNN graph (no python/reticulate) -------------
 # Seurat's algorithm=4 routes through leiden(py) via reticulate, which is a

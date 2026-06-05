@@ -1,6 +1,6 @@
 "final_ref_cell_type","Freq"
+"CD8_T",13793
 "Classical monocytes",21763
-"DC",3980
 "Effector memory CD8 T cells",48939
 "Endothelial",52527
 "Fibroblast",10342
@@ -10,11 +10,11 @@
 "Mast",4344
 "Myeloid dendritic cells",8400
 "Naive B cells",26519
-"NK_cell",13793
 "Plasmablasts",22329
 "Plasmacytoid dendritic cells",5126
 "Proliferating",29989
 "Proximal_tubule",5691
 "Stroma_mural",69060
 "T regulatory cells",34860
+"Treg",3980
 "Tumor_RCC",26079

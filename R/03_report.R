@@ -86,7 +86,8 @@ excluded from clustering — available for orthogonal validation of these RNA-de
 rd_if <- function(name) { p <- tab_path(cfg, name)
   if (file.exists(p)) read.csv(p, check.names = FALSE) else NULL }
 imm <- rd_if("cluster_reference_labels.csv")    # 04 immune layer
-fin <- rd_if("final_reference_labels.csv")       # 05 kidney + final
+fin <- rd_if("cluster_annotation.csv")           # 05 resolved final annotation
+if (is.null(fin)) fin <- rd_if("final_reference_labels.csv")
 finc <- rd_if("final_celltype_counts.csv")
 have_ref <- !is.null(imm) || !is.null(fin)
 ref_section <- ""
@@ -95,46 +96,61 @@ if (have_ref) {
   imm_tab <- if (!is.null(imm)) df_to_html(imm[, intersect(
     c("cluster","marker_type","singler_main","singler_fine","fine_agreement",
       "concordant","adopted","ref_cell_type"), names(imm))]) else ""
-  imm_conflict <- if (!is.null(imm)) imm$cluster[imm$marker_type %in%
-    c("T_cell","NK_cell","B_cell","Plasma","Myeloid","DC","pDC","Neutrophil") &
-    !imm$concordant] else integer(0)
   fin_tab <- if (!is.null(fin)) df_to_html(fin[, intersect(
-    c("cluster","marker_type","immune_label","kidney_l1","kidney_agreement",
-      "adopted_kidney","kidney_immune_conflict","final_ref_cell_type"), names(fin))]) else ""
-  kid_conflict <- if (!is.null(fin) && "kidney_immune_conflict" %in% names(fin))
-    fin$cluster[fin$kidney_immune_conflict] else integer(0)
+    c("cluster","marker_type","immune_label","kidney_l1","conflict_type","cd3_pct",
+      "ptprc_pct","resolution_basis","protein_concordant","resolved","flag_review",
+      "final_ref_cell_type"), names(fin))]) else ""
   fin_comp <- if (!is.null(finc)) df_to_html(finc[order(-finc$Freq), ]) else ""
+
+  # Conflict-resolution summary (lineage gate) from cluster_annotation.csv
+  res_html <- ""
+  if (!is.null(fin) && "resolution_basis" %in% names(fin)) {
+    conf <- fin[fin$conflict_type != "none", , drop = FALSE]
+    if (nrow(conf)) {
+      items <- sprintf("<li>c%s [%s] <b>%s &rarr; %s</b> — %s%s</li>",
+        esc(conf$cluster), esc(conf$conflict_type), esc(conf$marker_type),
+        esc(conf$final_ref_cell_type), esc(conf$resolution_basis),
+        ifelse(conf$flag_review, " <span style='color:#b00'>[flag_review]</span>",
+               " <span style='color:#2a6'>[resolved]</span>"))
+      res_html <- paste0("<h3>Conflict resolution — marker lineage gate</h3>",
+        "<p>CD3 (T_lineage) splits T vs non-T; PTPRC splits immune vs epithelial.
+Percent-positive cutoffs: high &ge; ", esc(cfg$gate_pos_high), ", neg &lt; ",
+        esc(cfg$gate_pos_neg), ". Ambiguous evidence is never forced (kept + flag_review).</p>",
+        "<ul>", paste(items, collapse = ""), "</ul>")
+      if ("protein_concordant" %in% names(fin) && any(!is.na(fin$protein_concordant))) {
+        pc <- fin[!is.na(fin$protein_concordant), , drop = FALSE]
+        res_html <- paste0(res_html, "<p><b>Protein CD3 cross-check (CLR, BIG):</b> ",
+          paste(sprintf("c%s %s CD3=%s (%s)", esc(pc$cluster), esc(pc$final_ref_cell_type),
+            esc(pc$protein_CD3_mean), ifelse(pc$protein_concordant, "concordant", "DISCORDANT")),
+            collapse = "; "), ".</p>")
+      }
+    }
+  }
 
   ref_section <- paste0(
     "<h2>Reference annotation (layered)</h2>",
     "<p>Two reference layers are applied on top of the Leiden clusters and reconciled by
 per-cluster majority consensus: an <b>immune layer</b> (SingleR vs the celldex Monaco
 immune reference) and a <b>kidney/epithelial layer</b> (Azimuth mapping onto the
-KPMP/HuBMAP human-kidney reference). Immune clusters take the Monaco subtype when
-lineage-concordant; non-immune clusters take the kidney nephron/stroma class; tumour,
-LowQ and Mast keep their marker labels. Labels are provisional pending review.</p>",
+KPMP/HuBMAP human-kidney reference). Flagged conflicts are then resolved by a marker
+lineage gate (below). Tumour, LowQ and Mast keep their marker labels. Provisional
+pending review.</p>",
     "<h3>Immune layer — SingleR / Monaco</h3>", imm_tab,
-    if (length(imm_conflict))
-      paste0("<div class='note'>Non-concordant immune clusters (kept marker, flagged for
-review): <b>", paste(imm_conflict, collapse = ", "), "</b>.</div>") else "",
     "<div class='grid'>",
     fig("umap_reference_celltypes.png", "Immune-layer reference cell types (UMAP)."),
     fig("marker_vs_singler_heatmap.png", "Marker-based type vs SingleR main label (immune cells)."),
     "</div>",
-    "<h3>Kidney layer + final labels — Azimuth / KPMP</h3>", fin_tab,
-    if (length(kid_conflict))
-      paste0("<div class='note'>Non-immune clusters that Azimuth confidently calls
-&quot;Immune&quot; (kept marker label, flagged for review): <b>",
-             paste(kid_conflict, collapse = ", "), "</b>.</div>") else "",
+    "<h3>Resolved cluster annotation — kidney layer + lineage gate</h3>", fin_tab,
+    res_html,
     "<h3>Final cell-type composition</h3>", fin_comp,
     "<div class='grid'>",
     fig("umap_final_celltypes.png", "Final layered cell types (immune + kidney), UMAP."),
     fig("spatial_final_celltypes.png", "Final layered cell types in situ."),
     "</div>")
-  ref_li <- "<li><b>Reference annotation refines the provisional labels.</b> A SingleR/Monaco
-immune layer and an Azimuth/KPMP kidney layer are reconciled per cluster; genuine
-cross-method conflicts are flagged rather than silently resolved (see the reference
-section). These are the labels to review.</li>"
+  ref_li <- "<li><b>Reference annotation refines the provisional labels, and a marker
+lineage gate resolves the cross-method conflicts</b> (CD3 for T vs non-T, PTPRC for immune
+vs epithelial) — recording the evidence and never forcing ambiguous calls (see the
+reference section). These are the labels to review.</li>"
 }
 
 # ---- assemble HTML ----------------------------------------------------------
