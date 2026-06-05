@@ -137,7 +137,13 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     gate_pos_neg  = 0.15,                    # "neg"   = near-zero positivity
     # Marker types kept as-is (reference can't classify these well): tumour,
     # LowQ, and Mast (no mast class in the blood-derived Monaco reference).
+    # Platform-overridden below (CosMx cLN has no tumour).
     ref_keep_marker    = c("Tumor_RCC", "LowQ_MTRNR2L", "Mast"),
+    # NK confirmation markers for the resolver gate (overridden per panel below).
+    nk_gate_markers    = c("NCAM1", "KLRD1", "KLRF1"),
+    # IF channels usable as orthogonal validators (CosMx only; NA on Xenium).
+    if_immune_col      = NA_character_,   # pan-immune (PTPRC analog)
+    if_epithelial_col  = NA_character_,   # epithelial
 
     # ---- Spatial smoke-test (lightweight; real stats are Phase B / squidpy) -
     run_spatial_smoke = TRUE,
@@ -150,6 +156,17 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
   cfg$assay     <- if (platform == "cosmx") "RNA" else "Xenium"
   cfg$reduction <- if (cfg$multi_sample) "harmony" else "pca"
   cfg$force_manual_load <- identical(dataset, "big")
+  # CosMx's broad panel makes the marker-based provisional annotation (02) weak, so
+  # immune clusters are identified by the Azimuth "Immune" class (05) rather than the
+  # marker layer, then labelled with the Monaco fine consensus from 04.
+  cfg$immune_via_reference <- FALSE
+  if (platform == "cosmx") {           # CosMx 1000-plex panel + cLN (no tumour)
+    cfg$ref_keep_marker   <- c("LowQ_MTRNR2L", "Mast")      # drop Tumor_RCC
+    cfg$nk_gate_markers   <- c("NKG7", "GNLY", "KLRD1")     # NCAM1/KLRF1 off-panel
+    cfg$if_immune_col     <- "Mean.CD45"
+    cfg$if_epithelial_col <- "Mean.PanCK"
+    cfg$immune_via_reference <- TRUE
+  }
   cfg
 }
 

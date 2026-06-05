@@ -27,8 +27,14 @@ da   <- GetAssayData(obj, assay = cfg$assay, layer = "data")
 lamp3_mean <- tapply(da["LAMP3", ], clus, mean)
 tgt   <- names(lamp3_mean)[which.max(lamp3_mean)]
 cells <- colnames(obj)[clus == tgt]
+tgt_label <- as.character(obj$final_ref_cell_type[clus == tgt][1])
 message("  target=c", tgt, " (", length(cells), " cells, LAMP3 mean=",
-        round(max(lamp3_mean), 2), ")")
+        round(max(lamp3_mean), 2), ", label='", tgt_label, "')")
+# Only split when 06 flagged this cluster as the mixed mregDC+T population.
+if (tgt_label != "mregDC/CCR7+ T (mixed)") {
+  message("  target is not the mixed cluster -> nothing to split; 07 is a no-op.")
+  write_session_info(cfg, "07"); message("== 07 done (no split) =="); quit(save = "no")
+}
 
 # ---- Re-process the target cells in isolation -------------------------------
 sub <- subset(obj, cells = cells)

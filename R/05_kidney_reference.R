@@ -74,6 +74,24 @@ adopt_kidney <- non_immune & !(marker_type %in% cfg$ref_keep_marker) &
 base <- immune_lab
 base[adopt_kidney] <- kid_lab[adopt_kidney]
 
+# CosMx: the marker layer is unreliable, so identify immune clusters by Azimuth's
+# "Immune" class and label them with the Monaco fine consensus (04, per-cell SingleR);
+# non-immune clusters take the Azimuth nephron class. CD45 IF / PTPRC are reported as
+# orthogonal validators (cols below). Azimuth+Monaco IS the resolution -> no resolver.
+if (isTRUE(cfg$immune_via_reference)) {
+  monaco_fine <- vapply(cl_levels, function(k) { x <- obj$singler_pruned[clus == k]
+    x <- x[!is.na(x)]; if (!length(x)) NA_character_ else names(sort(table(x), decreasing = TRUE))[1] },
+    character(1))
+  azi_immune <- !is.na(kid_lab) & kid_lab == "Immune" & kid_agree >= cfg$ref_consensus_min
+  azi_epi    <- !is.na(kid_lab) & kid_lab != "Immune" & kid_agree >= cfg$ref_consensus_min
+  base <- ifelse(marker_type %in% cfg$ref_keep_marker, marker_type,
+          ifelse(azi_immune & !is.na(monaco_fine), monaco_fine,
+          ifelse(azi_epi, kid_lab, marker_type)))
+  immune_lab <- base
+  adopt_kidney <- azi_epi & !(marker_type %in% cfg$ref_keep_marker)
+  message("  immune-via-reference: ", sum(azi_immune), " Azimuth-immune cluster(s) -> Monaco fine")
+}
+
 # ---- Flag the conflicts to resolve ------------------------------------------
 singler_main <- imm_tab[cl_levels, "singler_main"]
 concordant   <- as.logical(imm_tab[cl_levels, "concordant"])
@@ -87,16 +105,25 @@ ctype[imm_conflict & marker_type %in% c("DC", "pDC") & tish(singler_main)] <- "D
 ctype[imm_conflict & marker_type == "NK_cell"        & tish(singler_main)] <- "NK_CD8"
 ctype[imm_conflict & ctype == "none"]                                       <- "immune_other"
 ctype[kid_conflict]                                                         <- "Epi_Immune"
+if (isTRUE(cfg$immune_via_reference)) ctype <- rep("none", length(cl_levels))  # gating is the resolution
 
 # ---- Lineage-gate evidence: per-cluster percent-positive (counts) ------------
 ctn <- GetAssayData(obj, assay = cfg$assay, layer = "counts")
 g   <- lapply(lineage_gate_markers(), intersect, rownames(obj))
-pctpos <- function(genes) { if (!length(genes)) return(rep(NA_real_, length(cl_levels)))
+pctpos <- function(genes) { genes <- intersect(genes, rownames(ctn))
+  if (!length(genes)) return(rep(NA_real_, length(cl_levels)))
   as.numeric(tapply(Matrix::colSums(ctn[genes, , drop = FALSE]) > 0, clus, mean)[cl_levels]) }
-cd3 <- pctpos(g$T_lineage); ptprc <- pctpos(g$PanImmune); epi <- pctpos(g$Epithelial)
+cd3 <- pctpos(g$T_lineage); ptprc <- pctpos(g$PanImmune)
 lamp3 <- pctpos(intersect("LAMP3", rownames(obj)))
 foxp3 <- pctpos(intersect("FOXP3", rownames(obj)))
-nkpos <- pctpos(intersect(c("NCAM1", "KLRD1", "KLRF1"), rownames(obj)))
+nkpos <- pctpos(cfg$nk_gate_markers)
+# Epithelial signal: RNA epithelial markers if on-panel; else fall back to the PanCK
+# IF channel (per-cluster mean, scaled to [0,1] across clusters) — CosMx lacks
+# FXYD2/CDH16. CD45 IF is carried as the orthogonal pan-immune (PTPRC) validator.
+ifq <- function(col) { if (is.na(col) || !(col %in% colnames(obj[[]]))) return(rep(NA_real_, length(cl_levels)))
+  v <- as.numeric(tapply(obj[[col]][, 1], clus, mean)[cl_levels]); v / max(v, na.rm = TRUE) }
+epi <- pctpos(g$Epithelial); if (all(is.na(epi))) epi <- ifq(cfg$if_epithelial_col)
+cd45_if <- ifq(cfg$if_immune_col); panck_if <- ifq(cfg$if_epithelial_col)
 HI <- cfg$gate_pos_high; NEG <- cfg$gate_pos_neg
 f2 <- function(x) ifelse(is.na(x), "NA", sprintf("%.2f", x))
 
@@ -156,6 +183,7 @@ ann <- data.frame(
   conflict_type = ctype,
   cd3_pct = round(cd3, 3), ptprc_pct = round(ptprc, 3), lamp3_pct = round(lamp3, 3),
   foxp3_pct = round(foxp3, 3), nk_pct = round(nkpos, 3), epi_pct = round(epi, 3),
+  cd45_if = round(cd45_if, 3), panck_if = round(panck_if, 3),
   protein_CD3_mean = round(prot_cd3, 3), protein_concordant = prot_conc,
   resolution_basis = basis, resolved = resolved, flag_review = flag_review,
   final_ref_cell_type = final, row.names = NULL)

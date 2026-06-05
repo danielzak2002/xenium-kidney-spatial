@@ -56,7 +56,15 @@ if (cfg$platform == "cosmx") {
 }
 message("  loaded ", ncol(obj), " cells; assay ", assay, " (", nrow(obj), " features)")
 
-# Optional validation subsample (applies to any platform)
+# Optional validation subsetting (applies to any platform).
+# XENIUM_SAMPLES: comma-separated sample IDs (cfg$sample_col) to keep.
+# XENIUM_SUBSAMPLE: random N cells to keep.
+samp_keep <- Sys.getenv("XENIUM_SAMPLES", "")
+if (nzchar(samp_keep) && cfg$multi_sample) {
+  want <- trimws(strsplit(samp_keep, ",")[[1]]); sv <- obj[[cfg$sample_col]][, 1]
+  obj <- subset(obj, cells = colnames(obj)[sv %in% want])
+  message("  >> SUBSET to samples {", paste(want, collapse = ", "), "}: ", ncol(obj), " cells")
+}
 ss <- as.integer(Sys.getenv("XENIUM_SUBSAMPLE", "0"))
 if (ss > 0 && ss < ncol(obj)) {
   set.seed(cfg$seed); obj <- subset(obj, cells = sample(colnames(obj), ss))

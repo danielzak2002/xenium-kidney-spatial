@@ -40,6 +40,13 @@ cd8   <- cl[setdiff(order(cyto, decreasing = TRUE), which(cl == tgt))[1]]
 gi <- function(k) if (k == "global") seq_along(clus) else which(clus == k)
 message("  target=c", tgt, " (LAMP3 mean=", round(max(lamp3_mean), 2),
         ")  Treg-ref=c", treg, "  CD8-ref=c", cd8)
+# No-op when no cluster is genuinely LAMP3-high (no mregDC population to adjudicate,
+# e.g. CosMx cLN). Avoids forcing the decision tree on an unrelated cluster.
+if (lamp3_mean[tgt] < 3 * mean(lamp3_mean)) {
+  message("  max LAMP3 (", round(lamp3_mean[tgt], 2),
+          ") not above background -> no mregDC cluster; 06 is a no-op.")
+  write_session_info(cfg, "06"); message("== 06 done (no-op) =="); quit(save = "no")
+}
 
 # ---- Assemble the evidence table (target / Treg / CD8 / global) --------------
 genes <- list(LAMP3="LAMP3", CCR7="CCR7", CD83="CD83", CD3="c(CD3D,CD3E,CD3G,TRAC)",
@@ -94,6 +101,9 @@ ev_str <- sprintf(paste0("FOXP3 pct=%.2f vs Treg-ref %.2f (NOT Treg); LAMP3 mean
 if (not_treg && dc_high && t_present && rho < 0 && !seg_enriched) {
   label <- "mregDC/CCR7+ T (mixed)"; flag <- TRUE
   basis <- paste0("ADJUDICATED mixed (mregDC + CCR7+ naive/CM T; sub-cluster to resolve): ", ev_str)
+} else if (dc_high && !t_present) {
+  label <- "mregDC"; flag <- FALSE
+  basis <- paste0("ADJUDICATED clean mregDC (LAMP3-high, CD3-low): ", ev_str)
 } else if (not_treg && naive_high && cyto_low && !dc_high) {
   label <- "Naive/CM T"; flag <- FALSE
   basis <- paste0("ADJUDICATED naive/central-memory T: ", ev_str)

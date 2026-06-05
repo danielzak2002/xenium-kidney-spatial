@@ -45,14 +45,23 @@ stopifnot(DefaultAssay(obj) == cfg$assay)
 
 obj <- RunPCA(obj, npcs = cfg$npcs_compute, verbose = FALSE,
               features = VariableFeatures(obj))
-obj <- RunUMAP(obj, dims = cfg$dims, seed.use = cfg$seed, verbose = FALSE)
-obj <- FindNeighbors(obj, dims = cfg$dims, verbose = FALSE)
+
+# Multi-sample (CosMx): Harmony-integrate by the TECHNICAL batch (slide) so clusters
+# are not patient-driven. Condition (class) is metadata only — never a covariate.
+red <- cfg$reduction
+if (cfg$multi_sample) {
+  obj <- harmony::RunHarmony(obj, group.by.vars = cfg$sample_col, reduction.use = "pca",
+                             dims.use = cfg$dims, reduction.save = "harmony", verbose = FALSE)
+  message("  Harmony-integrated by ", cfg$sample_col, " -> '", red, "' reduction")
+}
+obj <- RunUMAP(obj, dims = cfg$dims, reduction = red, seed.use = cfg$seed, verbose = FALSE)
+obj <- FindNeighbors(obj, dims = cfg$dims, reduction = red, verbose = FALSE)
 
 # ---- Cluster (native Leiden) ------------------------------------------------
 graph_name <- paste0(DefaultAssay(obj), "_snn")
 clusters <- run_leiden(obj, graph_name, cfg$cluster_resolution, cfg$seed,
                        cfg$leiden_objective, cfg$min_cluster_size,
-                       emb = Embeddings(obj, "pca")[, cfg$dims])
+                       emb = Embeddings(obj, red)[, cfg$dims])
 obj$seurat_clusters <- clusters
 Idents(obj) <- clusters
 message("  Leiden (res=", cfg$cluster_resolution, ") -> ",
