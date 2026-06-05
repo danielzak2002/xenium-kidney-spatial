@@ -1,9 +1,12 @@
 #!/usr/bin/env Rscript
-# 08_benchmark.R — score OUR engine's labels against the authors' independent
-# annotation (CosMx cLN: annot$clust, 35 types). Both label vocabularies are
-# mapped to a COMMON COARSE LINEAGE set for the agreement metric; the fine
-# cross-tab is reported separately (no raw-string scoring). Runs only when an
-# author_celltype benchmark column is present.
+# 08_benchmark.R — score the engine against the authors' independent annotation
+# (CosMx cLN: annot$clust, 35 types). Benchmarks THREE labelings vs the authors:
+#   (a) cluster structure   — clusters -> majority author type (backbone validation)
+#   (b) marker + lineage-gate label (obj$cell_type; 02 + 06/07) — panel-intrinsic, PRIMARY
+#   (c) reference-transfer label (obj$final_ref_cell_type; 04 SingleR/Monaco + 05 Azimuth)
+# The (b) vs (c) contrast is the finding. Also: immune per-type recall (Phase B), and an
+# IF cross-check that corrects reference "Immune" calls which are CD45-neg + PanCK-pos
+# (= real epithelium) — orthogonal evidence that clustering is sound, transfer is weak.
 #
 #   XENIUM_DATASET=cln_cosmx Rscript R/08_benchmark.R   (run after 07)
 
@@ -11,70 +14,99 @@ suppressPackageStartupMessages({ library(Seurat); library(ggplot2) })
 source(file.path(Sys.getenv("XENIUM_ROOT", unset = getwd()), "R", "config.R"))
 cfg <- ensure_dirs(get_config())
 message("== 08_benchmark :: ", cfg$label, " ==")
-
-obj <- readRDS(cfg$obj_05)                       # carries 04/05/06/07 final labels
+obj <- readRDS(cfg$obj_05)
 if (!"author_celltype" %in% colnames(obj[[]])) { message("  no author_celltype; skip"); quit(save="no") }
-
-# ---- Common coarse lineage map (handles BOTH vocabularies via keywords) -----
-coarse <- function(x) {
-  x <- as.character(x); o <- rep("Other", length(x)); m <- function(p) grepl(p, x, ignore.case = TRUE)
-  o[m("tubule|PCT|proximal|distal|connecting|intercalat|principal|thick.?ascending|loop.of.henle|\\bTAL\\b|thin.limb|parietal|pelvic|urotheli|macula|papillary|collecting|\\bDCT\\b|\\bCNT\\b|epithelial")] <- "Epithelial"
-  o[m("podocyte")]                                                              <- "Podocyte"
-  o[m("endotheli|vasa.recta|capillary|glomerular.endo|lymphatic")]              <- "Endothelial"
-  o[m("fibroblast|myofibroblast|mesangial|pericyte|smooth.?muscle|stroma|mural|renin")] <- "Stroma"
-  o[m("macrophage|monocyte|dendritic|\\bDC\\b|mregdc|\\bpdc\\b|\\bmdc\\b|myeloid|neutrophil|mast|basophil|granulocyte|phagocyte")] <- "Myeloid"
-  o[m("\\bB\\b|B.?cell|naive B|memory B|plasmabl|plasma|\\bMZB")]                <- "B_Plasma"
-  o[m("\\bNK\\b|natural killer")]                                               <- "NK"
-  o[m("\\bT\\b|T.?cell|T CD|\\bCD4\\b|\\bCD8\\b|treg|regulatory|\\bMAIT\\b|gd T|Th1|Th2|Th17|helper|CCR7\\+ T")] <- "T"
-  o
-}
 md <- obj[[]]
-oc <- coarse(md$final_ref_cell_type); ac <- coarse(md$author_celltype)
-keep <- oc != "Other" & ac != "Other"
-agree <- mean(oc[keep] == ac[keep])
 
-# CLUSTER-level concordance: assign each Leiden cluster its majority author coarse
-# type and measure agreement. This isolates clustering quality (does the engine
-# RECOVER the populations) from reference-label transfer (does labelling them work).
+# ---- coarse lineage map (both vocabularies) ---------------------------------
+coarse <- function(x) { x <- as.character(x); o <- rep("Other", length(x)); m <- function(p) grepl(p, x, ignore.case = TRUE)
+  o[m("tubule|PCT|proximal|distal|connecting|intercalat|principal|ascending|loop.of.henle|thin.limb|parietal|pelvic|urotheli|macula|papillary|collecting|epithelial")] <- "Epithelial"
+  o[m("podocyte")] <- "Podocyte"
+  o[m("endotheli|vasa.recta|capillary|lymphatic")] <- "Endothelial"
+  o[m("fibroblast|myofibroblast|mesangial|pericyte|smooth|stroma|mural|renin")] <- "Stroma"
+  o[m("macrophage|monocyte|dendritic|mregdc|myeloid|neutrophil|mast|basophil|phagocyte")] <- "Myeloid"
+  o[m("B.?cell|naive B|memory B|plasmabl|plasma|MZB")] <- "B_Plasma"
+  o[m("natural killer|NK cell|^NK$")] <- "NK"
+  o[m("T cell|T CD|CD4|CD8|treg|regulatory|MAIT|helper|CCR7")] <- "T"
+  o }
+# finer immune categories for per-type recall (Phase B)
+immcat <- function(x) { x <- as.character(x); o <- rep(NA_character_, length(x)); m <- function(p) grepl(p, x, ignore.case = TRUE)
+  o[m("plasmabl|plasma|TNFRSF17|MZB")] <- "Plasma"
+  o[m("B.?cell|naive B|memory B|exhausted B")] <- "B"
+  o[m("CD8")] <- "T_CD8"; o[m("CD4|treg|regulatory|helper")] <- "T_CD4"
+  o[m("natural killer|NK cell|^NK$")] <- "NK"
+  o[m("plasmacytoid|pDC")] <- "pDC"
+  o[m("dendritic|mDC|mregdc|FSCN")] <- "DC"
+  o[m("macrophage|monocyte|myeloid|phagocyte|neutrophil")] <- "Myeloid"
+  o[m("mast|basophil")] <- "Mast"
+  o }
+
+ac <- coarse(md$author_celltype)
+bc <- coarse(md$cell_type)              # (b) marker + lineage-gate
+cc <- coarse(md$final_ref_cell_type)    # (c) reference transfer
+kp <- ac != "Other"
+ag <- function(x) mean(x[kp & x != "Other"] == ac[kp & x != "Other"])
+
+# ---- (a) cluster-level concordance + purity ---------------------------------
 cl  <- md$seurat_clusters
-maj <- tapply(ac, cl, function(v) { v <- v[v != "Other"]
-  if (!length(v)) NA_character_ else names(sort(table(v), decreasing = TRUE))[1] })
-clpred  <- maj[as.character(cl)]
-clagree <- mean(clpred[keep] == ac[keep], na.rm = TRUE)
+maj <- tapply(ac, cl, function(v) { v <- v[v != "Other"]; if (!length(v)) NA_character_ else names(sort(table(v), decreasing = TRUE))[1] })
+clagree <- mean(maj[as.character(cl)][kp] == ac[kp], na.rm = TRUE)
 purity  <- mean(tapply(seq_along(cl), cl, function(i) { t <- table(ac[i]); max(t)/sum(t) }))
-message(sprintf("  CLUSTER-level concordance: %.1f%% (purity %.1f%%) — clustering recovers populations",
-                100*clagree, 100*purity))
-message(sprintf("  reference-LABEL agreement:  %.1f%% over %d cells (%.1f%% mapped)",
-                100*agree, sum(keep), 100*mean(keep)))
+
+# ---- (3) IF cross-check: reference "Immune" that is CD45-neg + PanCK-pos -----
+# Per-cluster IF (scaled 0..1 across clusters). Correct clusters whose reference
+# label is immune but IF says epithelium (low CD45, high PanCK).
+ccc <- cc                                # corrected reference label (coarse)
+n_corr <- 0
+if (!is.na(cfg$if_immune_col) && cfg$if_immune_col %in% colnames(md)) {
+  cd45 <- tapply(md[[cfg$if_immune_col]], cl, mean); cd45 <- cd45 / max(cd45)
+  pck  <- tapply(md[[cfg$if_epithelial_col]], cl, mean); pck <- pck / max(pck)
+  ref_imm <- tapply(cc == "Myeloid" | cc == "T" | cc == "B_Plasma" | cc == "NK", cl, mean) > 0.5
+  bad <- names(which(ref_imm & cd45 < 0.25 & pck > 0.40))   # immune label, but epithelial IF
+  if (length(bad)) { fix <- as.character(cl) %in% bad; ccc[fix] <- "Epithelial"; n_corr <- sum(fix) }
+  message(sprintf("  IF cross-check: %d cell(s) in %d cluster(s) reference-called Immune but CD45-neg/PanCK-pos -> corrected to Epithelial",
+                  n_corr, length(bad)))
+}
+agc <- mean(ccc[kp & ccc != "Other"] == ac[kp & ccc != "Other"])
+
+message(sprintf("  (a) CLUSTER concordance: %.1f%% (purity %.1f%%)", 100*clagree, 100*purity))
+message(sprintf("  (b) MARKER+gate label : %.1f%%   <-- primary CosMx label", 100*ag(bc)))
+message(sprintf("  (c) REFERENCE transfer: %.1f%%  (IF-corrected %.1f%%)", 100*ag(cc), 100*agc))
+
 write.csv(data.frame(
-  metric = c("cluster_level_concordance", "within_cluster_purity", "reference_label_agreement"),
-  value  = round(c(clagree, purity, agree), 4)),
+  labeling = c("a_cluster_structure","b_marker_lineage_gate","c_reference_transfer","c_reference_IF_corrected","within_cluster_purity"),
+  agreement_vs_author = round(c(clagree, ag(bc), ag(cc), agc, purity), 4)),
   tab_path(cfg, "benchmark_summary.csv"), row.names = FALSE)
 
-lev <- sort(unique(c(oc, ac)))
-cm  <- table(author = factor(ac, lev), ours = factor(oc, lev))
-write.csv(as.data.frame.matrix(cm), tab_path(cfg, "benchmark_coarse_confusion.csv"))
-# per-lineage recall (author -> ours) and our composition
-recall <- diag(cm) / pmax(rowSums(cm), 1)
-summ <- data.frame(lineage = lev, n_author = as.integer(rowSums(cm)),
-                   n_ours = as.integer(colSums(cm)), recall = round(recall, 3))
-write.csv(summ, tab_path(cfg, "benchmark_agreement.csv"), row.names = FALSE)
-message("  overall coarse agreement written; per-lineage recall:")
-print(summ, row.names = FALSE)
+# ---- (2) immune per-type recall (author -> ours), PRIMARY label (b) ---------
+ai <- immcat(md$author_celltype); bi <- immcat(md$cell_type)
+lev <- c("B","Plasma","T_CD4","T_CD8","Myeloid","DC","pDC","Mast","NK")
+rec <- sapply(lev, function(L) { a <- which(ai == L); if (!length(a)) NA else mean(bi[a] == L, na.rm = TRUE) })
+imm <- data.frame(immune_type = lev,
+                  n_author = sapply(lev, function(L) sum(ai == L, na.rm = TRUE)),
+                  n_ours_b = sapply(lev, function(L) sum(bi == L, na.rm = TRUE)),
+                  recall_b = round(rec, 3))
+write.csv(imm, tab_path(cfg, "benchmark_immune_recall.csv"), row.names = FALSE)
+message("  immune per-type recall (primary label b):"); print(imm, row.names = FALSE)
 
-# ---- Fine cross-tab (author 35 vs our fine labels), long form ---------------
-fine <- as.data.frame(table(author = md$author_celltype, ours = md$final_ref_cell_type))
-fine <- fine[fine$Freq > 0, ]; fine <- fine[order(-fine$Freq), ]
-write.csv(fine, tab_path(cfg, "benchmark_fine_crosstab.csv"), row.names = FALSE)
+# ---- coarse confusion (primary b) + fine cross-tab --------------------------
+lv <- sort(unique(c(bc, ac)))
+write.csv(as.data.frame.matrix(table(author = factor(ac, lv), ours_b = factor(bc, lv))),
+          tab_path(cfg, "benchmark_coarse_confusion.csv"))
+fine <- as.data.frame(table(author = md$author_celltype, ours_b = md$cell_type))
+fine <- fine[fine$Freq > 0, ]; write.csv(fine[order(-fine$Freq), ], tab_path(cfg, "benchmark_fine_crosstab.csv"), row.names = FALSE)
 
-# ---- Figure: coarse confusion heatmap (row-normalized recall) ---------------
-pr <- as.data.frame(prop.table(cm, 1)); colnames(pr) <- c("author","ours","frac")
-p <- ggplot(pr, aes(ours, author, fill = frac)) + geom_tile() +
-  geom_text(aes(label = ifelse(frac > 0.04, sprintf("%.2f", frac), "")), size = 3) +
-  scale_fill_viridis_c(name = "row frac") + theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = sprintf("%s — coarse lineage agreement %.0f%% (vs authors' 35 types)",
-                       cfg$label, 100*agree), x = "our coarse lineage", y = "author coarse lineage")
-save_png(p, fig_path(cfg, "benchmark_coarse_confusion.png"), width = 8, height = 6)
+# ---- figure: three-way agreement bar ----------------------------------------
+bars <- data.frame(labeling = factor(c("(a) cluster\nstructure","(b) marker +\nlineage gate","(c) reference\ntransfer","(c) ref, IF-\ncorrected"),
+                     levels = c("(a) cluster\nstructure","(b) marker +\nlineage gate","(c) reference\ntransfer","(c) ref, IF-\ncorrected")),
+                   agreement = c(clagree, ag(bc), ag(cc), agc))
+p <- ggplot(bars, aes(labeling, agreement, fill = labeling)) +
+  geom_col(width = .65, show.legend = FALSE) +
+  geom_text(aes(label = sprintf("%.0f%%", 100*agreement)), vjust = -0.4) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(title = paste0(cfg$label, " — labelings vs authors' 35 types"),
+       subtitle = "clustering is platform-robust; reference-label transfer is the weak link",
+       x = NULL, y = "coarse-lineage agreement") + theme_bw()
+save_png(p, fig_path(cfg, "benchmark_threeway.png"), width = 8, height = 5)
 write_session_info(cfg, "08")
 message("== 08 done ==")
