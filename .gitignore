@@ -4,6 +4,10 @@
 kidney_10x/data/
 kidney_10x_preview/data/
 
+# Danaher et al. 2024 cLN CosMx cohort — entire data/ folder, recursively
+# (the .RData objects AND the authors' analysis files); keep readme.txt tracked.
+Danaher24/data/
+
 # Large binary formats anywhere in the tree (belt-and-suspenders)
 *.ome.tif
 *.tif
@@ -16,6 +20,8 @@ kidney_10x_preview/data/
 *.rds
 *.mtx
 *.mtx.gz
+*.RData
+*.rda
 
 # Large generated objects (regenerate from scripts; document in README)
 outputs/objects/

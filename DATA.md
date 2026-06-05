@@ -64,3 +64,29 @@ Reference-based annotation uses two references, both **outside this repository**
   curl -L -o refs/azimuth_kidney/ref.Rds   "https://zenodo.org/records/10694842/files/ref.Rds?download=1"
   curl -L -o refs/azimuth_kidney/idx.annoy "https://zenodo.org/records/10694842/files/idx.annoy?download=1"
   ```
+
+## Danaher et al. 2024 — childhood-onset lupus nephritis (cLN) CosMx cohort
+A second platform/cohort for cross-platform validation of the annotation engine:
+**NanoString CosMx 1000-plex** spatial transcriptomics of childhood-onset lupus
+nephritis kidney (8 cLN + 2 control), with the authors' processed objects and 35-type
+cell annotations.
+
+- **Source:** Zenodo record **13964258** — https://zenodo.org/records/13964258
+- **License:** Creative Commons Attribution 4.0 (CC BY 4.0). Attribute Danaher et al. 2024
+  and NanoString when presenting derived results.
+- **Reference:** Danaher P, *et al.* "Childhood-onset lupus nephritis is characterized by
+  complex interactions between kidney stroma and infiltrating immune cells", 2024.
+  Code: https://github.com/Nanostring-Biostats/childhood-onset-lupus-nephritis-analyses
+
+The raw `.RData` objects and the authors' analysis files are **not** stored here — the
+entire `Danaher24/data/` folder is git-ignored (only `Danaher24/readme.txt` is tracked).
+Download the Zenodo bundle and extract so the layout is:
+
+```
+Danaher24/
+├── readme.txt
+└── data/                                   <- git-ignored (whole folder)
+    ├── cleaneddata.RData                    # processed objects + annotations
+    ├── data_with_failed_slide.RData
+    └── Childhood onset lupus nephritis analyses/   # authors' R code / outputs
+```
