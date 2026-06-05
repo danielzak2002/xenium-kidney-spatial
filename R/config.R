@@ -98,7 +98,42 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     immune_nbr_frac   = 0.60        # candidate immune-aggregate threshold
   )
   cfg$assay <- "Xenium"
+  # BIG carries 15 'Deprecated Codeword' features that LoadXenium 5.5.0 cannot
+  # map -> load it via the manual h5 path proactively (see load_xenium_lean).
+  cfg$force_manual_load <- identical(dataset, "big")
   cfg
+}
+
+# ---- Lean Xenium loader with Deprecated-Codeword fallback ------------------
+# Builds a Seurat object from cell_feature_matrix.h5 directly: keeps the gene
+# panel as the "Xenium" assay, the 27-plex protein as a SEPARATE "Protein"
+# assay, and DROPS the control / blank / deprecated-codeword feature classes
+# (their per-cell rates are recovered from cells.parquet for QC). No FOV/polygon
+# objects are built — all spatial plotting uses x/y_centroid from meta.data, so
+# the lean path needs only the matrix + centroids. Used proactively for BIG
+# (LoadXenium's slot.map has no 'Deprecated Codeword' entry) and as a fallback.
+build_xenium_from_h5 <- function(cfg) {
+  h5 <- file.path(cfg$data_dir, "cell_feature_matrix.h5")
+  if (!file.exists(h5)) stop("cell_feature_matrix.h5 not found in ", cfg$data_dir)
+  mat <- Read10X_h5(h5)
+  if (!is.list(mat)) mat <- list(`Gene Expression` = mat)
+  if (!"Gene Expression" %in% names(mat))
+    stop("No 'Gene Expression' features in ", h5)
+  obj <- CreateSeuratObject(counts = mat[["Gene Expression"]], assay = cfg$assay)
+  if ("Protein Expression" %in% names(mat))
+    obj[["Protein"]] <- CreateAssayObject(counts = mat[["Protein Expression"]])
+  obj
+}
+
+load_xenium_lean <- function(cfg) {
+  manual <- function(reason) {
+    message("  manual h5 loader (", reason, ")"); build_xenium_from_h5(cfg)
+  }
+  if (isTRUE(cfg$force_manual_load)) return(manual("dataset=big / proactive"))
+  tryCatch(
+    LoadXenium(cfg$data_dir, assay = cfg$assay, cell.centroids = TRUE,
+               molecule.coordinates = FALSE),
+    error = function(e) manual(paste("LoadXenium failed:", conditionMessage(e))))
 }
 
 ensure_dirs <- function(cfg) {

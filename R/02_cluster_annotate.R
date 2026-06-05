@@ -33,9 +33,19 @@ if (cfg$norm_method == "SCT") {
     else VariableFeatures(FindVariableFeatures(obj, nfeatures = cfg$n_variable_features))
   obj <- ScaleData(obj, features = VariableFeatures(obj), verbose = FALSE)
 }
+# Protein (BIG): independent CLR normalization, kept SEPARATE; it never enters
+# PCA/clustering — DefaultAssay stays the gene assay throughout.
+if ("Protein" %in% Assays(obj)) {
+  obj <- NormalizeData(obj, assay = "Protein", normalization.method = "CLR",
+                       margin = 2, verbose = FALSE)
+  message("  CLR-normalized Protein assay (", nrow(obj[["Protein"]]),
+          " features; separate, excluded from PCA/clustering)")
+}
+stopifnot(DefaultAssay(obj) == cfg$assay)
+
 obj <- RunPCA(obj, npcs = cfg$npcs_compute, verbose = FALSE,
               features = VariableFeatures(obj))
-obj <- RunUMAP(obj, dims = cfg$dims, verbose = FALSE)
+obj <- RunUMAP(obj, dims = cfg$dims, seed.use = cfg$seed, verbose = FALSE)
 obj <- FindNeighbors(obj, dims = cfg$dims, verbose = FALSE)
 
 # ---- Cluster (native Leiden) ------------------------------------------------

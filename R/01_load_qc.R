@@ -18,17 +18,12 @@ cfg <- ensure_dirs(get_config())
 set.seed(cfg$seed)
 message("== 01_load_qc :: ", cfg$label, " ==")
 
-# ---- Load (lean: no per-molecule coords, no polygon segmentations) ----------
-# Scale-up note (BIG): LoadXenium 5.5.0 slot.map has no entry for the 15
-# 'Deprecated Codeword' features in the RCC panel and may error; if so, load the
-# matrix manually and drop that feature class before CreateSeuratObject.
-obj <- tryCatch(
-  LoadXenium(cfg$data_dir, assay = cfg$assay,
-             cell.centroids = TRUE, molecule.coordinates = FALSE),
-  error = function(e) stop("LoadXenium failed for ", cfg$label, ": ",
-                           conditionMessage(e),
-                           "\n(If dataset='big', see the Deprecated Codeword note above.)"))
+# ---- Load (lean: matrix + centroids only; no molecules/polygons) ------------
+# BIG uses the manual h5 path (LoadXenium 5.5.0 cannot map BIG's 15 Deprecated
+# Codewords); preview uses LoadXenium with a manual fallback. See config.R.
+obj <- load_xenium_lean(cfg)
 message("  loaded ", ncol(obj), " cells; assays: ", paste(Assays(obj), collapse = ", "))
+for (a in Assays(obj)) message("    ", a, ": ", nrow(obj[[a]]), " features")
 
 # ---- Authoritative per-cell QC metrics from cells.parquet (lean) ------------
 cells <- as.data.frame(arrow::read_parquet(
