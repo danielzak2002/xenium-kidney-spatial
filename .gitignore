@@ -57,3 +57,6 @@ renv/python/
 .env
 *.key
 *.pem
+
+# Cached annotation references (downloaded; see DATA.md)
+refs/

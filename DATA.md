@@ -49,8 +49,18 @@ control, copy it out of the (git-ignored) `data/` folder into `outputs/tables/` 
 commit that copy.
 
 ## Reference data (cell-type annotation)
-Reference-based annotation (`R/04_reference_annotation.R`) uses the **Monaco immune**
-reference from the Bioconductor `celldex` package. It is downloaded and cached
-automatically on first use (`celldex::fetchReference("monaco_immune", ...)`) into the
-user cache directory — **outside this repository**, so nothing reference-related is
-committed. No manual download is required; just install the packages via `setup_R.R`.
+Reference-based annotation uses two references, both **outside this repository** (the
+`refs/` folder and the celldex cache are git-ignored):
+
+- **Immune layer** (`R/04_reference_annotation.R`) — the **Monaco immune** reference from
+  the Bioconductor `celldex` package, fetched + cached automatically on first use
+  (`celldex::fetchReference("monaco_immune", ...)`). No manual download.
+- **Kidney/epithelial layer** (`R/05_kidney_reference.R`) — the **KPMP/HuBMAP Azimuth
+  human-kidney** reference (Zenodo record 10694842, CC BY 4.0). Download both files into
+  `refs/azimuth_kidney/` once:
+
+  ```bash
+  mkdir -p refs/azimuth_kidney
+  curl -L -o refs/azimuth_kidney/ref.Rds   "https://zenodo.org/records/10694842/files/ref.Rds?download=1"
+  curl -L -o refs/azimuth_kidney/idx.annoy "https://zenodo.org/records/10694842/files/idx.annoy?download=1"
+  ```

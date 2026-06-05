@@ -62,6 +62,7 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     obj_01       = file.path(out, "objects", paste0(ds$label, "_01_qc.rds")),
     obj_02       = file.path(out, "objects", paste0(ds$label, "_02_annotated.rds")),
     obj_04       = file.path(out, "objects", paste0(ds$label, "_04_refann.rds")),
+    obj_05       = file.path(out, "objects", paste0(ds$label, "_05_refann_kidney.rds")),
 
     # reproducibility
     seed         = 1234L,
@@ -102,6 +103,12 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
     # Immune layer: celldex Monaco immune reference (blood-derived, fine subsets).
     ref_monaco_version = "2024-02-26",
     ref_consensus_min  = 0.50,  # min within-cluster agreement to adopt a SingleR label
+    # Kidney/epithelial layer: KPMP/HuBMAP Azimuth human-kidney reference (Zenodo
+    # 10694842, CC BY 4.0), cached git-ignored. The ref.Rds ships only the supervised
+    # PCA (no gene matrix), so this layer uses Azimuth's own mapping, not SingleR.
+    ref_kidney_dir     = file.path(XENIUM_ROOT, "refs", "azimuth_kidney"),  # ref.Rds + idx.annoy
+    ref_kidney_level   = "annotation.l1",   # 16 robust nephron/stroma/endo classes
+    ref_kidney_score_min = 0.50,            # per-cell prediction-score floor (low-conf flag)
     # Marker types kept as-is (reference can't classify these well): tumour,
     # LowQ, and Mast (no mast class in the blood-derived Monaco reference).
     ref_keep_marker    = c("Tumor_RCC", "LowQ_MTRNR2L", "Mast"),

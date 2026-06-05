@@ -33,6 +33,11 @@ BiocManager::install(c("SingleR", "celldex"), update = FALSE, ask = FALSE)
 # The Monaco immune reference is fetched + cached on first use by 04_reference_
 # annotation.R via celldex::fetchReference() (cached in the user dir, not the repo).
 
+# Kidney/epithelial layer (05_kidney_reference.R) uses Azimuth's mapping onto the
+# KPMP human-kidney reference. The kidney ref.Rds + idx.annoy must be downloaded
+# separately into refs/azimuth_kidney/ (see DATA.md).
+remotes::install_github("satijalab/azimuth", upgrade = "never")
+
 cat("
 Installed. Next steps for the RStudio MCP:
 

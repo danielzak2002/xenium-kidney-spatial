@@ -82,6 +82,61 @@ excluded from clustering — available for orthogonal validation of these RNA-de
 (e.g. CD20 / CD3E / CD68 / CD138 protein) without confounding the gene-based clustering.</li>"
   else "")
 
+# ---- Reference-annotation section (built only if 04/05 outputs exist) -------
+rd_if <- function(name) { p <- tab_path(cfg, name)
+  if (file.exists(p)) read.csv(p, check.names = FALSE) else NULL }
+imm <- rd_if("cluster_reference_labels.csv")    # 04 immune layer
+fin <- rd_if("final_reference_labels.csv")       # 05 kidney + final
+finc <- rd_if("final_celltype_counts.csv")
+have_ref <- !is.null(imm) || !is.null(fin)
+ref_section <- ""
+ref_li <- ""
+if (have_ref) {
+  imm_tab <- if (!is.null(imm)) df_to_html(imm[, intersect(
+    c("cluster","marker_type","singler_main","singler_fine","fine_agreement",
+      "concordant","adopted","ref_cell_type"), names(imm))]) else ""
+  imm_conflict <- if (!is.null(imm)) imm$cluster[imm$marker_type %in%
+    c("T_cell","NK_cell","B_cell","Plasma","Myeloid","DC","pDC","Neutrophil") &
+    !imm$concordant] else integer(0)
+  fin_tab <- if (!is.null(fin)) df_to_html(fin[, intersect(
+    c("cluster","marker_type","immune_label","kidney_l1","kidney_agreement",
+      "adopted_kidney","kidney_immune_conflict","final_ref_cell_type"), names(fin))]) else ""
+  kid_conflict <- if (!is.null(fin) && "kidney_immune_conflict" %in% names(fin))
+    fin$cluster[fin$kidney_immune_conflict] else integer(0)
+  fin_comp <- if (!is.null(finc)) df_to_html(finc[order(-finc$Freq), ]) else ""
+
+  ref_section <- paste0(
+    "<h2>Reference annotation (layered)</h2>",
+    "<p>Two reference layers are applied on top of the Leiden clusters and reconciled by
+per-cluster majority consensus: an <b>immune layer</b> (SingleR vs the celldex Monaco
+immune reference) and a <b>kidney/epithelial layer</b> (Azimuth mapping onto the
+KPMP/HuBMAP human-kidney reference). Immune clusters take the Monaco subtype when
+lineage-concordant; non-immune clusters take the kidney nephron/stroma class; tumour,
+LowQ and Mast keep their marker labels. Labels are provisional pending review.</p>",
+    "<h3>Immune layer — SingleR / Monaco</h3>", imm_tab,
+    if (length(imm_conflict))
+      paste0("<div class='note'>Non-concordant immune clusters (kept marker, flagged for
+review): <b>", paste(imm_conflict, collapse = ", "), "</b>.</div>") else "",
+    "<div class='grid'>",
+    fig("umap_reference_celltypes.png", "Immune-layer reference cell types (UMAP)."),
+    fig("marker_vs_singler_heatmap.png", "Marker-based type vs SingleR main label (immune cells)."),
+    "</div>",
+    "<h3>Kidney layer + final labels — Azimuth / KPMP</h3>", fin_tab,
+    if (length(kid_conflict))
+      paste0("<div class='note'>Non-immune clusters that Azimuth confidently calls
+&quot;Immune&quot; (kept marker label, flagged for review): <b>",
+             paste(kid_conflict, collapse = ", "), "</b>.</div>") else "",
+    "<h3>Final cell-type composition</h3>", fin_comp,
+    "<div class='grid'>",
+    fig("umap_final_celltypes.png", "Final layered cell types (immune + kidney), UMAP."),
+    fig("spatial_final_celltypes.png", "Final layered cell types in situ."),
+    "</div>")
+  ref_li <- "<li><b>Reference annotation refines the provisional labels.</b> A SingleR/Monaco
+immune layer and an Azimuth/KPMP kidney layer are reconciled per cluster; genuine
+cross-method conflicts are flagged rather than silently resolved (see the reference
+section). These are the labels to review.</li>"
+}
+
 # ---- assemble HTML ----------------------------------------------------------
 css <- "
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
@@ -163,11 +218,14 @@ fig("spatial_bcell_signal.png", "B/plasma signal (mean of MS4A1 / CD79A / MZB1) 
 fig("spatial_immune_aggregates.png", "Immune-neighbourhood fraction (k=20); high-fraction cells flag candidate immune aggregates / TLS."),
 "</div>",
 
+ref_section,
+
 "<h2>Conclusions &amp; observations</h2>",
 "<div class='key'><b>The loop is validated.</b> QC reproduces the vendor metrics exactly
 (median ", esc(qc$median_counts[1]), " transcripts / ", esc(qc$median_genes[1]),
 " genes per cell), and clustering is biologically coherent on the first pass.</div>",
 "<ul>",
+ref_li,
 "<li><b>Biology tracks the known sample.</b> This ", esc(cfg$tissue_desc), " recovers
 coherent compartments, named here by each cluster's own top markers: ", comp_txt, ".
 Immune lineages account for ~", esc(immune_pct), "% of provisional labels — consistent with
