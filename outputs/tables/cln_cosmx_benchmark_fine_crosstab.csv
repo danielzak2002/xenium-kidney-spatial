@@ -1,0 +1,288 @@
+"author","ours_b","Freq"
+"PCT","Tumor_RCC",88159
+"PCT","T_cell",58615
+"Connecting.tubule","Distal_tubule",25878
+"PCT","pDC",25718
+"Epithelial.progenitor.cell","Loop_of_Henle_TAL",25082
+"Fibroblast","Stroma_mural",15532
+"Peritubular.capillary.endothelium.1","Endothelial",15319
+"Podocyte","Tumor_RCC",13889
+"PCT","Loop_of_Henle_TAL",13794
+"Glomerular.endothelium","Endothelial",13222
+"Myofibroblast","Stroma_mural",12412
+"Thick.ascending.limb.of.Loop.of.Henle","Loop_of_Henle_TAL",12015
+"Epithelial.progenitor.cell","T_cell",11192
+"Ascending.vasa.recta.endothelium","Endothelial",10827
+"Parietal.epithelium","Tumor_RCC",9277
+"Type.A.intercalated.cell","Distal_tubule",7903
+"Vascular.pericyte","Stroma_mural",7631
+"Epithelial.progenitor.cell","Distal_tubule",7441
+"Descending.vasa.recta.endothelium","Endothelial",7241
+"PCT","Plasma",6625
+"Parietal.epithelium","Stroma_mural",6535
+"macrophage","Myeloid",6497
+"Connecting.tubule","Loop_of_Henle_TAL",5764
+"Epithelial.progenitor.cell","Tumor_RCC",5630
+"Principal.cell","Distal_tubule",5234
+"PCT","Endothelial",4558
+"PCT","Stroma_mural",4097
+"Parietal.epithelium","T_cell",4091
+"Epithelial.progenitor.cell","pDC",4058
+"Mesangial.cell","Myeloid",3792
+"Descending.vasa.recta.endothelium","Myeloid",3531
+"Ascending.vasa.recta.endothelium","Myeloid",3310
+"Type.B.intercalated.cell","Distal_tubule",3071
+"PCT","Distal_tubule",3002
+"PCT","Myeloid",2370
+"Ascending.vasa.recta.endothelium","T_cell",2211
+"Peritubular.capillary.endothelium.2","Tumor_RCC",2157
+"Ascending.vasa.recta.endothelium","Tumor_RCC",2110
+"Fibroblast","Myeloid",2107
+"Peritubular.capillary.endothelium.1","Myeloid",2038
+"Ascending.vasa.recta.endothelium","Stroma_mural",1986
+"Descending.vasa.recta.endothelium","T_cell",1973
+"Myofibroblast","T_cell",1835
+"macrophage","Stroma_mural",1814
+"Mesangial.cell","Endothelial",1808
+"Peritubular.capillary.endothelium.2","Endothelial",1636
+"Glomerular.endothelium","Myeloid",1635
+"Descending.vasa.recta.endothelium","Stroma_mural",1569
+"Myofibroblast","Tumor_RCC",1569
+"Peritubular.capillary.endothelium.1","Tumor_RCC",1550
+"Podocyte","T_cell",1516
+"plasmablast","Myeloid",1447
+"Descending.vasa.recta.endothelium","Tumor_RCC",1421
+"Myofibroblast","Myeloid",1406
+"Parietal.epithelium","Myeloid",1355
+"Mesangial.cell","Stroma_mural",1340
+"Peritubular.capillary.endothelium.2","T_cell",1275
+"Podocyte","Endothelial",1238
+"Parietal.epithelium","Loop_of_Henle_TAL",1238
+"Pelvic.epithelium","T_cell",1222
+"Fibroblast","T_cell",1173
+"Myofibroblast","Endothelial",1153
+"Connecting.tubule","T_cell",1140
+"Fibroblast","Tumor_RCC",1067
+"Pelvic.epithelium","Loop_of_Henle_TAL",1016
+"Fibroblast","Loop_of_Henle_TAL",1014
+"Parietal.epithelium","Distal_tubule",1007
+"Parietal.epithelium","Endothelial",983
+"Ascending.vasa.recta.endothelium","Loop_of_Henle_TAL",906
+"Type.A.intercalated.cell","Loop_of_Henle_TAL",906
+"Podocyte","Myeloid",792
+"Epithelial.progenitor.cell","Stroma_mural",779
+"Epithelial.progenitor.cell","Plasma",777
+"Descending.vasa.recta.endothelium","Loop_of_Henle_TAL",773
+"Peritubular.capillary.endothelium.2","Loop_of_Henle_TAL",772
+"Glomerular.endothelium","Tumor_RCC",756
+"B-cell","Myeloid",729
+"Myofibroblast","Loop_of_Henle_TAL",716
+"Parietal.epithelium","pDC",656
+"Peritubular.capillary.endothelium.1","T_cell",625
+"Connecting.tubule","pDC",609
+"Principal.cell","Loop_of_Henle_TAL",592
+"Ascending.vasa.recta.endothelium","pDC",580
+"Peritubular.capillary.endothelium.1","Stroma_mural",566
+"mDC","Myeloid",527
+"Fibroblast","Endothelial",507
+"Podocyte","Stroma_mural",477
+"macrophage","Loop_of_Henle_TAL",466
+"monocyte","Myeloid",464
+"Descending.vasa.recta.endothelium","pDC",426
+"Epithelial.progenitor.cell","Endothelial",421
+"Treg","Loop_of_Henle_TAL",420
+"Epithelial.progenitor.cell","Myeloid",419
+"macrophage","Tumor_RCC",410
+"Type.A.intercalated.cell","T_cell",398
+"Peritubular.capillary.endothelium.1","Loop_of_Henle_TAL",354
+"macrophage","T_cell",353
+"Glomerular.endothelium","T_cell",350
+"Myofibroblast","pDC",346
+"Principal.cell","T_cell",337
+"Thick.ascending.limb.of.Loop.of.Henle","Distal_tubule",326
+"Glomerular.endothelium","Loop_of_Henle_TAL",314
+"Type.B.intercalated.cell","Loop_of_Henle_TAL",309
+"Connecting.tubule","Tumor_RCC",297
+"Thick.ascending.limb.of.Loop.of.Henle","T_cell",295
+"Peritubular.capillary.endothelium.2","Myeloid",278
+"Treg","Plasma",253
+"monocyte","Tumor_RCC",253
+"Treg","pDC",247
+"Podocyte","Loop_of_Henle_TAL",244
+"B-cell","Loop_of_Henle_TAL",241
+"Peritubular.capillary.endothelium.2","pDC",239
+"Podocyte","pDC",239
+"Peritubular.capillary.endothelium.2","Stroma_mural",208
+"Pelvic.epithelium","pDC",199
+"Peritubular.capillary.endothelium.1","pDC",189
+"Fibroblast","pDC",167
+"Connecting.tubule","Stroma_mural",167
+"Treg","T_cell",167
+"Thick.ascending.limb.of.Loop.of.Henle","pDC",144
+"Pelvic.epithelium","Distal_tubule",142
+"plasmablast","Loop_of_Henle_TAL",139
+"T CD8 memory","Myeloid",138
+"Vascular.pericyte","Endothelial",133
+"Ascending.vasa.recta.endothelium","Distal_tubule",131
+"Descending.vasa.recta.endothelium","Distal_tubule",129
+"Pelvic.epithelium","Tumor_RCC",127
+"Mesangial.cell","Tumor_RCC",126
+"NK","Myeloid",124
+"Type.B.intercalated.cell","T_cell",121
+"Ascending.vasa.recta.endothelium","Plasma",114
+"neutrophil","Myeloid",112
+"monocyte","T_cell",111
+"Myofibroblast","Distal_tubule",108
+"Treg","Myeloid",104
+"mast","Loop_of_Henle_TAL",103
+"T CD8 memory","pDC",97
+"Principal.cell","Tumor_RCC",97
+"Connecting.tubule","Myeloid",96
+"T CD8 memory","Plasma",96
+"Mesangial.cell","T_cell",96
+"Peritubular.capillary.endothelium.2","Distal_tubule",90
+"Type.A.intercalated.cell","pDC",90
+"Connecting.tubule","Endothelial",89
+"macrophage","pDC",88
+"Descending.vasa.recta.endothelium","Plasma",86
+"Vascular.pericyte","T_cell",86
+"Glomerular.endothelium","pDC",83
+"neutrophil","T_cell",83
+"B-cell","T_cell",81
+"NK","T_cell",80
+"Type.A.intercalated.cell","Tumor_RCC",78
+"B-cell","Tumor_RCC",77
+"mDC","Tumor_RCC",76
+"mDC","Stroma_mural",75
+"T CD8 memory","Loop_of_Henle_TAL",72
+"Treg","Tumor_RCC",68
+"Glomerular.endothelium","Stroma_mural",66
+"Pelvic.epithelium","Myeloid",64
+"plasmablast","T_cell",62
+"Peritubular.capillary.endothelium.1","Distal_tubule",61
+"Thick.ascending.limb.of.Loop.of.Henle","Tumor_RCC",60
+"Fibroblast","Distal_tubule",57
+"macrophage","Endothelial",56
+"Vascular.pericyte","Tumor_RCC",55
+"Type.A.intercalated.cell","Endothelial",53
+"mast","T_cell",52
+"T CD8 memory","T_cell",51
+"Podocyte","Distal_tubule",48
+"Connecting.tubule","Plasma",47
+"Myofibroblast","Plasma",47
+"B-cell","pDC",43
+"T CD4 memory","Myeloid",42
+"Principal.cell","pDC",42
+"B-cell","Plasma",42
+"Type.B.intercalated.cell","Tumor_RCC",42
+"T CD8 naive","Loop_of_Henle_TAL",39
+"Indistinct.intercalated.cell","Distal_tubule",38
+"Mesangial.cell","Loop_of_Henle_TAL",38
+"plasmablast","Tumor_RCC",38
+"Principal.cell","Endothelial",37
+"B-cell","Endothelial",36
+"Pelvic.epithelium","Plasma",36
+"Pelvic.epithelium","Endothelial",35
+"NK","Loop_of_Henle_TAL",35
+"Vascular.pericyte","Myeloid",35
+"Peritubular.capillary.endothelium.2","Plasma",34
+"Type.A.intercalated.cell","Myeloid",33
+"Type.A.intercalated.cell","Stroma_mural",33
+"T CD8 memory","Tumor_RCC",32
+"mDC","T_cell",30
+"Indistinct.intercalated.cell","Loop_of_Henle_TAL",28
+"monocyte","Loop_of_Henle_TAL",27
+"Vascular.pericyte","pDC",27
+"Thick.ascending.limb.of.Loop.of.Henle","Stroma_mural",24
+"Type.B.intercalated.cell","pDC",23
+"NK","pDC",22
+"Type.B.intercalated.cell","Stroma_mural",22
+"Type.B.intercalated.cell","Endothelial",21
+"Principal.cell","Stroma_mural",21
+"Indistinct.intercalated.cell","T_cell",21
+"macrophage","Distal_tubule",20
+"T CD4 memory","T_cell",20
+"T CD4 naive","Loop_of_Henle_TAL",19
+"Principal.cell","Myeloid",19
+"B-cell","Stroma_mural",19
+"Fibroblast","Plasma",18
+"T CD8 naive","T_cell",18
+"T CD8 naive","Myeloid",17
+"T CD4 naive","Myeloid",16
+"pDC","T_cell",15
+"neutrophil","Tumor_RCC",15
+"Thick.ascending.limb.of.Loop.of.Henle","Myeloid",14
+"neutrophil","Endothelial",13
+"mDC","Loop_of_Henle_TAL",13
+"Pelvic.epithelium","Stroma_mural",13
+"monocyte","Endothelial",12
+"plasmablast","Endothelial",12
+"pDC","Loop_of_Henle_TAL",12
+"Vascular.pericyte","Loop_of_Henle_TAL",12
+"mDC","pDC",12
+"plasmablast","pDC",12
+"plasmablast","Stroma_mural",12
+"pDC","Myeloid",11
+"Mesangial.cell","pDC",11
+"T CD4 naive","T_cell",11
+"macrophage","Plasma",10
+"NK","Plasma",10
+"Thick.ascending.limb.of.Loop.of.Henle","Endothelial",9
+"monocyte","pDC",9
+"Parietal.epithelium","Plasma",9
+"monocyte","Stroma_mural",9
+"Glomerular.endothelium","Distal_tubule",8
+"plasmablast","Distal_tubule",8
+"Vascular.pericyte","Distal_tubule",8
+"Type.B.intercalated.cell","Myeloid",7
+"mast","pDC",7
+"Glomerular.endothelium","Plasma",7
+"Peritubular.capillary.endothelium.1","Plasma",7
+"Podocyte","Plasma",7
+"mDC","Endothelial",6
+"NK","Endothelial",6
+"mast","Myeloid",6
+"mast","Tumor_RCC",6
+"NK","Tumor_RCC",5
+"mast","Endothelial",4
+"neutrophil","Loop_of_Henle_TAL",4
+"mast","Plasma",4
+"mDC","Plasma",4
+"neutrophil","pDC",3
+"pDC","pDC",3
+"T CD8 naive","pDC",3
+"T CD8 memory","Stroma_mural",3
+"Treg","Stroma_mural",3
+"T CD4 naive","Tumor_RCC",3
+"Mesangial.cell","Distal_tubule",2
+"T CD4 naive","Endothelial",2
+"T CD8 memory","Endothelial",2
+"T CD4 memory","Loop_of_Henle_TAL",2
+"pDC","Plasma",2
+"plasmablast","Plasma",2
+"Thick.ascending.limb.of.Loop.of.Henle","Plasma",2
+"pDC","Stroma_mural",2
+"T CD4 memory","Tumor_RCC",2
+"mast","Distal_tubule",1
+"mDC","Distal_tubule",1
+"T CD4 naive","Distal_tubule",1
+"T CD8 memory","Distal_tubule",1
+"T CD8 naive","Distal_tubule",1
+"pDC","Endothelial",1
+"Treg","Endothelial",1
+"Transitional.urothelium","Loop_of_Henle_TAL",1
+"Indistinct.intercalated.cell","pDC",1
+"T CD4 naive","pDC",1
+"Mesangial.cell","Plasma",1
+"T CD4 naive","Plasma",1
+"T CD8 naive","Plasma",1
+"Type.A.intercalated.cell","Plasma",1
+"mast","Stroma_mural",1
+"neutrophil","Stroma_mural",1
+"NK","Stroma_mural",1
+"T CD4 memory","Stroma_mural",1
+"T CD4 naive","Stroma_mural",1
+"Transitional.urothelium","T_cell",1
+"pDC","Tumor_RCC",1
+"T CD8 naive","Tumor_RCC",1
+"Transitional.urothelium","Tumor_RCC",1

@@ -39,19 +39,33 @@ if (!file.exists(file.path(cfg$ref_kidney_dir, "ref.Rds")))
        " — download per DATA.md (Zenodo 10694842: ref.Rds + idx.annoy).")
 pred_col  <- paste0("predicted.", cfg$ref_kidney_level)
 score_col <- paste0(pred_col, ".score")
-azi <- RunAzimuth(obj, reference = cfg$ref_kidney_dir,
+# Memory: Azimuth on >0.5M cells exceeds the RAM ceiling. When the dataset is
+# larger than azimuth_subsample, map a stratified subsample and propagate the
+# kidney label by per-cluster consensus (05 reconciliation is cluster-level, so
+# the subsample only needs to populate each cluster's consensus). NULL = full.
+azi_n   <- cfg$azimuth_subsample
+map_obj <- obj
+if (!is.null(azi_n) && ncol(obj) > azi_n) {
+  set.seed(cfg$seed)
+  sub_cells <- sample(colnames(obj), azi_n)
+  map_obj <- subset(obj, cells = sub_cells)
+  message("  Azimuth on a ", azi_n, "-cell subsample (per-cluster propagation)")
+}
+azi <- RunAzimuth(map_obj, reference = cfg$ref_kidney_dir,
                   annotation.levels = cfg$ref_kidney_level,
                   assay = cfg$assay, verbose = FALSE)
 am <- azi[[]]
-obj$kidney_l1            <- am[colnames(obj), pred_col]
-obj$kidney_score         <- am[colnames(obj), score_col]
-obj$kidney_mapping_score <- am[colnames(obj), "mapping.score"]
-obj$kidney_lowconf       <- obj$kidney_score < cfg$ref_kidney_score_min
-obj$kidney_pruned        <- ifelse(obj$kidney_lowconf, NA, obj$kidney_l1)
-message("  Azimuth done on ", ncol(obj), " cells; ",
+obj$kidney_l1 <- obj$kidney_score <- obj$kidney_mapping_score <- NA
+mc <- rownames(am)
+obj$kidney_l1[mc]            <- am[, pred_col]
+obj$kidney_score[mc]         <- am[, score_col]
+obj$kidney_mapping_score[mc] <- am[, "mapping.score"]
+obj$kidney_lowconf <- !is.na(obj$kidney_score) & obj$kidney_score < cfg$ref_kidney_score_min
+obj$kidney_pruned  <- ifelse(is.na(obj$kidney_score) | obj$kidney_lowconf, NA, obj$kidney_l1)
+message("  Azimuth done on ", length(mc), " cells; ",
         length(unique(na.omit(obj$kidney_l1))), " ", cfg$ref_kidney_level,
         " classes; low-confidence (score<", cfg$ref_kidney_score_min, "): ",
-        sum(obj$kidney_lowconf))
+        sum(obj$kidney_lowconf, na.rm = TRUE))
 
 # ---- Per-cluster consensus (kidney) + base layered label --------------------
 imm_tab <- read.csv(tab_path(cfg, "cluster_reference_labels.csv"),   # 04 immune layer

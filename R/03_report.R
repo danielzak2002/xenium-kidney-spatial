@@ -153,6 +153,33 @@ vs epithelial) — recording the evidence and never forcing ambiguous calls (see
 reference section). These are the labels to review.</li>"
 }
 
+# ---- Cross-platform benchmark section (CosMx; built if 08 outputs exist) -----
+bench_section <- ""; bench_li <- ""
+bs  <- rd_if("benchmark_summary.csv"); bir <- rd_if("benchmark_immune_recall.csv")
+if (!is.null(bs)) {
+  val <- setNames(bs$agreement_vs_author, bs$labeling)
+  pc  <- function(k) if (k %in% names(val)) sprintf("%.0f%%", 100*val[[k]]) else "n/a"
+  bench_section <- paste0(
+    "<h2>Cross-platform benchmark — vs the authors' 35 cell types</h2>",
+    "<p>The engine, developed on 10x Xenium kidney, is scored here on the NanoString
+CosMx childhood-lupus-nephritis cohort against the authors' independent annotation,
+mapped to a common coarse lineage set. Three labelings are compared:</p>",
+    "<ul><li><b>(a) cluster structure</b> (clusters &rarr; majority author type) — ",
+    pc("a_cluster_structure"), " (within-cluster purity ", pc("within_cluster_purity"), ")</li>",
+    "<li><b>(b) marker + lineage-gate</b> (panel-intrinsic, primary CosMx label) — ", pc("b_marker_lineage_gate"), "</li>",
+    "<li><b>(c) reference transfer</b> (SingleR/Monaco + Azimuth; documented-weak) — ",
+    pc("c_reference_transfer"), " (IF-corrected ", pc("c_reference_IF_corrected"), ")</li></ul>",
+    fig("benchmark_threeway.png", "Coarse-lineage agreement of the three labelings vs the authors."),
+    if (!is.null(bir)) paste0("<h3>Immune per-type recall (primary label, for Phase B)</h3>",
+                              df_to_html(bir)) else "")
+  bench_li <- paste0("<li><b>Cross-platform validation (CosMx cLN):</b> the engine's
+<b>clustering recovers the authors' populations (", pc("a_cluster_structure"), ")</b>, but
+both label paths transfer weakly to CosMx (marker ", pc("b_marker_lineage_gate"),
+", reference ", pc("c_reference_transfer"), ") — the limitation is label transfer of
+kidney/RCC-tuned markers and snRNA references, not clustering. A platform-matched
+reference is the planned fix.</li>")
+}
+
 # ---- assemble HTML ----------------------------------------------------------
 css <- "
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
@@ -235,12 +262,14 @@ fig("spatial_immune_aggregates.png", "Immune-neighbourhood fraction (k=20); high
 "</div>",
 
 ref_section,
+bench_section,
 
 "<h2>Conclusions &amp; observations</h2>",
 "<div class='key'><b>The loop is validated.</b> QC reproduces the vendor metrics exactly
 (median ", esc(qc$median_counts[1]), " transcripts / ", esc(qc$median_genes[1]),
 " genes per cell), and clustering is biologically coherent on the first pass.</div>",
 "<ul>",
+bench_li,
 ref_li,
 "<li><b>Biology tracks the known sample.</b> This ", esc(cfg$tissue_desc), " recovers
 coherent compartments, named here by each cluster's own top markers: ", comp_txt, ".

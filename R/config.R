@@ -160,7 +160,9 @@ get_config <- function(dataset = Sys.getenv("XENIUM_DATASET", unset = "preview")
   # immune clusters are identified by the Azimuth "Immune" class (05) rather than the
   # marker layer, then labelled with the Monaco fine consensus from 04.
   cfg$immune_via_reference <- FALSE
+  cfg$azimuth_subsample    <- NULL     # NULL = map all cells (Xenium fits in RAM)
   if (platform == "cosmx") {           # CosMx 1000-plex panel + cLN (no tumour)
+    cfg$azimuth_subsample <- 100000L   # 532k Azimuth OOMs; map subset, propagate per cluster
     cfg$ref_keep_marker   <- c("LowQ_MTRNR2L", "Mast")      # drop Tumor_RCC
     cfg$nk_gate_markers   <- c("NKG7", "GNLY", "KLRD1")     # NCAM1/KLRF1 off-panel
     cfg$if_immune_col     <- "Mean.CD45"
