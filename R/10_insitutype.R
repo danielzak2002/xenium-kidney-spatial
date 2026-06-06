@@ -49,15 +49,24 @@ message("  reference profiles: ", nrow(prof), " panel genes x ", ncol(prof),
         " types (", paste(head(colnames(prof), 4), collapse = ","), "...)")
 
 # ---- InSituType: semi-supervised (de-novo clusters for unmatched pops) -------
+# n_clusts via env: "1:5" semi-supervised (default), "0" = SUPERVISED-ONLY — the
+# on-target diagnostic for rare lymphoid (known types already in the reference;
+# isolates panel/profile resolving power from any de-novo / param confound).
+nclusts <- eval(parse(text = Sys.getenv("XENIUM_NCLUSTS", "1:5")))
+if (identical(nclusts, 0)) tag <- paste0(tag, "_sup")
+message("  insitutype n_clusts = ", paste(range(nclusts), collapse = ":"),
+        if (identical(nclusts, 0)) " (SUPERVISED-only diagnostic)" else " (semi-supervised)")
 res <- insitutype(x = x, neg = neg, assay_type = "rna", cohort = cohort,
-                  reference_profiles = prof, n_clusts = 1:5,
+                  reference_profiles = prof, n_clusts = nclusts,
                   update_reference_profiles = TRUE, n_starts = 2)
-obj$insitutype <- res$clust[colnames(obj)]
-saveRDS(obj, cfg$obj_05)
-write.csv(as.data.frame(sort(table(obj$insitutype), decreasing = TRUE)),
+lab <- res$clust[colnames(obj)]
+col <- if (grepl("_sup", tag)) "insitutype_sup" else "insitutype"
+obj[[col]] <- lab
+if (!nzchar(samp)) saveRDS(obj, cfg$obj_05)                 # never persist a validation SUBSET
+write.csv(as.data.frame(sort(table(lab), decreasing = TRUE)),
           tab_path(cfg, paste0("insitutype_counts", tag, ".csv")), row.names = FALSE)
-message("  InSituType -> ", length(unique(obj$insitutype)), " types; ",
-        sum(grepl("^[a-z]$", obj$insitutype)), " cells in de-novo clusters")
+message("  InSituType -> ", length(unique(lab)), " types; ",
+        sum(grepl("^[a-z]$", lab)), " cells in de-novo clusters")
 
 # ---- benchmark: recall AND precision vs authors (lymphoid-focused) ----------
 to_imm <- function(x) { x <- as.character(x); o <- rep(NA_character_, length(x)); m <- function(p) grepl(p, x, ignore.case = TRUE)
@@ -65,7 +74,7 @@ to_imm <- function(x) { x <- as.character(x); o <- rep(NA_character_, length(x))
   o[m("T CD8")] <- "T_CD8"; o[m("T CD4|Treg")] <- "T_CD4"; o[m("^NK$|natural killer|NK.cell")] <- "NK"
   o[m("macrophage")] <- "Macrophage"; o[m("monocyte")] <- "Monocyte"
   o[m("mDC|dendritic")] <- "DC"; o[m("pDC|plasmacytoid")] <- "pDC"; o[m("mast")] <- "Mast"; o[m("neutrophil")] <- "Neutrophil"; o }
-ai <- to_imm(obj$author_celltype); oi <- to_imm(obj$insitutype)
+ai <- to_imm(obj$author_celltype); oi <- to_imm(lab)
 lev <- c("B","Plasma","T_CD4","T_CD8","NK","DC","pDC","Mast","Macrophage","Monocyte","Neutrophil")
 # before = the 09 two-stage label, if present
 o09 <- if ("immune_subtype" %in% colnames(obj[[]])) obj$immune_subtype else rep(NA, ncol(obj))
