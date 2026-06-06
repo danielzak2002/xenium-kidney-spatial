@@ -38,6 +38,17 @@ BiocManager::install(c("SingleR", "celldex"), update = FALSE, ask = FALSE)
 # separately into refs/azimuth_kidney/ (see DATA.md).
 remotes::install_github("satijalab/azimuth", upgrade = "never")
 
+# Multi-sample integration (02 on CosMx): Harmony.
+install.packages("harmony")
+
+# CosMx-native contamination-aware typing (10_insitutype.R): InSituType + its
+# ioprofiles immune reference. It compiles Rcpp/Armadillo (needs Fortran linking).
+# macOS arm64 note: if the build fails with `ld: library 'emutls_w' not found`,
+# R's FLIBS points at a missing /opt/gfortran bundle. Point it at Homebrew gfortran
+# in ~/.R/Makevars (adjust the gcc version to your `brew --prefix gcc`):
+#   FLIBS = -L$(brew --prefix gcc)/lib/gcc/current -lgfortran -lquadmath
+remotes::install_github("Nanostring-Biostats/InSituType", upgrade = "never")
+
 cat("
 Installed. Next steps for the RStudio MCP:
 

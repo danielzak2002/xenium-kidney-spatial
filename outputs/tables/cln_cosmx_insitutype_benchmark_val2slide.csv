@@ -1,0 +1,12 @@
+"immune_type","n_author","recall_09","recall_IST","precision_IST","n_ours_IST"
+"B",82,0,0.809,0.714,108
+"Plasma",203,0.959,0.95,0.965,239
+"T_CD4",30,0,0,NA,0
+"T_CD8",33,0,0,NA,0
+"NK",30,0.958,0,NA,0
+"DC",68,0,0,NA,0
+"pDC",6,0,0,NA,0
+"Mast",4,NA,NA,NA,0
+"Macrophage",1523,0.642,0.994,0.937,2106
+"Monocyte",36,0.879,0,NA,0
+"Neutrophil",18,0,0,NA,0
