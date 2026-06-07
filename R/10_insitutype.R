@@ -79,14 +79,16 @@ lev <- c("B","Plasma","T_CD4","T_CD8","NK","DC","pDC","Mast","Macrophage","Monoc
 # before = the 09 two-stage label, if present
 o09 <- if ("immune_subtype" %in% colnames(obj[[]])) obj$immune_subtype else rep(NA, ncol(obj))
 b09 <- to_imm(o09)
+# recall/precision over the FULL denominator: unmatched/de-novo (NA) counts as a
+# miss (do NOT na.rm — that would drop cells InSituType dumped into de-novo clusters).
 bench <- data.frame(immune_type = lev,
   n_author = sapply(lev, function(L) sum(ai == L, na.rm = TRUE)),
-  recall_09  = sapply(lev, function(L){a<-which(ai==L); if(!length(a))NA else round(mean(b09[a]==L,na.rm=TRUE),3)}),
-  recall_IST = sapply(lev, function(L){a<-which(ai==L); if(!length(a))NA else round(mean(oi[a]==L,na.rm=TRUE),3)}),
-  precision_IST = sapply(lev, function(L){p<-which(oi==L); if(!length(p))NA else round(mean(ai[p]==L,na.rm=TRUE),3)}),
+  recall_09  = sapply(lev, function(L){a<-which(ai==L); if(!length(a))NA else round(mean(!is.na(b09[a]) & b09[a]==L),3)}),
+  recall_IST = sapply(lev, function(L){a<-which(ai==L); if(!length(a))NA else round(mean(!is.na(oi[a]) & oi[a]==L),3)}),
+  precision_IST = sapply(lev, function(L){p<-which(oi==L); if(!length(p))NA else round(mean(!is.na(ai[p]) & ai[p]==L),3)}),
   n_ours_IST = sapply(lev, function(L) sum(oi == L, na.rm = TRUE)))
 write.csv(bench, tab_path(cfg, paste0("insitutype_benchmark", tag, ".csv")), row.names = FALSE)
-ov_r <- mean(oi[!is.na(ai)] == ai[!is.na(ai)], na.rm = TRUE)
+.ia <- which(!is.na(ai)); ov_r <- mean(!is.na(oi[.ia]) & oi[.ia] == ai[.ia])  # full denom
 message(sprintf("  immune recall vs authors (full denom %d cells): InSituType overall %.1f%% (09 was ~0 for lymphoid)",
                 sum(!is.na(ai)), 100*ov_r))
 print(bench, row.names = FALSE)

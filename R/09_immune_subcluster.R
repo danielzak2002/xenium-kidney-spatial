@@ -96,7 +96,7 @@ al <- a2lin(au); ol <- obj$immune_subtype
 lev <- c("B","Plasma","T_CD4","T_CD8","NK","Macrophage","Monocyte","DC","pDC","Mast")
 rec <- data.frame(immune_type = lev,
   n_author = sapply(lev, function(L) sum(al == L, na.rm = TRUE)),
-  recall_after = sapply(lev, function(L) { a <- which(al == L); if (!length(a)) NA else round(mean(ol[a] == L, na.rm = TRUE), 3) }),
+  recall_after = sapply(lev, function(L) { a <- which(al == L); if (!length(a)) NA else round(mean(!is.na(ol[a]) & ol[a] == L), 3) }),
   n_ours = sapply(lev, function(L) sum(ol == L, na.rm = TRUE)))
 write.csv(rec, tab_path(cfg, "immune_recall_twostage.csv"), row.names = FALSE)
 overall <- mean(ol[which(!is.na(al))] == al[which(!is.na(al))], na.rm = TRUE)
