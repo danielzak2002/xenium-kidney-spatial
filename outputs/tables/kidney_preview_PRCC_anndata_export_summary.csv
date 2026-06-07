@@ -1,0 +1,2 @@
+"dataset","platform","units","n_cells","n_genes","n_samples","cell_type_col","roundtrip_ok"
+"kidney_preview_PRCC","xenium","um",56504,377,1,"final_ref_cell_type",TRUE

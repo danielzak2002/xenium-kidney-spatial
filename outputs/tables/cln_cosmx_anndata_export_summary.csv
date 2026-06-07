@@ -1,0 +1,2 @@
+"dataset","platform","units","n_cells","n_genes","n_samples","cell_type_col","roundtrip_ok"
+"cln_cosmx","cosmx","mm",532392,957,14,"insitutype",TRUE

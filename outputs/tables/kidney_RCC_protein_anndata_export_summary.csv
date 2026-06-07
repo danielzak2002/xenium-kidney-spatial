@@ -1,0 +1,2 @@
+"dataset","platform","units","n_cells","n_genes","n_samples","cell_type_col","roundtrip_ok"
+"kidney_RCC_protein","xenium","um",465228,405,1,"final_ref_cell_type",TRUE
