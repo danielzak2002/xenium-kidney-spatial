@@ -1,0 +1,9 @@
+level,effect,big,preview,powered,replicates
+nhood,B x Treg,+28,49.19,True,YES
+nhood,B x effector-CD8,-117,-27.58,True,YES
+nhood,B x mregDC,modest+,-0.02,False,NA
+nhood,mregDC x CCR7+T,+90,25.17,False,YES
+B-aggregate,Treg in B-agg,log2 +1.22,log2 +1.679 (p=0.031),True,YES
+B-aggregate,eff-CD8 in B-agg,log2 -1.08,log2 -1.419 (p=0.031),True,YES
+B-aggregate,mregDC in B-agg,log2 +1.03,log2 -1.488 (p=0.531),True,NO
+B-aggregate,Plasma in B-agg,log2 +0.04,log2 +1.119 (p=0.156),True,NO
