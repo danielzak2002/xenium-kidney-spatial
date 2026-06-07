@@ -1,0 +1,14 @@
+metric,value
+c24_n_foci,38
+c24_largest_focus_share,0.108
+c24_centroid_spread,0.22
+c24_verdict_recurring,1
+n_B_aggregates,35
+median_B_per_agg,346.0
+Treg_log2enrich,1.218
+effCD8_log2enrich,-1.082
+Plasma_log2enrich,0.045
+mregDC_log2enrich,1.028
+plasma_status,AT BACKGROUND
+loadbearing_confirmed,1
+utag_pass3_warranted,0
