@@ -85,4 +85,4 @@ _To be populated as analyses complete (figures in `outputs/figures/`, tables in
   Genomics as the data source when presenting results. See [DATA.md](DATA.md).
 
 ## Author
-Daniel — _add a sentence and a link (LinkedIn/site) here._
+Daniel ([@danielzak2002](https://github.com/danielzak2002)).
