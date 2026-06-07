@@ -34,9 +34,11 @@ to_csr <- function(m) r_to_py(as(Matrix::t(m), "CsparseMatrix"))$tocsr()
 
 md <- obj[[]]
 celltype <- if (cfg$platform == "cosmx") as.character(obj$insitutype) else as.character(obj$final_ref_cell_type)
-# phase_b_label: fold DC -> myeloid/DC; CosMx T -> low-confidence (typing was unreliable)
+# phase_b_label: fold GENERIC DC -> myeloid/DC, but KEEP mregDC distinct (validated
+# regulatory-DC state, a TLS player). CosMx T -> low-confidence (typing was unreliable).
 pbl <- celltype
-pbl[grepl("dendritic|mregDC|^mDC$|^pDC$|^DC$", pbl, ignore.case = TRUE)] <- "myeloid/DC"
+pbl[grepl("dendritic|^mDC$|^pDC$|^DC$", pbl, ignore.case = TRUE) &
+    !grepl("mregDC", pbl, ignore.case = TRUE)] <- "myeloid/DC"
 if (cfg$platform == "cosmx") pbl[grepl("T CD|Treg|^T_CD", pbl, ignore.case = TRUE)] <- "T cell (low-conf)"
 
 obs <- data.frame(
