@@ -75,7 +75,7 @@ for slide, cls in SLIDES:
     pcores = sorted([s for s in stats if s["nP"] > 0], key=lambda s: s["nP"], reverse=True)
     sel = pcores[:6] if pcores else sorted(stats, key=lambda s: s["nM"], reverse=True)[:4]
     ncol = 3 if len(sel) > 1 else 1; nrow = int(np.ceil(len(sel) / ncol))
-    fig, axes = plt.subplots(nrow, ncol, figsize=(4.5 * ncol, 4.1 * nrow), squeeze=False)
+    fig, axes = plt.subplots(nrow, ncol, figsize=(4.5 * ncol, 4.5 * nrow), squeeze=False)
     for k, st in enumerate(sel):
         ax = axes[k // ncol][k % ncol]; cm = st["mask"]; pad = 0.1
         xmn, xmx = xy[cm, 0].min() - pad, xy[cm, 0].max() + pad
@@ -98,10 +98,11 @@ for slide, cls in SLIDES:
                plt.Line2D([], [], marker="o", ls="", mfc="none", mec="#222", ms=10, label="plasma aggregate")]
     fig.legend(handles=handles, loc="lower center", ncol=3, fontsize=9, bbox_to_anchor=(0.5, -0.01))
     tot_aggs = len(cents); tot_p = int(isP.sum()); tot_m = int(isM.sum())
+    note = ("myeloid present, plasma essentially absent, no aggregates" if (cls == "control" or tot_aggs == 0)
+            else "plasma and myeloid intermix within disease cores")
     fig.suptitle(f"cLN {slide} [{cls}] — {tot_p} plasma, {tot_m} myeloid, {tot_aggs} aggregates "
-                 f"(faceted by tissue core; showing {len(sel)} of {len(stats)} cores). "
-                 f"Plasma and myeloid intermix within disease cores.", fontsize=10)
-    fig.tight_layout(rect=(0, 0.04, 1, 0.96))
+                 f"(faceted by tissue core; showing {len(sel)} of {len(stats)} cores). {note}.", fontsize=10)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.95), h_pad=2.4, w_pad=1.2)
     fig.savefig(os.path.join(FIG, f"qcE_slide_{slide}.png"), dpi=125); plt.close(fig)
     print(f"wrote qcE_slide_{slide}.png ({len(sel)}/{len(stats)} cores; P={tot_p} aggs={tot_aggs})")
 

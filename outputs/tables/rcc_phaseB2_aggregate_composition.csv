@@ -1,5 +1,5 @@
-cell_type,background_frac,inside_mean_frac,log2_enrichment,direction,wilcoxon_p,n_agg_above_bg
-Treg,0.0749,0.1743,1.218,ENRICHED,0.0,32
-eff-CD8,0.1348,0.0637,-1.082,EXCLUDED,0.0,1
-Plasma,0.048,0.0495,0.045,ENRICHED,0.225,12
-mregDC,0.0042,0.0087,1.028,ENRICHED,0.003,23
+cell_type,background_frac,inside_mean_frac,log2_enrichment,direction,wilcoxon_p,n_agg_above_bg,n_agg
+Treg,0.0749,0.1893,1.337,ENRICHED,0.0,36,37
+eff-CD8,0.1348,0.0704,-0.937,EXCLUDED,0.0,3,37
+Plasma,0.048,0.0517,0.106,ENRICHED,0.2023,15,37
+mregDC,0.0042,0.0112,1.399,ENRICHED,0.0,29,37
