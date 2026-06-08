@@ -33,7 +33,7 @@ DS = [("kidney_RCC_protein", "RCC (Xenium)"), ("kidney_preview_PRCC", "PRCC prev
 LIN_COL = {"Epithelial": "#8c9fca", "Endothelial": "#e377c2", "Stroma/fibroblast": "#bcbd22",
            "Tumor": "#9467bd", "Myeloid": "#2ca02c", "T cell": "#d62728", "B cell": "#1f77b4",
            "Plasma": "#ff7f0e", "NK": "#17becf", "Proliferating": "#7f7f7f",
-           "Unassigned (de novo)": "#cfcfcf", "Other/low-q": "#e6e6e6"}
+           "Unassigned (de novo)": "#8c564b", "Other/low-q": "#dddddd"}
 def lineage(x):
     s = str(x); l = s.lower()
     if len(s) == 1 and s.isalpha(): return "Unassigned (de novo)"   # cLN de-novo a-e
@@ -125,23 +125,31 @@ fig.savefig(os.path.join(FIG, "qcB_insitutype_posterior_PLACEHOLDER.png"), dpi=1
 print("wrote qcB_insitutype_posterior_PLACEHOLDER.png  (LOGGED PLACEHOLDER)")
 
 # ============================================================================
-# B4 — immune recall: two-stage (before) vs InSituType (after)
+# B4 — immune RECALL *and* PRECISION: two-stage (R/09) vs InSituType
+# (single source of truth: R/14 unified benchmark from the committed _05 object)
 # ============================================================================
-b = pd.read_csv(os.path.join(TAB, "cln_cosmx_insitutype_benchmark.csv"))
-b = b.sort_values("recall_IST", ascending=False)
+b = pd.read_csv(os.path.join(TAB, "cln_cosmx_immune_benchmark_unified.csv"))
+b = b.sort_values("recall_insitutype", ascending=False).reset_index(drop=True)
 x = np.arange(len(b)); w = 0.4
-fig, ax = plt.subplots(figsize=(12, 5.2))
-ax.bar(x - w/2, b.recall_09.fillna(0), w, color="#bbbbbb", label="two-stage (before)")
-ax.bar(x + w/2, b.recall_IST.fillna(0), w, color="#c44e52", label="InSituType (after)")
-ax.set_xticks(x); ax.set_xticklabels(b.immune_type, rotation=30, ha="right")
-ax.set_ylabel("recall vs author labels"); ax.set_ylim(0, 1)
-ax.set_title("cLN immune recall — two-stage co-expression vs InSituType "
-             "(contamination-aware recovers B / DC / plasma; CD4 T stays 0 = panel limit)", fontsize=10)
-ax.legend()
-for xi, (r0, r1) in enumerate(zip(b.recall_09.fillna(0), b.recall_IST.fillna(0))):
-    ax.text(xi + w/2, r1 + 0.02, f"{r1:.2f}", ha="center", fontsize=7)
-fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcB_insitutype_recall.png"), dpi=150); plt.close(fig)
-print("wrote qcB_insitutype_recall.png")
+C_TS, C_IST = "#9e9e9e", "#c44e52"
+fig, axes = plt.subplots(1, 2, figsize=(16, 5.4), sharex=True)
+for ax, metric, ttl in [(axes[0], "recall", "Recall (vs author labels)"),
+                        (axes[1], "precision", "Precision (vs author labels)")]:
+    ts = b[f"{metric}_twostage"].astype(float); ist = b[f"{metric}_insitutype"].astype(float)
+    ax.bar(x - w/2, ts.fillna(0), w, color=C_TS, label="two-stage co-expression (R/09)")
+    ax.bar(x + w/2, ist.fillna(0), w, color=C_IST, label="InSituType")
+    ax.set_xticks(x); ax.set_xticklabels(b.immune_type, rotation=30, ha="right")
+    ax.set_ylabel(metric); ax.set_ylim(0, 1); ax.set_title(ttl, fontsize=11); ax.legend(fontsize=8)
+# annotate two-stage over-calling (n predicted) on the precision panel, where huge
+for xi, n in enumerate(b["n_pred_twostage"]):
+    if n > 5000:
+        axes[1].annotate(f"n={n//1000}k", (xi - w/2, 0.02), ha="center", fontsize=6.5, color="#555", rotation=90, va="bottom")
+fig.suptitle("cLN immune typing — recall AND precision: two-stage (R/09) vs InSituType", fontsize=13)
+fig.text(0.5, 0.005, "InSituType recovers B & DC that two-stage missed, with far higher precision; "
+         "two-stage's monocyte/NK/CD8 recall is gross over-calling (n predicted ≫ truth → precision ≈ 0). "
+         "CD4 T = 0 for both (panel limit).", ha="center", va="bottom", fontsize=8.5, color="#444")
+fig.tight_layout(rect=(0, 0.045, 1, 0.95)); fig.savefig(os.path.join(FIG, "qcB_insitutype_recall_precision.png"), dpi=150); plt.close(fig)
+print("wrote qcB_insitutype_recall_precision.png")
 
 # ============================================================================
 # B5 — squidpy Delaunay spatial neighbor graph on a tissue crop
