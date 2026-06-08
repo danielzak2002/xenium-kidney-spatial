@@ -142,8 +142,10 @@ for k, (g, who) in enumerate(markers, start=1):
     fig.colorbar(sc, ax=ax[k], fraction=0.046, label="counts")
 for x_ in ax:
     x_.set_aspect("equal"); x_.set_xticks([]); x_.set_yticks([])
-fig.suptitle(f"Representative RCC B-aggregate ({rep['n']} B cells) — cell-type calls beside the "
-             "transcript markers that back them (MS4A1=B, FOXP3=Treg, LAMP3=mregDC, CD8A=CD8)", fontsize=12)
+cc = crop_counts(rep)
+fig.suptitle(f"Representative RCC B-aggregate crop ({cc['B']} B / {cc['Treg']} Treg / {cc['CD8']} CD8 / "
+             f"{cc['mreg']} mregDC) — cell-type calls beside the transcript markers that back them "
+             "(MS4A1=B, FOXP3=Treg, LAMP3=mregDC, CD8A=CD8)", fontsize=12)
 fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcD_aggregate_markers.png"), dpi=150); plt.close(fig)
 print("wrote qcD_aggregate_markers.png")
 
@@ -152,19 +154,29 @@ print("wrote qcD_aggregate_markers.png")
 # ============================================================================
 isc24 = np.isin(lab, [MREG, CCR7]); c24idx = np.where(isc24)[0]
 cl2 = DBSCAN(eps=50.0, min_samples=10).fit(xy[c24idx]).labels_
-foci = [(c, np.sum(cl2 == c)) for c in np.unique(cl2) if c != -1]
-foci = sorted(foci, key=lambda t: t[1], reverse=True)
+# rank foci by the SMALLER of (mregDC, CCR7+T) count so the chosen focus actually shows
+# the +90 pairing (both present), not a one-sided cluster.
+foci = []
+for c in np.unique(cl2):
+    if c == -1: continue
+    mem = c24idx[cl2 == c]
+    foci.append((c, min((lab[mem] == MREG).sum(), (lab[mem] == CCR7).sum()), len(mem)))
+foci = sorted(foci, key=lambda t: (t[1], t[2]), reverse=True)
 fc = c24idx[cl2 == foci[0][0]]; fx, fy = xy[fc].mean(0)
-W2 = 120.0
+W2 = 80.0   # tighter crop on the cluster itself
 m2 = (np.abs(xy[:, 0] - fx) < W2) & (np.abs(xy[:, 1] - fy) < W2)
 sx2, sl2 = xy[m2], lab[m2]
 fig, ax = plt.subplots(figsize=(7.5, 7))
-ax.scatter(sx2[~np.isin(sl2, FOCUS), 0], sx2[~np.isin(sl2, FOCUS), 1], s=18, c="#dddddd", linewidths=0)
-for L, c, n in LEG:
-    sel = np.isin(sl2, CD8) if L == "eff-CD8" else (sl2 == L)
-    if sel.any(): ax.scatter(sx2[sel, 0], sx2[sel, 1], s=40, c=c, linewidths=0.3, edgecolor="k", label=n)
-ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([]); ax.legend(fontsize=8, loc="upper left")
-ax.set_title(f"Representative mregDC–CCR7+T focus (1 of {len(foci)} across the section)", fontsize=11)
+hl = [MREG, CCR7]   # gray EVERYTHING else (incl. Treg) so the pairing is visible
+ax.scatter(sx2[~np.isin(sl2, hl), 0], sx2[~np.isin(sl2, hl), 1], s=18, c="#dddddd", linewidths=0, label="other cells")
+for L, c in [(MREG, "#9467bd"), (CCR7, "#17becf")]:
+    sel = sl2 == L
+    if sel.any(): ax.scatter(sx2[sel, 0], sx2[sel, 1], s=70, c=c, linewidths=0.4, edgecolor="k",
+                             label=("mregDC" if L == MREG else "CCR7+ T"))
+ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([]); ax.legend(fontsize=9, loc="upper left")
+nm, nc = int((lab[fc] == MREG).sum()), int((lab[fc] == CCR7).sum())
+ax.set_title(f"Representative mregDC–CCR7⁺T focus (the z=+90 pairing)\n"
+             f"{nm} mregDC + {nc} CCR7⁺T · 1 of {len(foci)} foci · other cells grayed", fontsize=11)
 fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcD_mregdc_ccr7_foci.png"), dpi=150); plt.close(fig)
 print("wrote qcD_mregdc_ccr7_foci.png")
 

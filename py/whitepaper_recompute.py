@@ -95,4 +95,30 @@ comp = pd.DataFrame(rows)
 comp.to_csv(os.path.join(TAB, "rcc_phaseB2_aggregate_composition.csv"), index=False)
 print(f"\nRCC B-aggregates at eps=50: {len(aggs)} aggregates")
 print(comp.to_string(index=False))
+
+# ============================================================================
+# (3) rebuild cLN rows of the RCC-vs-cLN contrast table so n_plasma_aggregates is a
+#     consistent TOTAL across rows (was: overall=sum, per-class=mean) and nhood z uses
+#     the per-section (pruned) values from ps. RCC rows are kept unchanged.
+# ============================================================================
+ctab = os.path.join(TAB, "plasma_myeloid_rcc_vs_cln.csv")
+comp_t = pd.read_csv(ctab); rcc_rows = comp_t[comp_t.context.str.startswith("RCC")].copy()
+cols = ["context", "dataset", "n_plasma", "n_myeloid", "myeloid_frac", "plasma_myeloid_nhood_z",
+        "n_plasma_aggregates", "plasma_agg_rate", "myeloid_log2enrich_in_plasma_aggs"]
+pb = ps[ps.n_plasma >= 10]
+def crow(dataset, sub, overall):
+    return {"context": "cLN (CosMx kidney)", "dataset": dataset,
+            "n_plasma": int(sub.n_plasma.sum()) if overall else np.nan,
+            "n_myeloid": int(sub.n_myeloid.sum()) if overall else np.nan,
+            "myeloid_frac": round(sub.myeloid_frac.mean(), 4),
+            "plasma_myeloid_nhood_z": round(sub.nhood_z_plasma_myeloid.median() if overall
+                                            else sub.nhood_z_plasma_myeloid.mean(), 3),
+            "n_plasma_aggregates": int(sub.n_plasma_aggregates.sum()),               # TOTAL everywhere
+            "plasma_agg_rate": round(sub.plasma_agg_rate.median() if overall else sub.plasma_agg_rate.mean(), 3),
+            "myeloid_log2enrich_in_plasma_aggs": round(sub.myeloid_log2enrich_in_plasma_aggs.mean(), 3)}
+cln_rows = [crow("cLN_overall (plasma slides, totals)", pb, True)]
+for c in ["III", "IV", "IV+V"]:
+    cln_rows.append(crow(f"cLN_{c} (class total/mean)", ps[ps.condition == c], False))
+pd.concat([rcc_rows[cols], pd.DataFrame(cln_rows)[cols]], ignore_index=True).to_csv(ctab, index=False)
+print("\nrebuilt plasma_myeloid_rcc_vs_cln.csv (n_plasma_aggregates consistent = totals; per-section z)")
 print("\n== recompute done ==")

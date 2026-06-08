@@ -1,6 +1,6 @@
 # Cross-Platform Imaging Spatial Transcriptomics of B-Lineage Immune Organization in Human Kidney
 
-*Technical whitepaper / reference document. This is intentionally richer and more detailed than a manuscript — it documents every stage, the metrics that justified each decision, and the limits encountered. Figure/table slots are marked `[FIGURE: …]` / `[TABLE: …]`; many require generation from the data (see the companion generation pass). Where a metric is summarized, an underlying representative plot is requested alongside it so the derivation is visible, not just asserted.*
+*Technical whitepaper / reference document. This is intentionally richer and more detailed than a manuscript — it documents every stage, the metrics that justified each decision, and the limits encountered. Throughout, each summary metric is shown next to the underlying representative plot it derives from, so conclusions are visible in the data rather than only asserted.*
 
 ---
 

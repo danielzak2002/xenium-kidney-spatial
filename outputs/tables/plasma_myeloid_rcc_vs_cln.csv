@@ -1,7 +1,7 @@
 context,dataset,n_plasma,n_myeloid,myeloid_frac,plasma_myeloid_nhood_z,n_plasma_aggregates,plasma_agg_rate,myeloid_log2enrich_in_plasma_aggs
 RCC (Xenium tumour),RCC_BIG,22329.0,109715.0,0.2358,-56.6,242.0,0.83,-0.015
 RCC (Xenium tumour),RCC_preview,1410.0,11226.0,0.1987,-13.25,20.0,0.444,-0.243
-cLN (CosMx kidney),cLN_overall(plasma slides),2356.0,11021.0,0.033,5.88,33.0,0.144,0.982
-cLN (CosMx kidney),cLN_III,,,0.03,8.617,5.75,0.257,1.485
-cLN (CosMx kidney),cLN_IV,,,0.037,6.132,1.0,0.103,0.585
-cLN (CosMx kidney),cLN_IV+V,,,0.057,5.7,5.0,0.399,1.846
+cLN (CosMx kidney),"cLN_overall (plasma slides, totals)",2356.0,11021.0,0.033,5.74,33.0,0.144,1.245
+cLN (CosMx kidney),cLN_III (class total/mean),,,0.0301,8.775,23.0,0.256,1.485
+cLN (CosMx kidney),cLN_IV (class total/mean),,,0.0366,6.036,5.0,0.103,0.584
+cLN (CosMx kidney),cLN_IV+V (class total/mean),,,0.0573,5.74,5.0,0.399,1.846
