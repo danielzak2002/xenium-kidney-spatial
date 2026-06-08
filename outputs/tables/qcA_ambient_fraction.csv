@@ -1,0 +1,4 @@
+"dataset","platform","n_neg_probes","mean_neg_ctrl_fraction","n_cells"
+"kidney_RCC_protein","xenium",NA,9.01836643268211e-05,465228
+"kidney_preview_PRCC","xenium",NA,0.000268236433947995,56504
+"cln_cosmx","cosmx",20,0.00584619783761259,532392

@@ -36,23 +36,30 @@ def clipped(x, q=0.995):
     x = np.asarray(x, float); x = x[np.isfinite(x)]
     hi = np.quantile(x, q); return x[x <= hi]
 
+def int_bins(x, target=50):
+    """Integer-aligned, integer-width bins for count data (avoids comb/striping)."""
+    x = clipped(x); lo = int(np.floor(x.min())); hi = int(np.ceil(x.max()))
+    w = max(1, int(round((hi - lo) / target)))
+    return np.arange(lo, hi + w + 1, w) - 0.5
+
 # ---------------------------------------------------------------------------
 # per-dataset distribution figures
 # ---------------------------------------------------------------------------
 for lab, name, plat, col in DS:
     d = data[lab]
     fig, ax = plt.subplots(1, 4, figsize=(18, 4.2))
-    ax[0].hist(clipped(d.n_counts), bins=60, color=col, alpha=0.85)
+    ax[0].hist(clipped(d.n_counts), bins=int_bins(d.n_counts), color=col, alpha=0.85)
     ax[0].set_xlabel("transcripts / cell"); ax[0].set_ylabel("cells")
     ax[0].set_title(f"counts (median {d.n_counts.median():.0f})", fontsize=10)
-    ax[1].hist(clipped(d.n_genes), bins=60, color=col, alpha=0.85)
+    ax[1].hist(clipped(d.n_genes), bins=int_bins(d.n_genes), color=col, alpha=0.85)
     ax[1].set_xlabel("genes detected / cell")
     ax[1].set_title(f"genes (median {d.n_genes.median():.0f})", fontsize=10)
-    # ambient: Xenium neg-probe fraction; CosMx per-cell negmean (raw background)
+    # ambient: Xenium neg-probe fraction; CosMx per-cell negmean = NATIVE metric (raw
+    # per-probe background; not cross-platform comparable — see comparative panel for that)
     if plat == "cosmx":
         amb = clipped(d.negmean); ax[2].hist(amb, bins=60, color=col, alpha=0.85)
-        ax[2].set_xlabel("per-cell negmean (background)")
-        ax[2].set_title(f"ambient — negmean (median {np.median(d.negmean.dropna()):.2f})", fontsize=10)
+        ax[2].set_xlabel("per-cell negmean (counts / neg probe)")
+        ax[2].set_title(f"ambient — negmean, native CosMx metric (median {np.median(d.negmean.dropna()):.2f})", fontsize=9)
     else:
         amb = d.neg_frac.values
         ax[2].hist(amb[amb <= 0.05], bins=60, color=col, alpha=0.85)
@@ -60,7 +67,7 @@ for lab, name, plat, col in DS:
         ax[2].set_xlabel("neg-control fraction / cell"); ax[2].legend(fontsize=8)
         ax[2].set_title(f"ambient — neg fraction (>0 in {100*(amb>0).mean():.1f}% cells)", fontsize=10)
     ax[3].hist(clipped(d.cell_area), bins=60, color=col, alpha=0.85)
-    ax[3].set_xlabel("cell area" + (" (px/µm²)" if plat == "xenium" else " (CosMx units)"))
+    ax[3].set_xlabel("cell area" + (" (µm²)" if plat == "xenium" else " (CosMx units)"))
     ax[3].set_title(f"cell area (median {d.cell_area.median():.0f})", fontsize=10)
     fig.suptitle(f"{name} — per-cell QC distributions  (n shown = {len(d):,})", fontsize=13)
     fig.tight_layout(); fig.savefig(os.path.join(FIG, f"qcA_{lab}_dist.png"), dpi=150); plt.close(fig)
@@ -79,9 +86,11 @@ for k, (col, ttl) in enumerate([("n_counts", "transcripts / cell"), ("n_genes", 
         b.set_facecolor(c); b.set_alpha(0.7)
     ax[k].set_xticks([1, 2, 3]); ax[k].set_xticklabels(names, rotation=15, ha="right")
     ax[k].set_ylabel(f"log10({ttl})"); ax[k].set_title(ttl, fontsize=11)
-# ambient: mean neg-fraction (log scale) — the empirical ambient difference
+# ambient: UNIT-MATCHED neg-control fraction (neg counts / total), full data, log scale.
+# Same metric for all three: Xenium = controls/total; CosMx = negmean*20/total (reconstructed).
 qc = {lab: pd.read_csv(os.path.join(TAB, f"{lab}_qc_summary.csv")) for lab, *_ in DS}
-amb_mean = [float(qc[lab]["mean_neg_frac"].iloc[0]) for lab, *_ in DS]
+ambf = pd.read_csv(os.path.join(TAB, "qcA_ambient_fraction.csv")).set_index("dataset")
+amb_mean = [float(ambf.loc[lab, "mean_neg_ctrl_fraction"]) for lab, *_ in DS]
 bars = ax[2].bar(range(3), amb_mean, color=cols, alpha=0.85)
 ax[2].set_yscale("log"); ax[2].set_xticks(range(3)); ax[2].set_xticklabels(names, rotation=15, ha="right")
 ax[2].set_ylabel("mean neg-control fraction / cell (log)")
@@ -90,7 +99,13 @@ for b, v in zip(bars, amb_mean):
     ax[2].text(b.get_x() + b.get_width()/2, v, f"{v:.1e}", ha="center", va="bottom", fontsize=9)
 fold = amb_mean[2] / amb_mean[0]
 fig.suptitle(f"Comparative QC across datasets — CosMx ambient ≈ {fold:.0f}× the RCC-Xenium level", fontsize=13)
-fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcA_comparative.png"), dpi=150); plt.close(fig)
+# caveat: CosMx fraction is reconstructed (no raw neg matrix), probe designs differ ->
+# a background-fraction PROXY, not an exact cross-platform identity; the gap is robust.
+fig.text(0.5, 0.005, "Neg-control fraction = neg-probe counts ÷ total counts. cLN reconstructed as "
+         "negmean × 20 / total (no raw negative-probe matrix stored); Xenium/CosMx probe designs "
+         "differ — a background-fraction proxy, not an exact identity. The order-of-magnitude gap is robust.",
+         ha="center", va="bottom", fontsize=7.5, color="#444", wrap=True)
+fig.tight_layout(rect=(0, 0.035, 1, 1)); fig.savefig(os.path.join(FIG, "qcA_comparative.png"), dpi=150); plt.close(fig)
 print("wrote qcA_comparative.png")
 
 # ---------------------------------------------------------------------------
@@ -121,6 +136,8 @@ ax.set_yscale("log"); ax.set_xticks(x); ax.set_xticklabels([r["dataset"] for r i
 ax.set_ylabel("cells (log; flagged, not dropped)")
 ax.set_title("QC flags per dataset — flag-don't-filter (only zero-count cells dropped)", fontsize=11)
 ax.legend(fontsize=8, ncol=2)
-fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcA_flag_summary.png"), dpi=150); plt.close(fig)
+fig.text(0.5, 0.005, "0 plotted as <1 on log scale (e.g. cLN dropped-zero-count and flag-blank are exactly 0).",
+         ha="center", va="bottom", fontsize=8, color="#444")
+fig.tight_layout(rect=(0, 0.03, 1, 1)); fig.savefig(os.path.join(FIG, "qcA_flag_summary.png"), dpi=150); plt.close(fig)
 print("wrote qcA_flag_summary.png + qcA_flag_summary.csv")
 print("== Group A done ==")
