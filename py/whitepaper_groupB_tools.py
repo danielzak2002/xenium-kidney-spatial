@@ -124,13 +124,14 @@ if os.path.exists(pp):
     axp.axvline(med, color="k", ls="--", lw=1, label=f"median {med:.3f}")
     axp.set_xlabel("InSituType posterior (max assignment probability)"); axp.set_ylabel("cells")
     axp.set_title(f"Assignment confidence — {hi*100:.0f}% of cells ≥ 0.90", fontsize=11); axp.legend()
-    # by lineage: median posterior (high-RNA types confident, low-RNA/de-novo less)
-    order_l = [k for k in LIN_COL if k in set(post["lin"])]
-    meds = [post.loc[post.lin == k, "posterior"].median() for k in order_l]
-    axl.bar(range(len(order_l)), meds, color=[LIN_COL[k] for k in order_l])
+    # by lineage: high-confidence FRACTION (median is ~1.0 for every lineage, so it is
+    # uninformative; the ≥0.9 fraction is what differentiates the low-confidence tail).
+    order_l = [k for k in LIN_COL if (post["lin"] == k).sum() > 100]
+    frac = [float((post.loc[post.lin == k, "posterior"] >= 0.9).mean()) for k in order_l]
+    axl.bar(range(len(order_l)), frac, color=[LIN_COL[k] for k in order_l])
     axl.set_xticks(range(len(order_l))); axl.set_xticklabels(order_l, rotation=30, ha="right")
-    axl.set_ylabel("median posterior"); axl.set_ylim(0, 1.02)
-    axl.set_title("Confidence by lineage — high-RNA types high; de-novo / sparse types lower", fontsize=11)
+    axl.set_ylabel("fraction of cells ≥ 0.90 posterior"); axl.set_ylim(0, 1.02)
+    axl.set_title("High-confidence fraction by lineage (median ≈ 1.0 for all; the tail varies)", fontsize=11)
     fig.suptitle("InSituType per-cell assignment confidence (full cLN cohort, 532k cells)", fontsize=13)
     fig.tight_layout(rect=(0, 0, 1, 0.95)); fig.savefig(os.path.join(FIG, "qcB_insitutype_posterior.png"), dpi=150); plt.close(fig)
     print(f"wrote qcB_insitutype_posterior.png  (REAL; {hi*100:.0f}% cells >=0.90)")
