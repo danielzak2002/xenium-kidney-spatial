@@ -1,0 +1,9 @@
+gene,note,det,log2,usable,absent
+MS4A1,B-cell control,0.09,1.02,True,False
+CD79A,B-cell control,0.197,1.82,True,False
+MZB1,plasma control,0.426,4.01,True,False
+TNFRSF17,plasma (BCMA) control,0.184,1.18,True,False
+CD68,myeloid control,0.541,2.89,True,False
+TNFSF13B,BAFF ligand,0.077,0.28,False,False
+CCL2,chemokine,0.146,0.96,False,False
+CCL19,chemokine,0.065,0.34,False,False
