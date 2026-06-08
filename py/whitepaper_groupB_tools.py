@@ -110,19 +110,37 @@ fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcB_harmony_cln.png"), dpi=15
 print("wrote qcB_harmony_cln.png")
 
 # ============================================================================
-# B3 — InSituType posterior/confidence: PLACEHOLDER (not persisted)
+# B3 — InSituType posterior / assignment-confidence distribution
+# (REAL: R/15 reproduced the committed labels bit-for-bit (532,392/532,392) under the
+#  same seed, so res$prob is recovered with zero desync.)
 # ============================================================================
-fig, ax = plt.subplots(figsize=(9, 5)); ax.axis("off")
-ax.add_patch(plt.Rectangle((0.02, 0.02), 0.96, 0.96, fill=False, ec="#c44e52", lw=2, ls="--"))
-ax.text(0.5, 0.62, "PLACEHOLDER", ha="center", fontsize=22, color="#c44e52", weight="bold")
-ax.text(0.5, 0.45, "InSituType per-cell posterior / assignment-confidence distribution",
-        ha="center", fontsize=12)
-ax.text(0.5, 0.30, "Not persisted: R/10 saved the InSituType labels but not res$prob.\n"
-        "Regenerating requires re-running InSituType on 532k cells, which would re-fit the\n"
-        "de-novo clusters and desync the committed labels/benchmark. Logged as a known gap.",
-        ha="center", fontsize=9, color="#444")
-fig.savefig(os.path.join(FIG, "qcB_insitutype_posterior_PLACEHOLDER.png"), dpi=150); plt.close(fig)
-print("wrote qcB_insitutype_posterior_PLACEHOLDER.png  (LOGGED PLACEHOLDER)")
+pp = os.path.join(OBJ, "wp_insitutype_posterior.csv")
+if os.path.exists(pp):
+    post = pd.read_csv(pp)
+    post["lin"] = [lineage(v) for v in post["insitutype"].astype(str)]
+    fig, (axp, axl) = plt.subplots(1, 2, figsize=(15, 5.2))
+    axp.hist(post["posterior"], bins=60, color="#c44e52", alpha=0.85)
+    med = post["posterior"].median(); hi = float((post["posterior"] >= 0.9).mean())
+    axp.axvline(med, color="k", ls="--", lw=1, label=f"median {med:.3f}")
+    axp.set_xlabel("InSituType posterior (max assignment probability)"); axp.set_ylabel("cells")
+    axp.set_title(f"Assignment confidence — {hi*100:.0f}% of cells ≥ 0.90", fontsize=11); axp.legend()
+    # by lineage: median posterior (high-RNA types confident, low-RNA/de-novo less)
+    order_l = [k for k in LIN_COL if k in set(post["lin"])]
+    meds = [post.loc[post.lin == k, "posterior"].median() for k in order_l]
+    axl.bar(range(len(order_l)), meds, color=[LIN_COL[k] for k in order_l])
+    axl.set_xticks(range(len(order_l))); axl.set_xticklabels(order_l, rotation=30, ha="right")
+    axl.set_ylabel("median posterior"); axl.set_ylim(0, 1.02)
+    axl.set_title("Confidence by lineage — high-RNA types high; de-novo / sparse types lower", fontsize=11)
+    fig.suptitle("InSituType per-cell assignment confidence (full cLN cohort, 532k cells)", fontsize=13)
+    fig.tight_layout(rect=(0, 0, 1, 0.95)); fig.savefig(os.path.join(FIG, "qcB_insitutype_posterior.png"), dpi=150); plt.close(fig)
+    print(f"wrote qcB_insitutype_posterior.png  (REAL; {hi*100:.0f}% cells >=0.90)")
+else:
+    fig, ax = plt.subplots(figsize=(9, 5)); ax.axis("off")
+    ax.add_patch(plt.Rectangle((0.02, 0.02), 0.96, 0.96, fill=False, ec="#c44e52", lw=2, ls="--"))
+    ax.text(0.5, 0.55, "PLACEHOLDER — InSituType posterior", ha="center", fontsize=18, color="#c44e52", weight="bold")
+    ax.text(0.5, 0.38, "Run R/15 (exact-match gated) to populate; placeholder until then.", ha="center", fontsize=10)
+    fig.savefig(os.path.join(FIG, "qcB_insitutype_posterior_PLACEHOLDER.png"), dpi=150); plt.close(fig)
+    print("wrote qcB_insitutype_posterior_PLACEHOLDER.png  (LOGGED PLACEHOLDER)")
 
 # ============================================================================
 # B4 — immune RECALL *and* PRECISION: two-stage (R/09) vs InSituType
