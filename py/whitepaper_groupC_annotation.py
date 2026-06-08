@@ -43,9 +43,11 @@ def coarse(x):
 # C1 — three-way benchmark
 # ============================================================================
 bs = pd.read_csv(os.path.join(TAB, "cln_cosmx_benchmark_summary.csv")).set_index("labeling")["agreement_vs_author"]
-rows = [("Clustering structure", bs["a_cluster_structure"], "#4c72b0"),
-        ("Marker + lineage gate", bs["b_marker_lineage_gate"], "#55a868"),
-        ("Reference transfer\n(snRNA-seq)", bs["c_reference_transfer"], "#c44e52")]
+# neutral grayscale (NOT the dataset palette — blue/green/red stay RCC/PRCC/cLN doc-wide);
+# darker = higher agreement
+rows = [("Clustering structure", bs["a_cluster_structure"], "#3a3a3a"),
+        ("Marker + lineage gate", bs["b_marker_lineage_gate"], "#8a8a8a"),
+        ("Reference transfer\n(snRNA-seq)", bs["c_reference_transfer"], "#cccccc")]
 fig, ax = plt.subplots(figsize=(7, 5))
 for i, (n, v, c) in enumerate(rows):
     ax.bar(i, v, color=c); ax.text(i, v + 0.01, f"{v*100:.0f}%", ha="center", fontsize=12, weight="bold")
@@ -140,8 +142,9 @@ for i in range(len(rows_t)):
                     color="white" if M[i, j] > 0.5 else "#333")
 ax.set_xlabel("InSituType assignment (coarse)")
 fig.colorbar(im, ax=ax, fraction=0.025, label="row fraction")
-ax.set_title("T-cell loss on CosMx — author T subtypes vs InSituType: CD8 partly kept (28%), "
-             "CD4/Treg largely lost to de-novo / epithelial background (only 11% kept as T)", fontsize=10)
+ax.set_title("T-cell loss on CosMx (author T subtypes → InSituType, coarse)\n"
+             "CD8 28% kept as T; CD4/Treg only 11% (as CD8/other-T, never CD4); "
+             "rest lost to de-novo / epithelial background", fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcC_tcell_confusion.png"), dpi=150); plt.close(fig)
 print("wrote qcC_tcell_confusion.png")
 
@@ -191,8 +194,9 @@ tb = ax.table(cellText=show.round(3).fillna("—").values, colLabels=show.column
 tb.auto_set_font_size(False); tb.set_fontsize(8.5); tb.scale(1, 1.35)
 for j in range(len(show.columns)):
     tb[0, j].set_facecolor("#4c72b0"); tb[0, j].set_text_props(color="white", weight="bold")
-ax.set_title("InSituType per-type recall & precision vs two-stage (single source of truth: R/14)",
-             fontsize=11, pad=12)
+ax.set_title("InSituType per-type recall & precision vs two-stage (single source of truth: R/14)\n"
+             "T_CD4 recall = 0: no cell assigned to CD4 specifically (CD4/CD8 not separable on this panel)",
+             fontsize=9.5, pad=10)
 fig.tight_layout(); fig.savefig(os.path.join(FIG, "qcC_insitutype_table.png"), dpi=150); plt.close(fig)
 print("wrote qcC_insitutype_table.png")
 print("== Group C done ==")
