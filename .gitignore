@@ -8,6 +8,10 @@ kidney_10x_preview/data/
 # (the .RData objects AND the authors' analysis files); keep readme.txt tracked.
 Danaher24/data/
 
+# Dumoulin et al. 2026 DKD spatial atlas (Zenodo 19868428) — raw data/ folder
+# (the ~8.7 GB .h5ad and Diagnosis.xlsx); keep readme.txt + ASSESSMENT.md tracked.
+Demoulin26/data/
+
 # Large binary formats anywhere in the tree (belt-and-suspenders)
 *.ome.tif
 *.tif
