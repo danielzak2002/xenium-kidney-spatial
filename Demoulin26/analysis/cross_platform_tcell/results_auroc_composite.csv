@@ -1,0 +1,3 @@
+platform,auroc_composite_cd8,note
+CosMx,0.5698,(CD8A+CD8B)-CD4 lognorm
+Xenium,0.6857,(CD8A+CD8B)-CD4 lognorm
