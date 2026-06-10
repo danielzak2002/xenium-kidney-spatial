@@ -1,5 +1,6 @@
 axis,rcc,dkd,verdict
-Treg ENRICHED in aggregate,36/37 (log2 1.337),28/32 (log2 1.974),REPLICATE
-effector-CD8 EXCLUDED,34/37 (log2 -0.937),3/32 (log2 1.992),DIVERGE
-Treg collar at margin,n/a,core -0.19 -> margin 0.96,COLLAR
-plasma (structural),log2 0.106,log2 0.568,DESCRIPTIVE
+** Δlog2 Treg−eff-CD8 (burden-corrected) **,"+2.60 [+2.32,+2.84] (~6.1x Treg bias)","+0.24 [-0.31,+0.72] (~1.2x)",DIVERGE
+Treg ENRICHED in aggregate,36/37 (log2 1.337),28/32 (count-pooled log2 +2.08),REPLICATE
+effector-CD8 EXCLUDED,34/37 (log2 -0.937),3/32 (count-pooled log2 +1.84),DIVERGE
+Treg collar at margin,n/a,core +1.85 -> margin +1.97,NONE
+plasma (structural),log2 0.106,count-pooled log2 +0.77,DESCRIPTIVE

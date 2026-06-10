@@ -1,0 +1,3 @@
+cohort,n_agg,delta_log2,ci_lo,ci_hi,fold_bias
+RCC (tumor),35,2.604,2.324,2.841,6.08
+DKD (kidney),32,0.237,-0.306,0.715,1.18
