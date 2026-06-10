@@ -1,0 +1,4 @@
+program,target,k_sections,n_sections,median_section_delta,pooled_mean_near,pooled_mean_far,pooled_delta,mannwhitney_p_near_gt_far
+injPT,epi,6,9,0.109,0.131,-0.002,0.133,3.81e-02
+endoAct,endo,4,9,-0.004,-0.036,0.001,-0.037,6.63e-01
+hypoxia,endo,0,9,-0.112,-0.067,0.001,-0.068,7.44e-131
