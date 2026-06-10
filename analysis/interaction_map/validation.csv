@@ -1,0 +1,4 @@
+dataset,test,metric,k,recovered
+cLN,Plasma<->Myeloid (direct),z=8.49,9/10,YES
+RCC,B<->Treg vs B<->CD8eff (differential),-0.64 vs -24.05 (Δ+23.4),9 tiles,YES (differential)
+DKD,Injured_epi<->B vs Tubular_epi<->B (differential),-11.56 vs -26.06 (Δ+14.5),21 sec,YES (differential)
