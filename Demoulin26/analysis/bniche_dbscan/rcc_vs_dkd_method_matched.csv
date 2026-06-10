@@ -1,0 +1,5 @@
+axis,rcc,dkd,verdict
+Treg ENRICHED in aggregate,36/37 (log2 1.337),28/32 (log2 1.974),REPLICATE
+effector-CD8 EXCLUDED,34/37 (log2 -0.937),3/32 (log2 1.992),DIVERGE
+Treg collar at margin,n/a,core -0.19 -> margin 0.96,COLLAR
+plasma (structural),log2 0.106,log2 0.568,DESCRIPTIVE

@@ -1,0 +1,5 @@
+state,n_agg,background_mean,inside_mean,log2_pooled,median_log2_per_agg,n_enriched,n_excluded,wilcoxon_p,direction
+Treg-like,32,0.0064,0.0253,1.974,1.775,28,4,0.0,ENRICHED
+eff-CD8,32,0.0072,0.0286,1.992,1.963,29,3,0.0,ENRICHED
+mregDC-like,32,0.0,0.0,0.683,0.0,1,4,0.385,ENRICHED
+Plasma,32,0.0055,0.0082,0.568,0.156,16,16,0.1206,ENRICHED
