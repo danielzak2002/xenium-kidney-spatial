@@ -1,0 +1,5 @@
+axis,rcc,dkd_xenium,verdict
+Treg ENRICHED in B-niche,36/37 (0.97),1/4 (0.25),DIVERGE
+effector-CD8 EXCLUDED from B-niche,34/37 (0.92),2/4 (0.50),PARTIAL
+mregDC membership,inconclusive,descriptive (see refined CSV),DESCRIPTIVE
+plasma,inconclusive,coarse only,DESCRIPTIVE
