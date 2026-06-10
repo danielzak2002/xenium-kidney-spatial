@@ -1,0 +1,6 @@
+gene,protein,expected_pop,n_expect,expect_detect,expect_mean,floor_detect,floor_mean,ratio,verdict
+TNFSF13B,BAFF,myeloid_stromal_endo,273042,0.0102,0.0108,0.0038,0.0039,2.68,sub-ambient
+TNFSF13,APRIL,myeloid_stromal_endo,273042,0.0173,0.0183,0.0504,0.0546,0.34,sub-ambient
+TNFRSF17,BCMA,plasma,2726,0.1955,0.2506,0.0003,0.0003,756.27,usable
+TNFRSF13B,TACI,B,8422,0.0886,0.1013,0.0002,0.0002,528.6,usable
+TNFRSF13C,BAFF-R,B,8422,0.3407,0.4989,0.001,0.001,343.73,usable

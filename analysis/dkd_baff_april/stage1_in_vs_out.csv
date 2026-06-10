@@ -1,0 +1,4 @@
+gene,protein,pop,detect_in_agg,detect_out_agg,log2_in_vs_out
+TNFRSF17,BCMA,plasma,0.2029,0.1929,0.073
+TNFRSF13C,BAFF-R,B,0.3424,0.3402,0.009
+TNFRSF13B,TACI,B,0.0734,0.1131,-0.616
