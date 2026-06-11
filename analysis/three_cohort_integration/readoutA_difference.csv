@@ -1,0 +1,4 @@
+contrast,diff,lo,hi,excludes_zero
+RCC_pooled − DKD,0.283,-0.136,0.725,False
+RCC_big − DKD,0.229,-0.188,0.665,False
+RCC_figshare − DKD,0.177,-0.288,0.629,False

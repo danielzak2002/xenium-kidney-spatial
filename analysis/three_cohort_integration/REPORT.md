@@ -1,100 +1,103 @@
-# Three-cohort all-Xenium integration — readouts A & B
+# Three-cohort all-Xenium integration — reliable-gene set (updated)
 
-Three Xenium cohorts integrated on the **123-gene shared space** (`three_cohort_assessment/`):
-**RCC_big** (kidney_10x, 1 section), **RCC_figshare** (record 25685961, transcript tables →
-cell×gene built natively, 10 samples), **DKD** (Demoulin Xenium subset, 16 sections).
-~2.4 M cells (figshare 1.47 M · RCC_big 456 k · DKD 445 k). Read-only; pure science.
+Redo of the three-cohort integration on the **reliably-detected-in-all-3 gene set** (above the
+per-cohort ambient floor, not just non-zero), applied to **both** the integration features **and**
+the lineage definitions; with a **direct cohort-difference test** added to Readout A and Readout B
+reframed. (First pass on the full 123-gene name-intersection is preserved in
+`REPORT_firstpass_123gene.md`.) Cohorts: RCC_big (kidney_10x), RCC_figshare (record 25685961),
+DKD (Demoulin Xenium). Read-only; pure science.
 
-**Framing:** Harmony standardizes *typing*, not the comparison. Both readouts are computed
-**per cohort** on each cohort's native cells + coordinates with the harmonized labels.
-**Native segmentation on all three** (ProSeg not applied — DKD has no transcript table, so
-uniform segmentation is kept; ProSeg is a separate RCC-only sensitivity, see caveats).
+## Stage 0b — reliable gene set
 
-## Stage 1 — integration for typing (validation)
+For each cohort, per-gene detection is computed **per lineage**; a gene is **reliable** if its
+detection in its best lineage is **≥ 2.5 %** AND **≥ 1.5× the cross-lineage median** (the median
+across lineages is the non-expressing-reference "ambient" proxy — no negative-control probes
+survive in the built matrices). Keeping genes reliable in **all three** cohorts:
 
-Per-cell lineage is assigned by **uniform shared-marker definitions** in every cohort (scalable
-to 2.4 M cells); Harmony+Leiden on a balanced subsample (60 k/cohort) **validates** that this
-typing is consistent across cohorts. Lineage counts: Epithelial 614 k, Stroma 386 k, Myeloid
-372 k, Endothelial 327 k, T 266 k, B 209 k, NK 113 k, Plasma 89 k. Among T cells: Treg (FOXP3+)
-59 k, cytotoxic (CD8A/GZMK+) 107 k.
+- **Reliable-in-all-3 = 68 genes** (of 123). 55 dropped (`reliable_genes.txt`, `reliable_drops.csv`).
+- **DKD drives most drops** — its Xenium 5k per-cell detection is sparse, so endothelial/NK/
+  cytotoxic-adjacent genes thin out: VWF, NKG7, GNLY, IL2RA, CCL5, CD3D, ANGPT2, CXCL9/10 … all
+  fail on DKD. A few fail on figshare (e.g. FOXP3 is borderline there but clears at 2.5 %).
+- The lineage-aware floor correctly keeps **rare-but-specific** markers (FOXP3 in T cells: 2.6–9.9 %
+  across cohorts vs 0.4–3 % in epithelium/endothelium) while dropping uniform-ambient genes.
 
-Validation passes: (a) the two RCC cohorts merge in the Harmony embedding (batch baseline); (b)
-the per-cohort marker dot-plot shows each lineage defined by the right markers in **every** cohort
-(`INT_dotplot`); (c) the Treg:cytotoxic composition difference between RCC and DKD survives
-labeling (`INT_composition`). Figures: `INT_umap`, `INT_dotplot`, `INT_composition`.
+## Stage 1b — re-type + re-integrate on the reliable set
 
-## Readout A — immunoregulatory aggregate differential (THE headline)
+Per-cell lineage re-derived with **only reliable markers** (uniform definitions). Availability:
 
-Per section: DBSCAN B-aggregates (ε=50, minPts=20); per aggregate, count-pooled
-**Δlog₂ = log₂(Treg enrichment) − log₂(cytotoxic enrichment)** (inside vs section background),
-bootstrap 95 % CI. (`readoutA_differential.csv`, `READOUT_A`.)
-
-| cohort | aggregates / sections | Δlog₂ [95 % CI] | fold | Treg-favoring? |
-|---|---|---|---|---|
-| **RCC_big** | 70 / 1 | **+0.49 [+0.39, +0.59]** | ~1.4× | **yes (CI > 0)** |
-| **RCC_figshare** | 95 / 5 | **+0.67 [+0.49, +0.82]** | ~1.6× | **yes (CI > 0)** |
-| DKD | 62 / 13 | +0.22 [−0.16, +0.59] | ~1.2× | no (CI crosses 0) |
-
-**Both independent RCC cohorts show a Treg-favoring bias in B-aggregates (CIs above zero); DKD is
-indistinguishable from zero.** Because the two RCC cohorts are different patients, a different
-custom panel, and a different lab, their agreement **de-confounds disease from batch** — the
-immunoregulatory bias tracks the tumor context, not a single dataset. (Magnitudes are smaller
-than the native-label ccRCC analysis [Δ≈+2.6] because the 123-gene harmonized typing is coarser
-and cytotoxic here = CD8A/GZMK-gated; the **direction and the two-cohort replication** are the
-contribution.)
-
-## Readout B — endothelial / inflammatory stress near B-aggregates (cross-context axis)
-
-**Usability gate (detection in endothelial cells), per cohort** (`readoutB_usability.csv`):
-
-| gene | RCC_big | RCC_figshare | DKD |
-|---|---|---|---|
-| ANGPT2 (endo-activation) | 0.20 ✓ | 0.40 ✓ | **0.013 ✗** |
-| CXCL9 | 0.13 ✓ | 0.15 ✓ | **0.005 ✗** |
-| CXCL10 | 0.10 ✓ | 0.06 ✓ | **0.003 ✗** |
-| HLA-DRA | 0.76 ✓ | 0.78 ✓ | 0.72 ✓ |
-| PECAM1 (endo id) | 0.92 | 0.88 | 0.76 |
-| VWF (endo id) | 0.62 | 0.77 | **0.00 ✗ (struct-zero)** |
-
-**Key limitation:** ANGPT2 / CXCL9 / CXCL10 are **sub-ambient on the DKD Xenium 5k panel** — the
-vascular-activation axis is only *measurable* on the two RCC cohorts; on DKD only HLA-DRA passes.
-
-Endothelial-cell module score NEAR (≤50 µm) vs FAR (>200 µm) from B-aggregates, matched within
-section (`readoutB_near_far.csv`, `readoutB_gradient.csv`, `READOUT_B`):
-
-| cohort | endo-activation (ANGPT2) Δ(near−far) | inflammatory (CXCL9/10/HLA-DRA) Δ |
+| lineage | reliable markers | status |
 |---|---|---|
-| RCC_big | −0.31 | −0.29 |
-| RCC_figshare | −0.58 (2/5 sec +) | +0.03 (3/5 sec +) |
-| DKD | n/a (markers gated out) | −0.08 (HLA-DRA only, 9/11 sec) |
+| B | MS4A1, CD79A | robust |
+| Plasma | MZB1, TNFRSF17 | robust |
+| T | CD3E, CD3G | robust |
+| Myeloid | CD68, CD14, CD163, AIF1, ITGAX | robust |
+| Endothelial | PECAM1, EGFL7 | robust (VWF dropped on DKD) |
+| Epithelial | EPCAM, CDH1 | robust |
+| Stroma | PDGFRA, PDGFRB, ACTA2 | robust |
+| **NK** | **KLRD1 only** | **weakened** (GNLY, NKG7 dropped on DKD) |
+| **Treg gate** | **FOXP3, CTLA4** | (IL2RA dropped on DKD) |
+| **cytotoxic gate** | **CD8A, GZMK** | robust |
 
-**Result: no elevation of endothelial/inflammatory activation near B-aggregates** — if anything,
-endothelial-activation is *lower* near aggregates in RCC, and the inflammatory module is null.
-Combined with the DKD panel gap, **Readout B does not support a cross-context vascular-stress
-niche** around B-aggregates on these panels; it is reported as an honest null with the coverage
-caveat. (The within-RCC depletion may reflect that B-aggregates sit in immune-dense interstitium
-displacing vasculature — associational, not tested here.)
+Re-integration (Harmony on the 68-gene PCA, harmonypy called directly) **re-validates**: the two
+RCC cohorts merge, lineages resolve (`INTrel_umap`), and the per-cohort dot-plot is marker-faithful
+in every cohort (`INTrel_dotplot`). Lineage counts: Epithelial 561 k, Stroma 371 k, Myeloid 370 k,
+Endothelial 339 k, T 291 k, B 257 k, Plasma 93 k, NK 93 k; among T: Treg 50 k, cytotoxic 120 k.
+
+## Readout A — replication + DIRECT cohort-difference test
+
+Per-cohort count-pooled **Δlog₂ = log₂(Treg enrich) − log₂(cytotoxic enrich)** per B-aggregate,
+bootstrap 95 % CI (`readoutA_reliable.csv`); and the **difference (cohort − DKD)** bootstrapped by
+resampling aggregates within cohort (`readoutA_difference.csv`, `READOUT_A_reliable`).
+
+| cohort | aggregates / sections | Δlog₂ [95 % CI] |
+|---|---|---|
+| RCC_big | 77 / 1 | +0.49 [−1.01, +1.99] |
+| RCC_figshare | 361 / 9 | +0.44 [−0.40, +1.27] |
+| RCC_pooled | 438 / 10 | +0.55 [−0.44, +1.53] |
+| DKD | 61 / 13 | +0.26 [−1.00, +1.54] |
+
+**Direct cohort-difference test (does it exclude zero?):**
+
+| contrast | difference in Δlog₂ [95 % CI] | excludes 0? |
+|---|---|---|
+| RCC_pooled − DKD | **+0.28 [−0.14, +0.72]** | **no** |
+| RCC_big − DKD | +0.23 [−0.19, +0.67] | no |
+| RCC_figshare − DKD | +0.18 [−0.29, +0.63] | no |
+
+### Replication vs separation — kept distinct (do not conflate)
+
+- **Replication (integrated, reliable-set):** all three RCC estimates are **positive and consistent
+  in direction** (+0.44 to +0.55) across two independent cohorts (different patients, panels, labs),
+  with DKD lower (+0.26). The Treg-favoring *direction* reproduces.
+- **But the integrated difference is NOT statistically resolved:** every cohort−DKD contrast has a
+  95 % CI that **includes zero**. On the reliable 68-gene space the test is **underpowered** — the
+  Treg gate is reduced to FOXP3/CTLA4, DKD aggregates are few (61) with thin immune-marker detection
+  (FOXP3 ~0.5 % of DKD cells), and RCC_big is a single section (very wide CI).
+- **Separation evidence comes from the native-label analysis**, not this one: `bniche_dbscan`
+  (full native panels, native effector-CD8 / Treg labels) gives RCC Δ ≈ **+2.6** vs DKD **+0.24**
+  with **non-overlapping** bootstrap CIs. That is where the magnitude/separation lives.
+- **Bottom line:** the integration **replicates the direction** across two RCC cohorts; the
+  **separation** is established at native depth. The reliability filter buys cross-cohort
+  comparability at the cost of power, and honestly does not by itself resolve RCC≠DKD.
+
+## Readout B — reframed (panel limitation, not a cross-context readout)
+
+Usability gate (endothelial-cell detection) is **decisive**: **ANGPT2, CXCL9, CXCL10 are
+sub-ambient on the DKD Xenium 5k panel** (0.3–1.3 %) and were dropped from the reliable set — the
+vascular/inflammatory-activation axis is **not measurable cross-cohort**. (VWF is structural-zero
+on DKD.) Where measurable on the two RCC cohorts, endothelial-activation near vs far from
+B-aggregates is **null / slightly depleted** (RCC_big −0.31, RCC_figshare −0.58); HLA-DRA (the only
+DKD-usable inflammatory marker) shows no gradient. **Readout B is reported only as a within-RCC
+null with a panel-coverage limitation; it is not a cross-context result.**
 
 ## Caveats
 
-- **123-gene shared space** (reduced depth vs native panels). **DKD effectively 104/123** — 19 of
-  the shared genes are CosMx-only and **structural-zero on DKD Xenium** (incl. VWF, NKG7, GNLY,
-  PTPRC, CCL5); the readout markers (FOXP3/IL2RA/CTLA4, CD8A/GZMK, HLA-DRA, PECAM1) survive, but
-  ANGPT2/CXCL9/CXCL10 do not on DKD (Readout B limitation above).
-- **Native segmentation on all three** — ProSeg was *not* applied, to keep segmentation uniform
-  (DKD has no transcript table). ProSeg re-segmentation of the two RCC cohorts (which have
-  transcripts) is a separate **RCC-only sensitivity check**, not part of this uniform comparison.
-- **Harmony for labels/typing only.** Per-cell labels are uniform marker definitions; Harmony+Leiden
-  validate cross-cohort consistency. Batch = disease is managed by the **two-RCC de-confounding**
-  (both RCC cohorts independently show the Readout-A bias) + the per-cohort dot-plot.
-- **No DKD patient column** (donor clustering uncontrolled). **RCC epithelium is malignant** —
-  excluded from any epithelial-stress cross-cohort claim (EMT/fibrosis markers excluded by design).
-- **Association, not causation**; figshare cell×gene matrices were built from the public transcript
-  tables (native cell_id) and are not committed.
-
-## Bottom line
-
-- **Readout A replicates the immunoregulatory (Treg-favoring) aggregate bias across two independent
-  RCC cohorts vs DKD** — the strongest cross-cohort result, de-confounding disease from batch.
-- **Readout B is panel-limited and null**: the vascular/inflammatory-activation markers are
-  sub-ambient on DKD Xenium, and where measurable (RCC) activation is not elevated near aggregates.
+- **RCC_big is a single section** → very wide aggregate-bootstrap CI; lean on **figshare** for
+  multi-sample RCC (9–10 sections). **DKD aggregates are sparse** (61) with thin immune detection.
+- **Reliable 68-gene set** reduces depth and **weakens the Treg gate (FOXP3/CTLA4)** and **NK
+  (KLRD1 only)**; this is the cost of cross-cohort reliability and the main reason the integrated
+  difference is underpowered.
+- **Native segmentation on all three** (uniform); ProSeg not applied (DKD has no transcripts) —
+  an **RCC-only ProSeg sensitivity check is still pending**.
+- **No DKD patient column** (donor clustering uncontrolled); RCC epithelium malignant (excluded
+  from any epithelial-stress cross-claim). **Association, not causation.**

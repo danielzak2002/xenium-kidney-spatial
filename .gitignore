@@ -71,3 +71,4 @@ renv/python/
 # Cached annotation references (downloaded; see DATA.md)
 refs/
 analysis/three_cohort_integration/cells_labeled.parquet
+analysis/three_cohort_integration/cells_labeled_reliable.parquet
