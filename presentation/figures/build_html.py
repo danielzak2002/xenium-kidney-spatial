@@ -58,7 +58,7 @@ BLOCKS=[("V1 · ccRCC vignette (Xenium ×2: discovery + replication)",["V1_qc","
         ("V2 · cLN vignette (CosMx, 14 slides)",["V2_qc","V2_typing","A2","V2_gallery","V2_niche","B2"]),
         ("V3 · DKD vignette (CosMx + Xenium)",["V3_qc","V3_typing","A3","A3raw","V3_gallery","V3_aggregates","C4","B4","B3"]),
         ("N · Normalization & harmonization (the deliberate bridge)",["N_map","T1","A1","T2"]),
-        ("X · Cross-indication — the earned comparison",["B1","C3","C5","D1"]),
+        ("X · Cross-context — the earned comparison (across disease settings)",["B1","C3","C5","D1"]),
         ("P · Platforms & caveats",["D2"])]
 EXTRA=["Q1","C1","C1raw","C2","C2raw"]
 DS={k:v for k,v in fs.DATASET.items()}
@@ -119,7 +119,7 @@ footer{{max-width:1180px;margin:0 auto;padding:0 20px 60px;color:#8a93a3;font-si
 </style></head><body>
 <header>
   <h1>Spatial transcriptomics of kidney B/plasma niches — presentation figures</h1>
-  <p>Each study stands on its own first — QC → native cell typing → observed pattern → reproducibility across many sections — BEFORE any cross-dataset normalization. Harmonization (N) and the cross-indication comparison (X) come only after, as deliberate steps. The earned conclusion: a conserved B/plasma scaffold acquires context-specific immune wiring — immunoregulatory (Treg-in / cytotoxic-out) in tumor, absent in non-malignant disease.</p>
+  <p>Each study stands on its own first — QC → native cell typing → observed pattern → reproducibility across many sections — BEFORE any cross-dataset normalization. Harmonization (N) and the cross-context comparison (X) come only after, as deliberate steps. The earned conclusion: a conserved B/plasma scaffold acquires context-specific immune wiring — immunoregulatory (Treg-in / cytotoxic-out) in tumor, absent in non-malignant disease.</p>
   <nav>{' '.join(f'<a href="#{i}">{i}</a>' for _,ids in BLOCKS for i in ids)} {' '.join(f'<a href="#{i}">{i}</a>' for i in EXTRA)}</nav>
 </header>
 <main>
