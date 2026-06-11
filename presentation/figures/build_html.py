@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 """build_html.py — self-contained scrollable HTML gallery of the presentation figures
 (talk order, captions). Figures referenced relatively (HTML lives beside the PNGs/SVGs)."""
-import os, html
+import os, html, base64
 import figstyle as fs
 OUT=fs.OUT
+
+def _datauri(fname):
+    p=os.path.join(OUT,fname)
+    if not os.path.exists(p): return None
+    mime="image/svg+xml" if fname.endswith(".svg") else "image/png"
+    return f"data:{mime};base64,"+base64.b64encode(open(p,"rb").read()).decode()
 
 CAP={
  "A1":("Spatial cell-type maps — ccRCC, cLN, DKD","Cells at spatial coordinates colored by harmonized lineage (shared palette). Orients the audience in each tissue; immune cells drawn on top of parenchyma. cLN (CosMx) cropped to its densest core.",False),
@@ -31,23 +37,32 @@ BLOCKS=[("1 · Orientation",["A1"]),
 EXTRA=["A2","B4"]
 DS={k:v for k,v in fs.DATASET.items()}
 
-def card(fid):
+def card(fid, embed):
     title,cap,hero=CAP[fid]
     star=' <span class="hero">★ hero</span>' if hero else ''
+    if embed:
+        png=_datauri(f"{fid}.png"); svg=_datauri(f"{fid}.svg")
+        imgsrc=png; href=svg or png; links=""  # data-URIs already embedded; no external links
+    else:
+        imgsrc=f"{fid}.png"; href=f"{fid}.svg"
+        links=f' <span class="links">[<a href="{fid}.png" target="_blank">PNG</a> · <a href="{fid}.svg" target="_blank">SVG</a>]</span>'
     return f'''<div class="card{' herocard' if hero else ''}" id="{fid}">
   <div class="meta"><span class="badge">{fid}</span><span class="ttl">{html.escape(title)}</span>{star}</div>
-  <a href="{fid}.svg" target="_blank" title="open vector SVG"><img src="{fid}.png" alt="{fid}"></a>
-  <div class="cap">{html.escape(cap)} <span class="links">[<a href="{fid}.png" target="_blank">PNG</a> · <a href="{fid}.svg" target="_blank">SVG</a>]</span></div>
+  <a href="{href}" target="_blank" title="open full size"><img src="{imgsrc}" alt="{fid}"></a>
+  <div class="cap">{html.escape(cap)}{links}</div>
 </div>'''
 
-sections=[]
-for name,ids in BLOCKS:
-    cards="\n".join(card(i) for i in ids)
+def build(embed):
+  sections=[]
+  for name,ids in BLOCKS:
+    cards="\n".join(card(i,embed) for i in ids)
     sections.append(f'<section><h2>{html.escape(name)}</h2>\n{cards}\n</section>')
-extra_cards="\n".join(card(i) for i in EXTRA)
-sections.append(f'<section><h2>Supporting (as needed)</h2>\n{extra_cards}\n</section>')
-
-HTML=f'''<!doctype html><html lang="en"><head><meta charset="utf-8">
+  extra_cards="\n".join(card(i,embed) for i in EXTRA)
+  sections.append(f'<section><h2>Supporting (as needed)</h2>\n{extra_cards}\n</section>')
+  contact=_datauri("CONTACT_SHEET.png") if embed else "CONTACT_SHEET.png"
+  foot=(f'<a href="{contact}" target="_blank">contact sheet</a>' if embed
+        else '<a href="CONTACT_SHEET.png" target="_blank">contact sheet</a> · <a href="INDEX.md" target="_blank">index</a>')
+  return f'''<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spatial-kidney — presentation figures</title>
 <style>
@@ -83,7 +98,7 @@ footer{{max-width:1180px;margin:0 auto;padding:0 20px 60px;color:#8a93a3;font-si
   <nav>{' '.join(f'<a href="#{i}">{i}</a>' for _,ids in BLOCKS for i in ids)} {' '.join(f'<a href="#{i}">{i}</a>' for i in EXTRA)}</nav>
 </header>
 <main>
-  <div class="takehome"><b>How to read these:</b> ★ = hero (B1 the impact figure, C3 the headline). Click any figure to open its vector SVG. Order follows the talk.</div>
+  <div class="takehome"><b>How to read these:</b> ★ = hero (B1 the impact figure, C3 the headline). Click any figure to open it full size. Order follows the talk.</div>
   {''.join(sections)}
   <div class="caveats"><b>Caveats baked into the figures</b>
   <ul>
@@ -95,8 +110,12 @@ footer{{max-width:1180px;margin:0 auto;padding:0 20px 60px;color:#8a93a3;font-si
   </ul></div>
 </main>
 <footer>Generated from presentation/figures/ · PNG@300 + SVG per figure · pure science (scientific labels only).
-&nbsp;<a href="CONTACT_SHEET.png" target="_blank">contact sheet</a> · <a href="INDEX.md" target="_blank">index</a></footer>
+&nbsp;{foot}</footer>
 </body></html>'''
 
-open(os.path.join(OUT,"gallery.html"),"w").write(HTML)
-print(f"wrote gallery.html ({len(HTML)//1024} KB, references {len(CAP)} figures relatively)")
+h_rel=build(embed=False)
+open(os.path.join(OUT,"gallery.html"),"w").write(h_rel)
+print(f"wrote gallery.html ({len(h_rel)//1024} KB, references {len(CAP)} figures relatively)")
+h_emb=build(embed=True)
+open(os.path.join(OUT,"gallery_standalone.html"),"w").write(h_emb)
+print(f"wrote gallery_standalone.html ({len(h_emb)//1024//1024} MB, {len(CAP)} figures embedded as base64 — single portable file)")
