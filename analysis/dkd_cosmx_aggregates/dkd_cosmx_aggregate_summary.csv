@@ -1,0 +1,6 @@
+state,median_log2,k_enriched,n_sec
+B,2.646,5,5
+Plasma,0.34,3,5
+Myeloid,0.358,3,5
+T_lineage,0.208,4,5
+NK,-8.243,1,5
