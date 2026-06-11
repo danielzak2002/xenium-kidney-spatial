@@ -40,18 +40,27 @@ CAP={
  "A3raw":("Raw counts behind the AUROC","Per-cell CD8A and CD4 count distributions in CD4- vs CD8-labelled cells, faceted Xenium vs CosMx, ambient/PT floor marked. The distributions visibly separate on Xenium and overlap on CosMx — the AUROC merely summarizes what you can see.",False),
  "C1raw":("Aggregates are real structures, not an algorithm artifact","Representative ccRCC and DKD sections: all cells grey, B cells highlighted, DBSCAN convex hulls overlaid; with an aggregate-size histogram and a nearest-neighbour test. Observed B–B spacing is far tighter than a permuted null — B cells genuinely cluster.",False),
  "C2raw":("Composition behind the enrichment — countable cells","Raw cells: inside-vs-background composition (ccRCC), per-aggregate Treg vs effector-CD8 counts (ccRCC above the diagonal = Treg>CD8; DKD on it), and per-aggregate Treg-enrichment consistency. The log₂ enrichment and the differential trace to real, countable cells.",False),
+ "V1_qc":("ccRCC — data quality, two Xenium sections","Median transcripts/cell, genes/cell, panel size, and neg-control fraction for the discovery (ccRCC) and replication (pRCC) Xenium sections. Clean ambient (~0). The substrate is usable.",False),
+ "V1_typing":("ccRCC — native cell typing","Native-label dot-plot (the study's own vocabulary, not harmonized) — each type is defined by its canonical markers — plus per-section UMAPs. The structure is visible in both sections.",False),
+ "V1_gallery":("ccRCC — marker & population gallery (both sections)","Spatial maps of MS4A1/MZB1/FOXP3/CD8A/CD68 and the native B/plasma/Treg/CD8/myeloid populations in situ, ccRCC above pRCC. The biology reproduces across BOTH Xenium sections — the within-study veracity.",False),
+ "V1_pattern":("ccRCC — observed immunoregulatory pattern","Per-aggregate Treg vs effector-CD8 counts (Treg>CD8 in nearly all aggregates) and the inside-vs-background composition: Treg enriched, cytotoxic-CD8 excluded. The native ccRCC signature, before any harmonization.",False),
+ "V2_qc":("cLN — data quality across 14 slides","Median transcripts/genes per cell, cells per slide (4 control + 10 SLE), CosMx ambient (~0.10). Caveat stated up front: ~35% epithelial CD3 contamination → T-lineage is unreliable here and excluded from T claims.",False),
+ "V2_typing":("cLN — native cell typing","Native author-label dot-plot + UMAP (CosMx 957-plex). See A2 for the InSituType benchmark vs author labels.",False),
+ "V2_gallery":("cLN — marker & population gallery across slides","B/plasma/myeloid markers and populations in situ across 3 control + 3 SLE slides — the strongest reproducibility evidence in this study (a representative condition-spanning subset of the 14 slides).",False),
+ "V2_niche":("cLN — observed plasma–myeloid niche","The reproducible cLN finding: plasma aggregates recruit myeloid cells, across slides and SLE classes (control-vs-SLE contrast). Plasma–myeloid neighborhood z and per-slide plasma-aggregate counts.",False),
+ "V3_qc":("DKD — data quality, both platforms","Median transcripts/genes per cell and section counts for CosMx (n=48) and Xenium (n=16). Neg-probes were dropped from the release, so ambient is not computable.",False),
+ "V3_typing":("DKD — native cell typing, both platforms","Native dot-plots for CosMx and Xenium (each platform's own labels) + UMAP. Subtype (CD4/CD8) is only trustworthy on Xenium — see A3/A3raw.",False),
+ "V3_gallery":("DKD — marker & population gallery, both platforms","B/plasma/myeloid markers and populations in situ across representative CosMx and Xenium samples (can't show all 48 CosMx — a representative panel). The structural B/plasma finding is present on both platforms.",False),
+ "V3_aggregates":("DKD — B/plasma aggregate composition on BOTH platforms","DBSCAN B-aggregate composition recovers on CosMx (lineage, new analysis) and Xenium — the structural finding is cross-platform (mirror of the ccRCC two-section replication). Subtype-resolved Treg/effector-CD8 only on Xenium.",False),
+ "N_map":("Reconciling three native vocabularies → one common scheme","The native→common mapping table, shown as a deliberate step AFTER each study stands on its own. cLN T-lineage pooled and flagged unreliable; ccRCC epithelium is malignant (kept separate).",False),
 }
-BLOCKS=[("1 · Orientation",["A1"]),
-        ("2 · Data quality",["Q1"]),
-        ("3 · Cell typing & how we know it's right",["T1","T2","A2"]),
-        ("4 · Platform rigor",["A3","A3raw","B2","B3"]),
-        ("5 · Aggregates are real structures",["C1","C1raw","B1"]),
-        ("6 · What's inside them (raw → enrichment)",["C2raw","C2","C4"]),
-        ("7 · The headline (now earned)",["C3"]),
-        ("8 · Cross-context map",["C5"]),
-        ("9 · Synthesis",["D1"]),
-        ("10 · Platforms & caveats",["D2"])]
-EXTRA=["B4"]
+BLOCKS=[("V1 · ccRCC vignette (Xenium ×2: discovery + replication)",["V1_qc","V1_typing","V1_gallery","V1_pattern"]),
+        ("V2 · cLN vignette (CosMx, 14 slides)",["V2_qc","V2_typing","A2","V2_gallery","V2_niche","B2"]),
+        ("V3 · DKD vignette (CosMx + Xenium)",["V3_qc","V3_typing","A3","A3raw","V3_gallery","V3_aggregates","C4","B4","B3"]),
+        ("N · Normalization & harmonization (the deliberate bridge)",["N_map","T1","A1","T2"]),
+        ("X · Cross-indication — the earned comparison",["B1","C3","C5","D1"]),
+        ("P · Platforms & caveats",["D2"])]
+EXTRA=["Q1","C1","C1raw","C2","C2raw"]
 DS={k:v for k,v in fs.DATASET.items()}
 
 def card(fid, embed):
@@ -74,7 +83,7 @@ def build(embed):
     cards="\n".join(card(i,embed) for i in ids)
     sections.append(f'<section><h2>{html.escape(name)}</h2>\n{cards}\n</section>')
   extra_cards="\n".join(card(i,embed) for i in EXTRA)
-  sections.append(f'<section><h2>Supporting (as needed)</h2>\n{extra_cards}\n</section>')
+  sections.append(f'<section><h2>Supporting — global QC overview & cross-study aggregate evidence</h2>\n{extra_cards}\n</section>')
   contact=_datauri("CONTACT_SHEET.png", max_w=1800) if embed else "CONTACT_SHEET.png"
   foot=(f'<a href="{contact}" target="_blank">contact sheet</a>' if embed
         else '<a href="CONTACT_SHEET.png" target="_blank">contact sheet</a> · <a href="INDEX.md" target="_blank">index</a>')
@@ -110,7 +119,7 @@ footer{{max-width:1180px;margin:0 auto;padding:0 20px 60px;color:#8a93a3;font-si
 </style></head><body>
 <header>
   <h1>Spatial transcriptomics of kidney B/plasma niches — presentation figures</h1>
-  <p>Rigor and platform first, then biology as proof: a conserved B/plasma scaffold acquires context-specific immune wiring — immunoregulatory (Treg-in / cytotoxic-out) in tumor, absent in non-malignant disease.</p>
+  <p>Each study stands on its own first — QC → native cell typing → observed pattern → reproducibility across many sections — BEFORE any cross-dataset normalization. Harmonization (N) and the cross-indication comparison (X) come only after, as deliberate steps. The earned conclusion: a conserved B/plasma scaffold acquires context-specific immune wiring — immunoregulatory (Treg-in / cytotoxic-out) in tumor, absent in non-malignant disease.</p>
   <nav>{' '.join(f'<a href="#{i}">{i}</a>' for _,ids in BLOCKS for i in ids)} {' '.join(f'<a href="#{i}">{i}</a>' for i in EXTRA)}</nav>
 </header>
 <main>
