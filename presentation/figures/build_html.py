@@ -29,7 +29,7 @@ CAP={
  "C2":("Per-aggregate Treg vs effector-CD8 enrichment","Per-aggregate log₂ enrichment (inside vs section background) for Treg-like and effector-CD8, ccRCC vs DKD. Tick = median. ccRCC excludes cytotoxic CD8; DKD co-enriches it.",False),
  "C3":("★ Burden-corrected differential — THE headline","Δlog₂ = log₂(Treg) − log₂(effector-CD8) per aggregate, count-pooled with bootstrap 95% CI. ccRCC +2.60 [+2.32,+2.84] (~6× Treg bias) vs DKD +0.24 [−0.31,+0.72] (~1×, no bias); CIs non-overlapping → the immunoregulatory bias is tumor-specific. Immune to the cytotoxic-burden confound.",True),
  "C4":("Count-pooled radial profile — no Treg collar","Treg-like and effector-CD8 enrichment in concentric rings from the B-core (count-pooled). Treg is flat across rings; a mild cytotoxic-core gradient is the only spatial structure — the earlier 'margin collar' was a mean-of-log2 artifact.",False),
- "C5":("Comparative non-immune × immune neighborhood enrichment","Per-section neighborhood z across kidney contexts. Absolute z is dominated by immune↔parenchyma geometry (immune cells aggregate, parenchyma 'avoids'); the biology is in the differentials. NOTE: the ccRCC stroma–immune inversion is provisional (not tile-verified).",False),
+ "C5":("Exploratory — comparative neighborhood map (geometry-dominated)","Per-section neighborhood z across kidney contexts. Demoted from the climax: absolute z is dominated by immune↔parenchyma geometry (immune cells aggregate, parenchyma 'avoids'), so it is exploratory. NOTE: the ccRCC stroma–immune inversion is provisional (not tile-verified).",False),
  "D1":("Conserved B/plasma scaffold, context-specific wiring","Schematic: one shared B/plasma core; three surrounds — ccRCC (Treg ring, cytotoxic excluded), cLN (+ myeloid / plasma–myeloid niche), DKD (cytotoxic mixed-in + injured tubule). Programmatic draft — may want manual vector polish.",False),
  "D2":("Platform capability matrix","What each panel can and cannot establish: T-lineage (both measured), CD4/CD8 subtype (Xenium measured / CosMx imputed), BAFF/APRIL ligands (sub-ambient both), receptors BCMA/BAFF-R/TACI (specific both), ambient/segmentation (cLN ~35% epithelial CD3+), IF anchors (decisive).",False),
  "A2":("cLN CosMx immune typing benchmark","InSituType recall and precision vs author labels per immune type (n annotated shown).",False),
@@ -53,14 +53,15 @@ CAP={
  "V3_gallery":("DKD — marker & population gallery, both platforms","B/plasma/myeloid markers and populations in situ across representative CosMx and Xenium samples (can't show all 48 CosMx — a representative panel). The structural B/plasma finding is present on both platforms.",False),
  "V3_aggregates":("DKD — B/plasma aggregate composition on BOTH platforms","DBSCAN B-aggregate composition recovers on CosMx (lineage, new analysis) and Xenium — the structural finding is cross-platform (mirror of the ccRCC two-section replication). Subtype-resolved Treg/effector-CD8 only on Xenium.",False),
  "N_map":("Reconciling three native vocabularies → one common scheme","The native→common mapping table, shown as a deliberate step AFTER each study stands on its own. cLN T-lineage pooled and flagged unreliable; ccRCC epithelium is malignant (kept separate).",False),
+ "V1_closeup":("ccRCC aggregate close-up — Treg-around / cytotoxic-excluded","B1-style marker overlay on one representative ccRCC aggregate: B-core underlay + MS4A1/MZB1/FOXP3/CD8A/GZMB + composite B/Treg/CD8. The immunoregulatory pattern is fully SEEN within the ccRCC vignette, before any cross-context comparison.",False),
 }
-BLOCKS=[("V1 · ccRCC vignette (Xenium ×2: discovery + replication)",["V1_qc","V1_typing","V1_gallery","V1_pattern"]),
+BLOCKS=[("V1 · ccRCC vignette (Xenium ×2: discovery + replication)",["V1_qc","V1_typing","V1_gallery","V1_closeup","V1_pattern"]),
         ("V2 · cLN vignette (CosMx, 14 slides)",["V2_qc","V2_typing","A2","V2_gallery","V2_niche","B2"]),
         ("V3 · DKD vignette (CosMx + Xenium)",["V3_qc","V3_typing","A3","A3raw","V3_gallery","V3_aggregates","C4","B4","B3"]),
         ("N · Normalization & harmonization (the deliberate bridge)",["N_map","T1","A1","T2"]),
-        ("X · Cross-context — the earned comparison (across disease settings)",["B1","C3","C5","D1"]),
+        ("X · Cross-context — the earned comparison (across disease settings)",["C3","B1","D1"]),
         ("P · Platforms & caveats",["D2"])]
-EXTRA=["Q1","C1","C1raw","C2","C2raw"]
+EXTRA=["Q1","C5","C1","C1raw","C2","C2raw"]
 DS={k:v for k,v in fs.DATASET.items()}
 
 def card(fid, embed):

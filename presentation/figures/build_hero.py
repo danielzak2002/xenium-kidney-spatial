@@ -4,6 +4,7 @@ import os, warnings; warnings.filterwarnings("ignore"); os.environ.setdefault("K
 import numpy as np, pandas as pd, anndata as ad, scipy.sparse as sp
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyArrowPatch, Rectangle
+from matplotlib.lines import Line2D
 import figstyle as fs
 rng=np.random.default_rng(0)
 REPO=fs.REPO
@@ -179,39 +180,48 @@ def figC3():
 
 # ============================================================================
 def figD1():
-    print("D1 conserved-scaffold / context-wiring schematic...")
-    fig,axes=plt.subplots(1,3,figsize=(16.5,6))
-    contexts=[("RCC","ccRCC: Treg ring, cytotoxic EXCLUDED",
-               [("Treg","#d62728","ring"),("CD8","#2ca02c","excluded")]),
-              ("cLN","cLN: + myeloid, plasma–myeloid niche",
-               [("Myeloid","#9467bd","ring"),("Plasma","#ff7f0e","mixed")]),
-              ("DKD","DKD: cytotoxic MIXED-IN + injured tubule",
-               [("CD8","#2ca02c","mixed"),("Treg","#d62728","mixed"),("injured PT","#8c510a","adjacent")])]
-    for ax,(nm,title,surround) in zip(axes,contexts):
-        ax.set_xlim(-1.4,1.4); ax.set_ylim(-1.4,1.5); ax.set_aspect("equal"); ax.axis("off")
-        # shared B/plasma core
-        ax.add_patch(Circle((0,0),0.55,facecolor="#1f77b4",alpha=0.25,edgecolor="#1f77b4",lw=2))
-        ax.text(0,0,"B / plasma\ncore",ha="center",va="center",fontsize=11,fontweight="bold",color="#10406b")
-        for name,col,mode in surround:
-            if mode=="ring":
-                th=np.linspace(0,2*np.pi,22)
-                ax.scatter(0.85*np.cos(th),0.85*np.sin(th),s=70,c=col,edgecolor="white",lw=0.5,zorder=4)
-                ax.text(0,1.05,name,ha="center",color=col,fontsize=12,fontweight="bold")
-            elif mode=="excluded":
-                th=np.linspace(0,2*np.pi,16)
-                ax.scatter(1.25*np.cos(th),1.25*np.sin(th),s=45,c=col,alpha=0.55,zorder=2)
-                ax.text(0,-1.28,f"{name} excluded",ha="center",color=col,fontsize=12,fontweight="bold")
-                ax.add_patch(Circle((0,0),0.95,facecolor="none",edgecolor=col,ls=":",lw=1.8))
-            elif mode=="mixed":
-                pts=rng.uniform(-0.5,0.5,(14,2))
-                ax.scatter(pts[:,0],pts[:,1],s=42,c=col,alpha=0.75,zorder=5,edgecolor="white",lw=0.4)
-            elif mode=="adjacent":
-                ax.add_patch(Rectangle((-1.3,-1.45),2.6,0.32,facecolor=col,alpha=0.5))
-                ax.text(0,-1.29,name,ha="center",color="white",fontsize=11,fontweight="bold")
-        ax.set_title(title,fontsize=13,color=fs.DATASET[nm])
-    fig.suptitle("Conserved B/plasma scaffold, context-specific immune wiring",fontsize=18)
-    fs.save_fig(fig,"D1")
-    print("    NOTE: D1 is a programmatic draft — may want manual vector polish (Illustrator/Inkscape).")
+    print("D1 conserved-scaffold / context-wiring schematic (clean vector-style)...")
+    fig,axes=plt.subplots(1,3,figsize=(16.5,6.2))
+    def ring(ax,r,col,n=24,s=58):
+        th=np.linspace(0,2*np.pi,n,endpoint=False)
+        ax.scatter(r*np.cos(th),r*np.sin(th),s=s,c=col,edgecolor="white",lw=0.6,zorder=4)
+    def blob(ax,col,n=13,spread=0.42,s=46,seed=1):
+        rg=np.random.default_rng(seed); a=rg.uniform(0,2*np.pi,n); rr=spread*np.sqrt(rg.uniform(0,1,n))
+        ax.scatter(rr*np.cos(a),rr*np.sin(a),s=s,c=col,edgecolor="white",lw=0.5,alpha=0.9,zorder=5)
+    contexts=[("RCC","ccRCC — tumor","Treg ring · cytotoxic EXCLUDED"),
+              ("cLN","cLN — lupus nephritis","+ myeloid · plasma–myeloid niche"),
+              ("DKD","DKD — non-malignant","cytotoxic MIXED-IN · injured tubule")]
+    for ax,(nm,t1,t2) in zip(axes,contexts):
+        ax.set_xlim(-1.55,1.55); ax.set_ylim(-1.75,1.3); ax.set_aspect("equal"); ax.axis("off")
+        ax.add_patch(Circle((0,0),0.52,facecolor="#1f77b4",alpha=0.22,edgecolor="#1f77b4",lw=2.2,zorder=1))
+        ax.text(0,0,"B / plasma\ncore",ha="center",va="center",fontsize=11,fontweight="bold",color="#10406b",zorder=6)
+        if nm=="RCC":
+            ax.add_patch(Circle((0,0),0.78,facecolor="none",edgecolor="#d62728",ls="-",lw=1.4,alpha=0.7,zorder=2))
+            ring(ax,0.78,"#d62728")                                   # Treg collar
+            ax.add_patch(Circle((0,0),1.12,facecolor="none",edgecolor="#2ca02c",ls=":",lw=1.6,zorder=2))
+            th=np.linspace(0,2*np.pi,14,endpoint=False); ax.scatter(1.32*np.cos(th),1.32*np.sin(th),s=40,c="#2ca02c",alpha=0.55,zorder=2)
+            ax.text(0,-1.62,"cytotoxic CD8 excluded",ha="center",color="#2ca02c",fontsize=11,fontweight="bold")
+        elif nm=="cLN":
+            ax.add_patch(Circle((0,0),0.82,facecolor="none",edgecolor="#9467bd",ls="-",lw=1.4,alpha=0.7,zorder=2))
+            ring(ax,0.82,"#9467bd"); blob(ax,"#ff7f0e",n=10,spread=0.36,seed=3)
+            ax.text(0,-1.62,"plasma–myeloid niche",ha="center",color="#ff7f0e",fontsize=11,fontweight="bold")
+        else:
+            blob(ax,"#2ca02c",n=11,spread=0.46,seed=5); blob(ax,"#d62728",n=9,spread=0.40,seed=7)
+            ax.add_patch(Rectangle((-1.45,-1.72),2.9,0.30,facecolor="#8c510a",alpha=0.55,zorder=1))
+            ax.text(0,-1.57,"injured tubule (adjacent)",ha="center",va="center",color="white",fontsize=10.5,fontweight="bold")
+        ax.set_title(f"{t1}\n", fontsize=14,color=fs.DATASET[nm],pad=2)
+        ax.text(0.5,1.0,t2,transform=ax.transAxes,ha="center",va="bottom",fontsize=10.5,color="#555")
+    fig.legend(handles=[Line2D([],[],marker="o",ls="",mfc="#1f77b4",mec="none",ms=9,label="B / plasma"),
+        Line2D([],[],marker="o",ls="",mfc="#d62728",mec="white",ms=9,label="Treg"),
+        Line2D([],[],marker="o",ls="",mfc="#2ca02c",mec="white",ms=9,label="cytotoxic CD8"),
+        Line2D([],[],marker="o",ls="",mfc="#9467bd",mec="white",ms=9,label="myeloid"),
+        Line2D([],[],marker="o",ls="",mfc="#ff7f0e",mec="white",ms=9,label="plasma"),
+        Line2D([],[],marker="s",ls="",mfc="#8c510a",mec="none",ms=9,label="injured tubule")],
+        loc="lower center",ncol=6,frameon=False,fontsize=10,bbox_to_anchor=(0.5,-0.01))
+    fig.suptitle("Conserved B/plasma scaffold, context-specific immune wiring  (schematic)",fontsize=18,y=0.98)
+    fig.subplots_adjust(bottom=0.1,top=0.88,wspace=0.05)
+    fs.save_fig(fig,"D1",tight=False)
+    print("    NOTE: D1 is a schematic — programmatic draft; final talk version may want manual vector polish.")
 
 # ============================================================================
 def figD2():

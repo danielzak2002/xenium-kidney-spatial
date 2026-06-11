@@ -5,9 +5,26 @@ for display only (saved files full-res 300 DPI)."""
 import os, warnings; warnings.filterwarnings("ignore"); os.environ.setdefault("KMP_DUPLICATE_LIB_OK","TRUE")
 import numpy as np, pandas as pd, anndata as ad, scipy.sparse as sp
 from sklearn.cluster import DBSCAN
+from scipy import ndimage
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import figstyle as fs
+
+def region_cores(xy, nbins=55, min_cells=400, margin=0.06, max_cores=2):
+    """Detect spatially separated tissue cores on a (multi-core CosMx) slide via dense-bin
+    connected components; return tight bounding boxes (drop empty space). Unit-agnostic."""
+    if len(xy)<min_cells: return [(xy[:,0].min(),xy[:,0].max(),xy[:,1].min(),xy[:,1].max(),len(xy))]
+    H,xe,ye=np.histogram2d(xy[:,0],xy[:,1],bins=nbins)
+    thr=max(1,np.percentile(H[H>0],45))
+    lab,n=ndimage.label(H>=thr); cores=[]
+    for k in range(1,n+1):
+        b=np.argwhere(lab==k); x0,x1=xe[b[:,0].min()],xe[b[:,0].max()+1]; y0,y1=ye[b[:,1].min()],ye[b[:,1].max()+1]
+        mx=(x1-x0)*margin; my=(y1-y0)*margin
+        sel=(xy[:,0]>=x0-mx)&(xy[:,0]<=x1+mx)&(xy[:,1]>=y0-my)&(xy[:,1]<=y1+my)
+        if sel.sum()>=min_cells: cores.append((x0-mx,x1+mx,y0-my,y1+my,int(sel.sum())))
+    cores.sort(key=lambda c:-c[4])
+    return cores[:max_cores] if cores else [(xy[:,0].min(),xy[:,0].max(),xy[:,1].min(),xy[:,1].max(),len(xy))]
+def crop_mask(xy,bb): return (xy[:,0]>=bb[0])&(xy[:,0]<=bb[1])&(xy[:,1]>=bb[2])&(xy[:,1]<=bb[3])
 rng=np.random.default_rng(0); REPO=fs.REPO; OBJ=f"{REPO}/outputs/objects"
 RCC_H5=f"{OBJ}/kidney_RCC_protein.h5ad"; PRCC_H5=f"{OBJ}/kidney_preview_PRCC.h5ad"
 CLN_H5=f"{OBJ}/cln_cosmx.h5ad"; DKD_H5=f"{REPO}/Demoulin26/data/spatial_adata_xenium_cosmx_zenodo.h5ad"
@@ -142,6 +159,41 @@ def V1_pattern():
     fig.suptitle("V1 · ccRCC observed pattern: immunoregulatory aggregate (Treg-around / cytotoxic-excluded)",fontsize=14)
     fs.save_fig(fig,"V1_pattern")
 
+def _crop_markers(h5,markers,cx,cy,W,label_col,bval,sect=None):
+    a=ad.read_h5ad(h5,backed="r"); xy=np.asarray(a.obsm["spatial"],float)
+    base=np.ones(a.n_obs,bool) if sect is None else sect(a); lab=a.obs[label_col].astype(str).values
+    m=base&(np.abs(xy[:,0]-cx)<W)&(np.abs(xy[:,1]-cy)<W); idx=np.where(m)[0]
+    gp=[g for g in markers if g in set(map(str,a.var_names))]; M=a[idx,gp].to_memory(); a.file.close()
+    X=M.X.toarray() if sp.issparse(M.X) else np.asarray(M.X)
+    return xy[idx],pd.DataFrame(X,columns=gp),(lab[idx]==bval)
+
+def V1_closeup():
+    print("V1_closeup (ccRCC aggregate marker overlay, B1-style)...")
+    markers=["MS4A1","MZB1","FOXP3","CD8A","GZMB"]; W=95.0
+    ragg=pd.read_csv(f"{REPO}/outputs/tables/rcc_phaseB2_aggregates.csv").sort_values("n_B",ascending=False).iloc[0]
+    xy,mk,B=_crop_markers(RCC_H5,markers,ragg.x,ragg.y,W,"phase_b_label","Naive B cells")
+    ncol=len(markers)+1; fig,axes=plt.subplots(1,ncol,figsize=(3.1*ncol,3.7))
+    for ci,g in enumerate(markers):
+        ax=axes[ci]; ax.scatter(xy[:,0],xy[:,1],s=6,c="#ededed",linewidths=0,rasterized=True)
+        ax.scatter(xy[B,0],xy[B,1],s=11,c="#bcd6ee",linewidths=0,rasterized=True)
+        if g in mk.columns:
+            v=mk[g].values.astype(float); pos=v>0; vmax=max(np.percentile(v[pos],98),1) if pos.any() else 1
+            ax.scatter(xy[pos,0],xy[pos,1],s=36,c=np.clip(v[pos],0,vmax),cmap=fs.MARKER_CMAP.get(g,"magma"),
+                       vmin=0,vmax=vmax,edgecolor="white",linewidth=0.2,rasterized=True)
+        ax.set_aspect("equal"); ax.axis("off"); ax.set_title(f"{g}\n{fs.MARKER_LINEAGE.get(g,'')}",fontsize=12)
+    ax=axes[ncol-1]; ax.scatter(xy[:,0],xy[:,1],s=6,c="#ededed",linewidths=0,rasterized=True)
+    ax.scatter(xy[B,0],xy[B,1],s=14,c="#1f77b4",alpha=0.8,linewidths=0,rasterized=True)
+    if "FOXP3" in mk: fp=mk["FOXP3"].values>0; ax.scatter(xy[fp,0],xy[fp,1],s=42,c="#d62728",edgecolor="white",linewidth=0.3,rasterized=True)
+    if "CD8A" in mk: c8=mk["CD8A"].values>0; ax.scatter(xy[c8,0],xy[c8,1],s=42,c="#2ca02c",marker="^",edgecolor="white",linewidth=0.3,rasterized=True)
+    ax.set_aspect("equal"); ax.axis("off"); ax.set_title("Composite\nB / Treg / CD8",fontsize=12)
+    ax.legend(handles=[Line2D([],[],marker="o",ls="",mfc="#1f77b4",mec="none",ms=8,label="B cell"),
+        Line2D([],[],marker="o",ls="",mfc="#d62728",mec="white",ms=8,label="FOXP3+ (Treg)"),
+        Line2D([],[],marker="^",ls="",mfc="#2ca02c",mec="white",ms=8,label="CD8A+ (cytotoxic)")],
+        loc="upper center",bbox_to_anchor=(0.5,-0.02),frameon=False,fontsize=9)
+    fig.suptitle("V1 · ccRCC aggregate close-up — Treg-around & cytotoxic-excluded, SEEN in one representative aggregate\n"
+                 "(blue underlay = B-core; ~190 µm field)",fontsize=14)
+    fs.save_fig(fig,"V1_closeup")
+
 # ============================================================================
 # V2 — cLN (CosMx, 14 slides)
 # ============================================================================
@@ -181,48 +233,55 @@ def V2_typing():
     fig.suptitle("V2 · cLN native cell typing (see A2 for InSituType benchmark vs author labels)",fontsize=15)
     fs.save_fig(fig,"V2_typing",tight=False)
 
-def V2_gallery():
-    print("V2_gallery (markers + pops across condition-spanning slides)...")
-    a=ad.read_h5ad(CLN_H5,backed="r"); samp=a.obs["sample"].astype(str).values; cond=a.obs["condition"].astype(str).values; a.file.close()
-    # pick 3 control + 3 SLE slides with most plasmablasts/B
-    a=ad.read_h5ad(CLN_H5,backed="r"); lab=a.obs["author_celltype"].astype(str).values; a.file.close()
+def _cln_pick():
+    a=ad.read_h5ad(CLN_H5,backed="r"); samp=a.obs["sample"].astype(str).values
+    cond=a.obs["condition"].astype(str).values; lab=a.obs["author_celltype"].astype(str).values; a.file.close()
     bcount={s:int(((np.isin(lab,["B-cell","plasmablast"]))&(samp==s)).sum()) for s in pd.unique(samp)}
-    ctrl=[s for s in pd.unique(samp) if (cond[samp==s][0]=="control")]
-    sle=[s for s in pd.unique(samp) if (cond[samp==s][0]!="control")]
+    ctrl=[s for s in pd.unique(samp) if cond[samp==s][0]=="control"]
+    sle=[s for s in pd.unique(samp) if cond[samp==s][0]!="control"]
     pick=sorted(ctrl,key=lambda s:-bcount[s])[:3]+sorted(sle,key=lambda s:-bcount[s])[:3]
-    gmark=["MS4A1","MZB1","CD68"]
-    ncol=len(gmark)+len(CLN_POPS)
+    return pick,{s:cond[samp==s][0] for s in pick}
+
+def V2_gallery():
+    print("V2_gallery (region-cropped cores, condition-spanning slides)...")
+    pick,cmap=_cln_pick(); gmark=["MS4A1","MZB1","CD68"]; ncol=len(gmark)+len(CLN_POPS)
     fig,axes=plt.subplots(len(pick),ncol,figsize=(2.4*ncol,2.4*len(pick)))
     for ri,s in enumerate(pick):
         def sect(a,s=s): return a.obs["sample"].astype(str).values==s
-        xy,d,lb=_load(CLN_H5,gmark,"author_celltype",sect,sub=40000)
-        cnd=cond[samp==s][0]
+        xy,d,lb=_load(CLN_H5,gmark,"author_celltype",sect)          # full slide
+        bb=region_cores(xy)[0]; cm=crop_mask(xy,bb)                  # crop to densest core
+        xy,d,lb=xy[cm],d[cm].reset_index(drop=True),lb[cm]
+        cnd=cmap[s]
         for ci,g in enumerate(gmark): sp_marker(axes[ri,ci],xy,d[g].values.astype(float) if g in d else np.zeros(len(xy)),g if ri==0 else "")
         for ci,(pn,(labs,pcol)) in enumerate(CLN_POPS.items()): sp_pop(axes[ri,len(gmark)+ci],xy,np.isin(lb,labs),pn if ri==0 else "",pcol)
-        axes[ri,0].text(-0.16,0.5,f"{s}\n({cnd})",transform=axes[ri,0].transAxes,rotation=90,va="center",ha="center",
+        axes[ri,0].text(-0.18,0.5,f"{s}\n({cnd})",transform=axes[ri,0].transAxes,rotation=90,va="center",ha="center",
                         fontsize=9,fontweight="bold",color="#444" if cnd=="control" else fs.DATASET["cLN"])
-    fig.suptitle("V2 · cLN marker & population gallery across slides (3 control + 3 SLE) — reproducibility across the cohort",fontsize=14)
+    fig.suptitle("V2 · cLN marker & population gallery — cropped to the dense tissue CORE per slide (3 control + 3 SLE)\n"
+                 "cells fill each frame; reproducibility across the cohort",fontsize=14)
     fs.save_fig(fig,"V2_gallery")
 
 def V2_niche():
-    print("V2_niche (plasma-myeloid, control vs SLE)...")
-    t=f"{REPO}/outputs/tables/cln_phaseB_per_slide.csv"
-    if not os.path.exists(t): print("  (cln per-slide table missing, skipping nhood)"); return
-    ps=pd.read_csv(t)
-    fig,axes=plt.subplots(1,2,figsize=(12,4.8))
-    ax=axes[0]
-    if "condition" in ps and "nhood_z_plasma_myeloid" in ps:
-        for cnd,col in [("III","#fdae6b"),("IV","#e6550d"),("IV+V","#a63603")]:
-            sub=ps[ps.condition==cnd]
-            if len(sub): ax.scatter([cnd]*len(sub),sub.nhood_z_plasma_myeloid,s=40,c=col,alpha=0.8,edgecolor="k",linewidth=0.2)
-        fs.zeroline(ax,0,"h")
-        ax.set_ylabel("plasma–myeloid neighborhood z"); ax.set_title("plasma–myeloid niche per SLE-class slide")
-    ax=axes[1]
-    if "n_plasma_aggregates" in ps:
-        ax.bar(range(len(ps)),ps.get("n_plasma_aggregates",pd.Series([0]*len(ps))),color=fs.DATASET["cLN"])
-        ax.set_xticks(range(len(ps))); ax.set_xticklabels(ps.slide,rotation=90,fontsize=7)
-        ax.set_title("plasma aggregates per slide"); ax.set_ylabel("aggregates")
-    fig.suptitle("V2 · cLN observed pattern: plasma–myeloid niche across slides (the reproducible cLN finding)",fontsize=14)
+    print("V2_niche (region-cropped spatial plasma–myeloid, control vs SLE)...")
+    pick,cmap=_cln_pick()
+    pops={"plasmablast":"#ff7f0e","macrophage":"#9467bd","monocyte":"#9467bd","mDC":"#9467bd"}
+    fig,axes=plt.subplots(len(pick),3,figsize=(11,2.4*len(pick)))
+    for ri,s in enumerate(pick):
+        def sect(a,s=s): return a.obs["sample"].astype(str).values==s
+        xy,_,lb=_load(CLN_H5,["MS4A1"],"author_celltype",sect)
+        bb=region_cores(xy)[0]; cm=crop_mask(xy,bb); xy,lb=xy[cm],lb[cm]
+        plas=lb=="plasmablast"; mye=np.isin(lb,["macrophage","monocyte","mDC","pDC"])
+        sp_pop(axes[ri,0],xy,plas,"Plasma" if ri==0 else "","#ff7f0e")
+        sp_pop(axes[ri,1],xy,mye,"Myeloid" if ri==0 else "","#9467bd")
+        ax=axes[ri,2]; ax.scatter(xy[:,0],xy[:,1],s=2,c="#ececec",linewidths=0,rasterized=True)
+        ax.scatter(xy[mye,0],xy[mye,1],s=9,c="#9467bd",linewidths=0,rasterized=True)
+        ax.scatter(xy[plas,0],xy[plas,1],s=11,c="#ff7f0e",linewidths=0,rasterized=True)
+        ax.set_aspect("equal"); ax.axis("off")
+        if ri==0: ax.set_title("Plasma + Myeloid (overlay)",fontsize=11)
+        cnd=cmap[s]
+        axes[ri,0].text(-0.2,0.5,f"{s}\n({cnd})",transform=axes[ri,0].transAxes,rotation=90,va="center",ha="center",
+                        fontsize=9,fontweight="bold",color="#444" if cnd=="control" else fs.DATASET["cLN"])
+    fig.suptitle("V2 · cLN plasma–myeloid niche in situ, per tissue core (control vs SLE)\n"
+                 "plasma aggregates recruit myeloid cells — the reproducible cLN finding (region-cropped)",fontsize=13)
     fs.save_fig(fig,"V2_niche")
 
 # ============================================================================
