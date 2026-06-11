@@ -1,0 +1,4 @@
+cohort,n_aggregates,n_sections,delta_log2,ci_lo,ci_hi,fold
+RCC_big,70,1,0.489,0.395,0.589,1.4
+RCC_figshare,95,5,0.672,0.488,0.82,1.59
+DKD,62,13,0.216,-0.163,0.585,1.16

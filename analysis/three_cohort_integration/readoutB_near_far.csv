@@ -1,0 +1,7 @@
+cohort,module,n_near,n_far,delta,k_sec_pos,n_sec
+RCC_big,endo_activation,10403,47169,-0.313,0.0,1.0
+RCC_big,inflammatory,10403,47169,-0.289,0.0,1.0
+RCC_figshare,endo_activation,3133,198766,-0.575,2.0,5.0
+RCC_figshare,inflammatory,3133,198766,0.029,3.0,5.0
+DKD,endo_activation,0,0,,,
+DKD,inflammatory,734,48221,-0.075,9.0,11.0
