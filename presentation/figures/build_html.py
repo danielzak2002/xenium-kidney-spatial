@@ -5,11 +5,19 @@ import os, html, base64
 import figstyle as fs
 OUT=fs.OUT
 
-def _datauri(fname):
+def _datauri(fname, max_w=None):
     p=os.path.join(OUT,fname)
     if not os.path.exists(p): return None
-    mime="image/svg+xml" if fname.endswith(".svg") else "image/png"
-    return f"data:{mime};base64,"+base64.b64encode(open(p,"rb").read()).decode()
+    if fname.endswith(".svg"):
+        return "data:image/svg+xml;base64,"+base64.b64encode(open(p,"rb").read()).decode()
+    if max_w:  # downscale PNG for an emailable self-contained file (screen-res, not print)
+        import io
+        from PIL import Image
+        im=Image.open(p).convert("RGB")
+        if im.width>max_w: im=im.resize((max_w,round(im.height*max_w/im.width)),Image.LANCZOS)
+        buf=io.BytesIO(); im.save(buf,format="JPEG",quality=88,optimize=True)
+        return "data:image/jpeg;base64,"+base64.b64encode(buf.getvalue()).decode()
+    return "data:image/png;base64,"+base64.b64encode(open(p,"rb").read()).decode()
 
 CAP={
  "A1":("Spatial cell-type maps — ccRCC, cLN, DKD","Cells at spatial coordinates colored by harmonized lineage (shared palette). Orients the audience in each tissue; immune cells drawn on top of parenchyma. cLN (CosMx) cropped to its densest core.",False),
@@ -26,29 +34,37 @@ CAP={
  "D2":("Platform capability matrix","What each panel can and cannot establish: T-lineage (both measured), CD4/CD8 subtype (Xenium measured / CosMx imputed), BAFF/APRIL ligands (sub-ambient both), receptors BCMA/BAFF-R/TACI (specific both), ambient/segmentation (cLN ~35% epithelial CD3+), IF anchors (decisive).",False),
  "A2":("cLN CosMx immune typing benchmark","InSituType recall and precision vs author labels per immune type (n annotated shown).",False),
  "B4":("DKD injured-PT program is elevated near B-aggregates","Stress-program score near vs far from B-aggregates (matched within section/cell-type) and the distance gradient. Injured-PT: Δz +0.13, 6/9 sections, p=0.038, monotonic gradient. Endothelial-activation and hypoxia are flat.",False),
+ "Q1":("Data quality per dataset — the substrate is usable","Median transcripts/cell, genes/cell, panel depth, and ambient signal (cLN negmean). Panel depth differs explicitly (RCC 405 · PRCC 377 · cLN 957 · DKD 5 443) — read downstream sensitivity against this. DKD/Xenium neg-probes were dropped from the release, so ambient is not computable there.",False),
+ "T1":("★ Marker dot-plot — the cell types are defined by the right markers","Canonical lineage markers × harmonized cell types; dot size = detection rate, color = scaled mean expression. B (MS4A1/CD79A), plasma (MZB1/DERL3), T (CD3D/E), myeloid (CD68/LYZ), endothelial (PECAM1/VWF), epithelial (EPCAM/KRT8), plus Treg (FOXP3) and cytotoxic (CD8A/GZMB) where resolved. The marker→type diagonal IS the typing veracity.",True),
+ "T2":("UMAP by lineage with key-marker overlays","Stored embeddings colored by harmonized lineage, with MS4A1/CD3D/CD68/EPCAM overlays. The type structure is real, not imposed — marker hotspots coincide with the lineage islands.",False),
+ "A3raw":("Raw counts behind the AUROC","Per-cell CD8A and CD4 count distributions in CD4- vs CD8-labelled cells, faceted Xenium vs CosMx, ambient/PT floor marked. The distributions visibly separate on Xenium and overlap on CosMx — the AUROC merely summarizes what you can see.",False),
+ "C1raw":("Aggregates are real structures, not an algorithm artifact","Representative ccRCC and DKD sections: all cells grey, B cells highlighted, DBSCAN convex hulls overlaid; with an aggregate-size histogram and a nearest-neighbour test. Observed B–B spacing is far tighter than a permuted null — B cells genuinely cluster.",False),
+ "C2raw":("Composition behind the enrichment — countable cells","Raw cells: inside-vs-background composition (ccRCC), per-aggregate Treg vs effector-CD8 counts (ccRCC above the diagonal = Treg>CD8; DKD on it), and per-aggregate Treg-enrichment consistency. The log₂ enrichment and the differential trace to real, countable cells.",False),
 }
 BLOCKS=[("1 · Orientation",["A1"]),
-        ("2 · Platform rigor",["A3","B2","B3"]),
-        ("3 · Aggregates resolved",["B1","C1","C2"]),
-        ("4 · The headline",["C3","C4"]),
-        ("5 · Cross-context map",["C5"]),
-        ("6 · Synthesis",["D1"]),
-        ("7 · Capability & caveats",["D2"])]
-EXTRA=["A2","B4"]
+        ("2 · Data quality",["Q1"]),
+        ("3 · Cell typing & how we know it's right",["T1","T2","A2"]),
+        ("4 · Platform rigor",["A3","A3raw","B2","B3"]),
+        ("5 · Aggregates are real structures",["C1","C1raw","B1"]),
+        ("6 · What's inside them (raw → enrichment)",["C2raw","C2","C4"]),
+        ("7 · The headline (now earned)",["C3"]),
+        ("8 · Cross-context map",["C5"]),
+        ("9 · Synthesis",["D1"]),
+        ("10 · Platforms & caveats",["D2"])]
+EXTRA=["B4"]
 DS={k:v for k,v in fs.DATASET.items()}
 
 def card(fid, embed):
     title,cap,hero=CAP[fid]
     star=' <span class="hero">★ hero</span>' if hero else ''
-    if embed:
-        png=_datauri(f"{fid}.png"); svg=_datauri(f"{fid}.svg")
-        imgsrc=png; href=svg or png; links=""  # data-URIs already embedded; no external links
-    else:
-        imgsrc=f"{fid}.png"; href=f"{fid}.svg"
+    if embed:  # embed downscaled JPEG once (no anchor -> no duplicate data-URI); emailable
+        imgblock=f'<img src="{_datauri(f"{fid}.png", max_w=1500)}" alt="{fid}">'; links=""
+    else:      # reference full 300-DPI PNG, click-through to vector SVG
+        imgblock=f'<a href="{fid}.svg" target="_blank" title="open vector SVG"><img src="{fid}.png" alt="{fid}"></a>'
         links=f' <span class="links">[<a href="{fid}.png" target="_blank">PNG</a> · <a href="{fid}.svg" target="_blank">SVG</a>]</span>'
     return f'''<div class="card{' herocard' if hero else ''}" id="{fid}">
   <div class="meta"><span class="badge">{fid}</span><span class="ttl">{html.escape(title)}</span>{star}</div>
-  <a href="{href}" target="_blank" title="open full size"><img src="{imgsrc}" alt="{fid}"></a>
+  {imgblock}
   <div class="cap">{html.escape(cap)}{links}</div>
 </div>'''
 
@@ -59,7 +75,7 @@ def build(embed):
     sections.append(f'<section><h2>{html.escape(name)}</h2>\n{cards}\n</section>')
   extra_cards="\n".join(card(i,embed) for i in EXTRA)
   sections.append(f'<section><h2>Supporting (as needed)</h2>\n{extra_cards}\n</section>')
-  contact=_datauri("CONTACT_SHEET.png") if embed else "CONTACT_SHEET.png"
+  contact=_datauri("CONTACT_SHEET.png", max_w=1800) if embed else "CONTACT_SHEET.png"
   foot=(f'<a href="{contact}" target="_blank">contact sheet</a>' if embed
         else '<a href="CONTACT_SHEET.png" target="_blank">contact sheet</a> · <a href="INDEX.md" target="_blank">index</a>')
   return f'''<!doctype html><html lang="en"><head><meta charset="utf-8">
