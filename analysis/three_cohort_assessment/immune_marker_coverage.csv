@@ -1,0 +1,21 @@
+group,gene,figshare,BIG_RCC,DKD_Xenium_measured,all_three
+T-lineage,CD3D,1,1,0,0
+T-lineage,CD3E,1,1,1,1
+T-lineage,CD3G,1,1,1,1
+T subtype,CD4,1,1,1,1
+T subtype,CD8A,1,1,1,1
+T subtype,CD8B,0,0,1,0
+Treg,FOXP3,1,1,1,1
+Treg,IL2RA,1,1,1,1
+Treg,CTLA4,1,1,1,1
+Cytotoxic,GZMB,0,1,1,0
+Cytotoxic,GZMK,1,1,1,1
+Cytotoxic,NKG7,1,1,0,0
+B,MS4A1,1,1,1,1
+B,CD79A,1,1,1,1
+Plasma,MZB1,1,1,1,1
+Myeloid,CD68,1,1,1,1
+Myeloid,LYZ,1,0,0,0
+Endothelial,PECAM1,1,1,1,1
+Epithelial,EPCAM,1,1,1,1
+Epithelial,KRT8,1,1,0,0
