@@ -1,0 +1,4 @@
+receptor,on,near_pct,far_pct,enrich
+BCMA,B-lineage,2.76,7.48,0.37
+TACI,B-lineage,7.74,8.8,0.88
+BAFF-R,B-lineage,35.42,22.12,1.6

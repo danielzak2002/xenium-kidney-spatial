@@ -1,0 +1,9 @@
+producer,ligand,sample_set,near_det,near_pct,far_det,far_pct,enrich
+Myeloid,BAFF,B-rich DKD,8/301,2.66,524/12965,4.04,0.66
+Myeloid,APRIL,B-rich DKD,10/301,3.32,644/12965,4.97,0.67
+Stroma,BAFF,B-rich DKD,16/886,1.81,332/39583,0.84,2.15
+Stroma,APRIL,B-rich DKD,17/886,1.92,454/39583,1.15,1.67
+Myeloid,BAFF,all aggregate-bearing,26/864,3.01,1054/30894,3.41,0.88
+Myeloid,APRIL,all aggregate-bearing,38/864,4.4,1626/30894,5.26,0.84
+Stroma,BAFF,all aggregate-bearing,38/1852,2.05,842/100653,0.84,2.45
+Stroma,APRIL,all aggregate-bearing,33/1852,1.78,1246/100653,1.24,1.44

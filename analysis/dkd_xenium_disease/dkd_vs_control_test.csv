@@ -1,0 +1,4 @@
+metric,DKD_median,Control_median,DKD_n,Control_n,mannwhitney_U,p_value
+Blin_frac,0.0132,0.0006,8,3,22.0,0.0485
+agg_cells_per10k,18.9,0.0,8,3,17.0,0.3471
+agg_per_mm2,0.125,0.0,8,3,19.0,0.1745
