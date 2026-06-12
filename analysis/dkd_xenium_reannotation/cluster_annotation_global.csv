@@ -1,0 +1,24 @@
+cluster,label,score,margin,n_markers,marker_basis,lineage
+0,PC,3.508,1.452,3,"GATA3(+3.5), AQP2(+3.5), AQP3(+3.5)",Epithelial
+1,CNT,2.679,0.32,3,"CALB1(+2.8), SLC8A1(+2.7), SCNN1G(+2.5)",Epithelial
+2,IC A,4.533,3.356,3,"KIT(+4.6), SLC26A7(+4.5), SLC4A1(+4.5)",Epithelial
+3,EC_glom,0.299,0.473,3,"SOST(+1.7), PLVAP(-0.3), TBX3(-0.5)",Endothelial
+4,DCT,4.534,2.881,2,"SLC12A3(+4.5), TRPM6(+4.5)",Epithelial
+5,PT,1.436,1.478,3,"CUBN(+1.5), SLC13A3(+1.4), LRP2(+1.4)",Epithelial
+6,PT,2.697,2.055,3,"LRP2(+2.8), CUBN(+2.8), SLC13A3(+2.6)",Epithelial
+7,PT,2.852,1.683,3,"SLC13A3(+3.2), CUBN(+2.8), LRP2(+2.5)",Epithelial
+8,PEC,2.936,1.826,2,"CLDN1(+3.9), CFH(+2.0)",Epithelial
+9,iPT,2.483,1.226,4,"HAVCR1(+4.6), VCAM1(+4.2), SPP1(+0.9), ITGB6(+0.3)",Epithelial
+10,iTAL,2.494,0.219,3,"ITGB6(+4.2), UMOD(+2.0), PROM1(+1.2)",Epithelial
+11,TAL,3.354,1.973,4,"UMOD(+3.9), SLC12A1(+3.6), ESRRB(+3.0), CASR(+2.8)",Epithelial
+12,Fibroblast,1.475,0.376,5,"C7(+2.2), COL1A2(+1.6), COL1A1(+1.5), PDGFRA(+1.2)",Stroma
+13,VSMC,2.791,1.345,3,"NOTCH3(+4.4), ACTA2(+2.3), TAGLN(+1.7)",Stroma
+14,Fibroblast,3.896,1.739,5,"COL6A3(+4.3), PDGFRA(+4.2), COL1A2(+3.8), COL1A1(+3.8)",Stroma
+15,PT,0.351,0.254,3,"SLC13A3(+0.4), CUBN(+0.4), LRP2(+0.3)",Epithelial
+16,Immune,1.912,1.87,5,"CD2(+4.6), CD3E(+4.5), C1QA(+0.5), CD68(+0.0)",Immune
+17,Immune,1.476,1.275,5,"C1QA(+4.4), CD68(+3.5), CD2(-0.2), CD3E(-0.2)",Immune
+18,Immune,1.167,1.169,5,"MS4A1(+4.6), CD3E(+0.5), C1QA(+0.3), CD2(+0.3)",Immune
+19,EC_Peritub,2.279,1.136,2,"PECAM1(+2.4), PLAT(+2.1)",Endothelial
+20,MC,2.598,0.187,5,"POSTN(+4.6), PIEZO2(+3.9), PDGFRB(+1.9), REN(+1.9)",Stroma
+21,Podo,4.282,2.261,2,"WT1(+4.5), PODXL(+4.1)",Epithelial
+22,EC_DVR,3.246,1.374,2,"PECAM1(+3.4), ENPP2(+3.1)",Endothelial

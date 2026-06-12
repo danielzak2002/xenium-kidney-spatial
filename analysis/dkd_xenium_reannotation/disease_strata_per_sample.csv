@@ -1,0 +1,17 @@
+orig_ident,n_cells,Condition,Disease,DM,HTN,GFR,Age,Sex,Race,Treatment: RAAS,Treatment: MRA,Treatment: SGLT2i
+1004,24449,AA amyloid,Yes,yes,yes,<30,65,Female,White,0.0,0.0,0.0
+1009,10167,AA amyloid,Yes,yes,yes,<30,72,Female,White,0.0,0.0,0.0
+1007,41336,C3GN,Yes,yes,yes,30-60,48,Male,White,1.0,0.0,0.0
+HK2753,161350,Control,NO,no,no,>60,46,Male,White,,,
+HK3106,171526,Control,NO,no,no,>60,41,Male,White,,,
+HK3626,104038,Control,No,no,no,>60,46,Male,White,,,
+1001,29126,DKD,Yes,yes,yes,30-60,76,Male,Hispanic,1.0,0.0,0.0
+1006,45609,DKD,Yes,yes,yes,<30,72,Male,White,1.0,0.0,0.0
+1008,27912,DKD,Yes,yes,yes,<30,50,Male,White,1.0,0.0,0.0
+1010,40475,DKD,Yes,yes,yes,30-60,67,Male,White,1.0,0.0,0.0
+1011,27876,DKD,Yes,yes,yes,<30,48,Male,Black,0.0,0.0,0.0
+1012,39105,DKD,Yes,yes,yes,<30,68,Female,Black,1.0,0.0,0.0
+1013,28261,DKD,Yes,yes,yes,<30,47,Female,Black,1.0,0.0,0.0
+HK2695,151101,DKD,Yes,yes,yes,30-60,79,Female,White,,,
+1003,30772,IgA,Yes,yes,yes,<30,64,Male,White,0.0,0.0,0.0
+1005,17937,MN,Yes,yes,yes,<30,74,Male,Black,1.0,1.0,0.0

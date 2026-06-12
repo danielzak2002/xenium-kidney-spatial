@@ -1,0 +1,3 @@
+comparison,ARI,agreement,n_cells
+segment_vs_annotation_updated,0.782,0.854,951040
+immune_vs_immune_combined,0.683,0.789,103210

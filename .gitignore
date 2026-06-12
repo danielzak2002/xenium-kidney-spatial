@@ -26,6 +26,8 @@ Demoulin26/data/
 *.mtx.gz
 *.RData
 *.rda
+*.npy
+*.npz
 
 # Large generated objects (regenerate from scripts; document in README)
 outputs/objects/

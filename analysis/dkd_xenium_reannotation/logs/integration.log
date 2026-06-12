@@ -1,0 +1,37 @@
+2026-06-12 02:18:26,054 - harmonypy - INFO - Running Harmony
+2026-06-12 02:18:26,055 - harmonypy - INFO -   Parameters:
+2026-06-12 02:18:26,055 - harmonypy - INFO -     max_iter_harmony: 30
+2026-06-12 02:18:26,055 - harmonypy - INFO -     max_iter_kmeans: 4
+2026-06-12 02:18:26,055 - harmonypy - INFO -     epsilon_cluster: 0.001
+2026-06-12 02:18:26,055 - harmonypy - INFO -     epsilon_harmony: 0.01
+2026-06-12 02:18:26,055 - harmonypy - INFO -     nclust: 100
+2026-06-12 02:18:26,055 - harmonypy - INFO -     block_size: 0.05
+2026-06-12 02:18:26,055 - harmonypy - INFO -     lamb: dynamic (alpha=0.2)
+2026-06-12 02:18:26,056 - harmonypy - INFO -     theta: [2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2.]
+2026-06-12 02:18:26,056 - harmonypy - INFO -     sigma: [0.1 0.1 0.1 0.1 0.1]...
+2026-06-12 02:18:26,056 - harmonypy - INFO -     verbose: True
+2026-06-12 02:18:26,056 - harmonypy - INFO -     random_state: 0
+2026-06-12 02:18:26,056 - harmonypy - INFO -   Data: 50 PCs × 951040 cells
+2026-06-12 02:18:26,056 - harmonypy - INFO -   Batch variables: ['orig_ident']
+2026-06-12 02:18:26,450 - harmonypy - INFO - Computing initial centroids...
+2026-06-12 02:18:38,674 - harmonypy - INFO - Initialization complete.
+2026-06-12 02:18:38,674 - harmonypy - INFO - Iteration 1 of 30
+2026-06-12 02:36:27,034 - harmonypy - INFO - Iteration 2 of 30
+2026-06-12 02:36:41,480 - harmonypy - INFO - Iteration 3 of 30
+2026-06-12 02:36:56,042 - harmonypy - INFO - Iteration 4 of 30
+2026-06-12 02:37:09,940 - harmonypy - INFO - Converged after 4 iterations
+[     0s] loading backed handle ...
+[     4s] materializing Xenium subset: 951,040 cells ...
+[     6s] samples=16 total=951,040 genes(panel)=5443
+[     7s] dropped 342 structural-zero genes -> 5101 measured on Xenium
+[     9s] HVG=2000
+[ 15989s] Harmony on orig_ident (harmonypy direct; 2.0 returns Z_corr as (N,d)) ...
+[ 19156s] Leiden (global, res=1.5) ...
+[ 29162s] global clusters=23
+[ 29165s] saved global_marker_means.csv
+[ 29166s] immune-gate clusters (4): ['15', '16', '17', '18']  thr=0.045
+[ 29167s] immune subset: 105,719 cells
+[ 29374s] immune clusters=16
+[ 29374s] saved immune_marker_means.csv
+[ 29375s] saved cells.parquet (951,040 rows)
+== run_integration done ==
