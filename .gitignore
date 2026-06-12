@@ -73,3 +73,5 @@ refs/
 analysis/three_cohort_integration/cells_labeled.parquet
 analysis/three_cohort_integration/cells_labeled_reliable.parquet
 presentation/figures/integration_walkthrough/model.parquet
+analysis/three_cohort_integration/cells_labeled_reliable_tumoronly.parquet
+analysis/three_cohort_integration/model_tumoronly.parquet
