@@ -33,6 +33,16 @@ Demoulin26/data/
 *.log
 outputs/logs/
 
+# Figure/HTML artifacts that embed base64 image data are kept OUT of the public repo: matplotlib
+# embeds base64 raster in rasterized SVGs, and the self-contained *_summary / walkthrough / gallery
+# HTMLs embed base64 JPEGs. Random image bytes trip GitHub secret scanning and bloat history.
+# The committed deliverable is the PNG; regenerate SVG/self-contained-HTML from the build scripts.
+*.svg
+*_summary.html
+presentation/figures/gallery_standalone.html
+presentation/figures/integration_walkthrough/integration_walkthrough.html
+outputs/whitepaper.html
+
 # Large generated objects (regenerate from scripts; document in README)
 outputs/objects/
 
