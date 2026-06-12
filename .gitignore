@@ -72,3 +72,4 @@ renv/python/
 refs/
 analysis/three_cohort_integration/cells_labeled.parquet
 analysis/three_cohort_integration/cells_labeled_reliable.parquet
+presentation/figures/integration_walkthrough/model.parquet

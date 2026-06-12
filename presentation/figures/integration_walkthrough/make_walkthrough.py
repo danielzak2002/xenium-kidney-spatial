@@ -148,7 +148,7 @@ def P7():
         ax.bar(x+(i-1)*w,[piv.loc[gn,c] for gn in genes],w,label=c,color=COL[c])
     ax.axhline(0.02,color="#888",ls="--",lw=1.2); ax.text(len(genes)-0.5,0.022,"2% gate",fontsize=9,color="#555")
     ax.set_xticks(x); ax.set_xticklabels(genes); ax.set_ylabel("detection in endothelial cells")
-    ax.set_title("Readout B is a PANEL LIMITATION, not a result:\nANGPT2 / CXCL9 / CXCL10 are sub-ambient on DKD Xenium → not measurable cross-cohort",fontsize=11)
+    ax.set_title("Readout B is a PANEL LIMITATION, not a result:\nANGPT2 / CXCL9 / CXCL10 are sub-ambient on DKD Xenium -> not measurable cross-cohort",fontsize=11)
     ax.legend(frameon=False,fontsize=9)
     save(fig,"P7_readoutB")
 
@@ -175,19 +175,209 @@ def datauri(path,max_w=1500):
     b=io.BytesIO(); im.save(b,format="JPEG",quality=88,optimize=True)
     return "data:image/jpeg;base64,"+base64.b64encode(b.getvalue()).decode()
 def img(path,max_w=1500): return f'<img src="{datauri(path,max_w)}">'
+
+# ================= integration model (pre/post UMAP + Leiden), cached =================
+MODEL=f"{OUT}/model.parquet"
+def build_model():
+    if os.path.exists(MODEL): return pd.read_parquet(MODEL)
+    import anndata as ad, scanpy as sc
+    print("  building integration model (pre/post UMAP + Leiden) ...")
+    A=ad.read_h5ad(f"{REPO}/outputs/objects/three_cohort_123.h5ad")
+    lab=pd.read_parquet(f"{INT}/cells_labeled_reliable.parquet")
+    for k in ["lineage","is_B","is_Treg","is_cyto"]: A.obs[k]=lab[k].values
+    RG=set(open(f"{INT}/reliable_genes.txt").read().split())
+    A=A[:,[g for g in map(str,A.var_names) if g in RG]].copy()
+    idx=np.sort(np.concatenate([rng.choice(np.where(A.obs.cohort.values==c)[0],min(50000,int((A.obs.cohort.values==c).sum())),replace=False) for c in COL]))
+    R=A[idx].copy(); R.obs["cohort"]=R.obs["cohort"].astype(str)
+    sc.pp.normalize_total(R,target_sum=1e4); sc.pp.log1p(R); sc.pp.scale(R,max_value=10); sc.tl.pca(R,n_comps=30)
+    sc.pp.neighbors(R,use_rep="X_pca"); sc.tl.umap(R); pre=R.obsm["X_umap"].copy()
+    import harmonypy; ho=harmonypy.run_harmony(R.obsm["X_pca"],R.obs,["cohort"],max_iter_harmony=20)
+    Z=np.asarray(ho.Z_corr); R.obsm["X_pca_harmony"]=Z if Z.shape[0]==R.n_obs else Z.T
+    sc.pp.neighbors(R,use_rep="X_pca_harmony"); sc.tl.umap(R); sc.tl.leiden(R,resolution=0.3,flavor="igraph",n_iterations=2); post=R.obsm["X_umap"]
+    m=pd.DataFrame(dict(cohort=R.obs.cohort.values,lineage=R.obs.lineage.values,leiden=R.obs.leiden.astype(str).values,
+        is_B=R.obs.is_B.values,is_Treg=R.obs.is_Treg.values,is_cyto=R.obs.is_cyto.values,
+        pre_x=pre[:,0],pre_y=pre[:,1],post_x=post[:,0],post_y=post[:,1]))
+    m.to_parquet(MODEL); return m
+
+LINORD=["B","Plasma","T","Myeloid","NK","Endothelial","Epithelial","Stroma"]
+def _knn_purity(emb,coh,k=30):
+    from sklearn.neighbors import NearestNeighbors
+    nn=NearestNeighbors(n_neighbors=k+1).fit(emb); _,idx=nn.kneighbors(emb)
+    codes=pd.factorize(coh)[0]; nb=codes[idx[:,1:]]
+    return float((nb==codes[:,None]).mean())   # 1.00 = fully cohort-segregated; ~0.33 = perfectly mixed (3 balanced cohorts)
+def P3pre(m):
+    coh=m.cohort.values
+    pp=_knn_purity(m[["pre_x","pre_y"]].values,coh); qp=_knn_purity(m[["post_x","post_y"]].values,coh)
+    fig,axes=plt.subplots(1,2,figsize=(13,5.6))
+    for ax,(col,ttl,sc) in zip(axes,[("pre","BEFORE Harmony (68-gene PCA)",pp),("post","AFTER Harmony",qp)]):
+        for c in COL:
+            mk=coh==c; ax.scatter(m[f"{col}_x"][mk],m[f"{col}_y"][mk],s=2,c=COL[c],linewidths=0,rasterized=True,label=c)
+        ax.set_title(f"{ttl}\ncohort kNN purity = {sc:.2f}",fontsize=11); ax.axis("off")
+    axes[0].legend(markerscale=4,frameon=False,fontsize=9,loc="upper right")
+    fig.text(0.5,0.015,f"cohort kNN purity: 1.00 = fully batch-segregated · 0.33 = perfectly mixed (3 balanced cohorts).  "
+             f"Harmony lowers it {pp:.2f} to {qp:.2f} — neighbourhoods become cohort-mixed.",ha="center",fontsize=10,color="#333")
+    fig.suptitle("P3-pre · integration was necessary AND did something (pre- vs post-Harmony, same 68-gene features)",fontsize=13)
+    fig.subplots_adjust(bottom=0.1); save(fig,"P3pre_umap",tight=False)
+
+def P3assoc(m):
+    full=pd.crosstab(m.leiden,m.lineage).reindex(columns=[l for l in LINORD if l in m.lineage.unique()]).fillna(0)
+    TOPN=22; ntot=len(full)
+    ct=full.loc[full.sum(1).sort_values(ascending=False).index][:TOPN] # top clusters by size
+    cov=ct.values.sum()/full.values.sum()
+    row=ct.div(ct.sum(1),axis=0)                                       # row-normalize
+    fig,ax=plt.subplots(figsize=(9,8.5))
+    im=ax.imshow(row.values,cmap="Blues",vmin=0,vmax=1,aspect="auto")
+    ax.set_xticks(range(row.shape[1])); ax.set_xticklabels(row.columns,rotation=40,ha="right",fontsize=10)
+    ax.set_yticks(range(row.shape[0])); ax.set_yticklabels([f"c{i}" for i in row.index],fontsize=8)
+    MK={"B":"MS4A1","Plasma":"MZB1","T":"CD3E","Myeloid":"CD68","NK":"KLRD1","Endothelial":"PECAM1","Epithelial":"EPCAM","Stroma":"PDGFRB"}
+    for i in range(row.shape[0]):
+        j=int(np.argmax(row.values[i])); dom=row.columns[j]
+        ax.text(j,i,f"{row.values[i,j]*100:.0f}",ha="center",va="center",fontsize=7,color="white" if row.values[i,j]>0.5 else "#333")
+        ax.text(row.shape[1]-0.35,i,f"-> {dom} ({MK.get(dom,'')})",va="center",fontsize=8.5,color="#222")
+    fig.colorbar(im,ax=ax,fraction=0.035,label="fraction of cluster")
+    ax.set_title(f"P3-assoc · Leiden cluster -> dominant cell-type ({TOPN} largest of {ntot} clusters, {cov*100:.0f}% of cells)\n"
+                 "the 68-gene embedding over-clusters, but clusters still map cleanly to coherent populations",fontsize=10.5)
+    save(fig,"P3assoc_heatmap")
+
+def B1_umap(m):
+    fig,ax=plt.subplots(figsize=(7.5,6.5))
+    ax.scatter(m.post_x,m.post_y,s=2,c="#e8e8e8",linewidths=0,rasterized=True)
+    for lab,col,mask in [("B/Plasma","#1f77b4",m.lineage.isin(["B","Plasma"]).values),
+                         ("Treg","#d62728",m.is_Treg.values),("cytotoxic","#2ca02c",m.is_cyto.values)]:
+        ax.scatter(m.post_x[mask],m.post_y[mask],s=6,c=col,linewidths=0,rasterized=True,label=lab)
+    ax.axis("off"); ax.legend(markerscale=3,frameon=False,fontsize=11,loc="upper right")
+    ax.set_title("B1 · from the embedding — B/plasma, Treg, cytotoxic in the integrated UMAP\n(the same populations we now follow into tissue)",fontsize=12)
+    save(fig,"P5b1_umap")
+
+# ---------------- aggregates helper ----------------
+REPS={"RCC_big":"RCC_big","RCC_figshare":"figS10","DKD":"HK2695"}
+def get_aggs(df,c,s,topn=3):
+    g=df[(df.cohort==c)&(df["sample"]==s)]; xy=g[["x","y"]].values; isB=g.is_B.values
+    cl=DBSCAN(eps=50,min_samples=20).fit(xy[isB]).labels_; Bc=xy[isB]
+    sizes=[(k,int((cl==k).sum())) for k in set(cl) if k!=-1]; sizes.sort(key=lambda t:-t[1])
+    tops=[k for k,_ in sizes[:topn]]; cents=[Bc[cl==k].mean(0) for k in tops]
+    return g,xy,isB,cl,Bc,tops,cents
+
+def P5_context(df):
+    fig,axes=plt.subplots(2,3,figsize=(16,9.4))
+    LC={"B":"#1f77b4","Plasma":"#ff7f0e","T":"#2ca02c","Myeloid":"#9467bd","NK":"#17becf","Endothelial":"#8c564b","Epithelial":"#cccccc","Stroma":"#e377c2"}
+    for j,(c,s) in enumerate(REPS.items()):
+        g,xy,isB,cl,Bc,tops,cents=get_aggs(df,c,s)
+        disp=xy[rng.choice(len(xy),min(70000,len(xy)),replace=False)]
+        ax=axes[0,j]; ax.scatter(disp[:,0],disp[:,1],s=1,c="#e9e9e9",linewidths=0,rasterized=True)
+        ax.scatter(Bc[cl!=-1,0],Bc[cl!=-1,1],s=4,c="#1f77b4",linewidths=0,rasterized=True)
+        for n,cen in enumerate(cents,1):
+            ax.add_patch(Rectangle((cen[0]-350,cen[1]-350),700,700,fill=False,edgecolor="#d62728",lw=1.6))
+            ax.text(cen[0],cen[1]+430,str(n),color="#d62728",fontsize=12,fontweight="bold",ha="center")
+        ax.set_aspect("equal"); ax.axis("off"); ax.set_title(f"{c} ({s}) — whole section, aggregates boxed",color=COL[c],fontsize=11)
+        ax=axes[1,j]
+        for l,col in LC.items():
+            mm=g.lineage.values==l; ax.scatter(xy[mm,0],xy[mm,1],s=1.5,c=col,linewidths=0,rasterized=True)
+        ax.set_aspect("equal"); ax.axis("off"); ax.set_title("same section — by lineage",fontsize=10)
+    handles=[plt.Line2D([],[],marker="o",ls="",mfc=LC[l],mec="none",ms=8,label=l) for l in LINORD if l in LC]
+    axes[1,2].legend(handles=handles,loc="center left",bbox_to_anchor=(1.0,0.5),frameon=False,fontsize=9)
+    fig.suptitle("P5 context (overview) · where the zooms come from — whole sections with aggregates boxed, and the same sections by lineage",fontsize=14)
+    save(fig,"P5_context",tight=False)
+
+def hull2(ax,P,col):
+    if len(P)>=4:
+        try: h=ConvexHull(P); ax.add_patch(Polygon(P[h.vertices],closed=True,fill=False,edgecolor=col,lw=1.6,alpha=0.9))
+        except Exception: pass
+def P5_gallery(df):
+    fig,axes=plt.subplots(3,3,figsize=(13,13))
+    for r,(c,s) in enumerate(REPS.items()):
+        g,xy,isB,cl,Bc,tops,cents=get_aggs(df,c,s)
+        for n,(k,cen) in enumerate(zip(tops,cents)):
+            ax=axes[r,n]; W=350.0; m=(np.abs(xy[:,0]-cen[0])<W)&(np.abs(xy[:,1]-cen[1])<W)
+            ax.scatter(xy[m,0],xy[m,1],s=4,c="#ececec",linewidths=0,rasterized=True)
+            ax.scatter(xy[m&isB,0],xy[m&isB,1],s=9,c="#1f77b4",linewidths=0,rasterized=True)
+            ax.scatter(xy[m&g.is_Treg.values,0],xy[m&g.is_Treg.values,1],s=30,c="#d62728",edgecolor="white",linewidth=0.3,rasterized=True)
+            ax.scatter(xy[m&g.is_cyto.values,0],xy[m&g.is_cyto.values,1],s=30,c="#2ca02c",marker="^",edgecolor="white",linewidth=0.3,rasterized=True)
+            hull2(ax,Bc[cl==k],"#08519c")
+            ax.set_aspect("equal"); ax.axis("off"); ax.set_title(f"{c} #{n+1}",color=COL[c],fontsize=11)
+        for n in range(len(tops),3): axes[r,n].axis("off")
+    fig.legend(handles=[plt.Line2D([],[],marker="o",ls="",mfc="#1f77b4",mec="none",ms=9,label="B cell"),
+        plt.Line2D([],[],marker="o",ls="",mfc="#d62728",mec="white",ms=9,label="Treg"),
+        plt.Line2D([],[],marker="^",ls="",mfc="#2ca02c",mec="white",ms=9,label="cytotoxic")],
+        loc="lower center",ncol=3,frameon=False,fontsize=11,bbox_to_anchor=(0.5,0.0))
+    fig.suptitle("P5 detail (gallery) · 9 B-aggregates across all three cohorts — Treg/cytotoxic in & around the B-core (region-cropped)",fontsize=14)
+    save(fig,"P5_gallery",tight=False)
+
+def S_scoring(df):
+    # build the metric on ONE representative aggregate (RCC_figshare #1)
+    c,s="RCC_figshare","figS10"; g,xy,isB,cl,Bc,tops,cents=get_aggs(df,c,s,topn=1)
+    k=tops[0]; cen=cents[0]; mem=Bc[cl==k]; tree=cKDTree(xy)
+    reg=np.unique(np.concatenate([np.asarray(t,int) for t in tree.query_ball_point(mem,r=50)]))
+    nreg=len(reg); tin=int(g.is_Treg.values[reg].sum()); cin=int(g.is_cyto.values[reg].sum())
+    bgT=float(g.is_Treg.mean()); bgC=float(g.is_cyto.mean())
+    fTin=tin/nreg; fCin=cin/nreg; eT=fTin/(bgT+1e-9); eC=fCin/(bgC+1e-9); dl=np.log2(eT+1e-9)-np.log2(eC+1e-9)
+    ra=pd.read_csv(f"{INT}/readoutA_reliable.csv").set_index("cohort")
+    fig,axes=plt.subplots(1,3,figsize=(16,5.4)); W=300.0
+    ax=axes[0]; m=(np.abs(xy[:,0]-cen[0])<W)&(np.abs(xy[:,1]-cen[1])<W)
+    ax.scatter(xy[m,0],xy[m,1],s=5,c="#ececec",linewidths=0,rasterized=True)
+    ax.scatter(xy[m&isB,0],xy[m&isB,1],s=11,c="#1f77b4",linewidths=0,rasterized=True)
+    hull2(ax,mem,"#08519c"); ax.scatter(xy[m&g.is_Treg.values,0],xy[m&g.is_Treg.values,1],s=34,c="#d62728",edgecolor="white",linewidth=0.3)
+    ax.scatter(xy[m&g.is_cyto.values,0],xy[m&g.is_cyto.values,1],s=34,c="#2ca02c",marker="^",edgecolor="white",linewidth=0.3)
+    ax.set_aspect("equal"); ax.axis("off"); ax.set_title("S1–S2 · the aggregate (B hull) +\nTreg/cytotoxic counted within 50 µm",fontsize=11)
+    ax=axes[1]; ax.axis("off")
+    txt=(f"S2  inside the aggregate ({nreg} cells):\n     Treg (FOXP3/CTLA4+)  = {tin}   ->  {fTin*100:.1f}%\n     cytotoxic (CD8A/GZMK+) = {cin}   ->  {fCin*100:.1f}%\n"
+         f"     section background:  Treg {bgT*100:.2f}% · cyto {bgC*100:.2f}%\n\n"
+         f"S3  enrichment = frac_inside / frac_background\n     Treg      : {fTin*100:.1f}% / {bgT*100:.2f}% = {eT:.2f}×\n     cytotoxic : {fCin*100:.1f}% / {bgC*100:.2f}% = {eC:.2f}×\n\n"
+         f"S4  Δlog₂ = log₂({eT:.2f}) − log₂({eC:.2f}) = {dl:+.2f}\n     (this single aggregate)")
+    ax.text(0.0,0.98,txt,va="top",ha="left",fontsize=11,family="monospace",bbox=dict(boxstyle="round",fc="#f3f6fa",ec="#bbb"))
+    ax=axes[2]; order=["RCC_big","RCC_figshare","RCC_pooled","DKD"]; yp={cc:i for i,cc in enumerate(order[::-1])}
+    cc={"RCC_big":"#1F78B4","RCC_figshare":"#6BAED6","RCC_pooled":"#08519c","DKD":"#6A3D9A"}
+    for cohx in order:
+        rr=ra.loc[cohx]; y=yp[cohx]; ax.errorbar(rr.delta,y,xerr=[[rr.delta-rr.lo],[rr.hi-rr.delta]],fmt="o",ms=10,color=cc[cohx],capsize=5,lw=2,markeredgecolor="black")
+        ax.text(rr.delta,y+0.22,f"{rr.delta:+.2f}",ha="center",fontsize=9,color=cc[cohx],fontweight="bold")
+    fs.zeroline(ax,0,"v"); ax.set_yticks(list(yp.values())); ax.set_yticklabels(list(yp.keys()),fontsize=9); ax.set_ylim(-0.6,3.4)
+    ax.set_xlabel("Δlog₂ (Treg − cytotoxic)"); ax.set_title("S5 · pool aggregates -> bootstrap ->\nper-cohort Δlog₂ + 95% CI  (-> P6)",fontsize=11)
+    fig.suptitle("P5->P6 · object -> number: how one aggregate becomes the per-cohort differential (real values)",fontsize=14)
+    save(fig,"P5_scoring")
+
+def Methods():
+    rows=[("load / restrict / normalize","anndata 0.12, scanpy 1.11","read_h5ad; pp.normalize_total; pp.log1p; pp.scale"),
+     ("dimensionality reduction","scanpy (scikit-learn)","tl.pca (68-gene reliable features → 30 PCs)"),
+     ("batch integration (typing)","harmonypy 2.0","run_harmony(X_pca, cohort) — called directly (2.0 returns Z_corr as (N,d); scanpy wrapper assumed (d,N))"),
+     ("graph / clustering / embedding","scanpy + leidenalg 0.12 + umap 0.5","pp.neighbors; tl.leiden; tl.umap (pre- and post-Harmony)"),
+     ("cell-type labelling","scanpy","tl.score_genes per lineage on reliable markers (uniform, all cohorts)"),
+     ("B-aggregate detection","scikit-learn 1.9","cluster.DBSCAN(eps=50 µm, min_samples=20) on B-cell coordinates, per section"),
+     ("aggregate footprint / hulls","scipy 1.17","spatial.cKDTree (cells within 50 µm); spatial.ConvexHull (display hulls)"),
+     ("enrichment + bootstrap CIs","numpy 2.4","count-pooled Δlog₂; bootstrap by resampling aggregates within cohort (5000×)"),
+     ("native-depth separation (ref.)","squidpy 1.8","gr.spatial_neighbors / gr.nhood_enrichment in the native-label bniche_dbscan analysis (P6 right)"),
+     ("figures","matplotlib 3.10 + figstyle","slide-grade panels; PNG@300 + SVG; self-contained HTML")]
+    fig,ax=plt.subplots(figsize=(15,5.6)); ax.axis("off"); n=len(rows); yh=1.0/(n+1)
+    cw=[0.24,0.22,0.54]; x0=[0,0.24,0.46]
+    for j,h in enumerate(["step","package(s)","function — what it does"]):
+        ax.add_patch(Rectangle((x0[j],1-yh),cw[j],yh,facecolor="#15203a")); ax.text(x0[j]+0.008,1-yh/2,h,va="center",color="white",fontweight="bold",fontsize=10)
+    for i,(a,b,d) in enumerate(rows):
+        y=1-(i+2)*yh
+        for j,val in enumerate([a,b,d]):
+            ax.add_patch(Rectangle((x0[j],y),cw[j],yh,facecolor="#eef3f8" if j==0 else "white",edgecolor="#ddd"))
+            ax.text(x0[j]+0.008,y+yh/2,val,va="center",fontsize=8.5,fontweight="bold" if j==0 else "normal")
+    ax.set_xlim(0,1); ax.set_ylim(1-(n+1)*yh,1.0)
+    fig.suptitle("Methods · per-step packages & functions (reproducibility appendix)",fontsize=14)
+    save(fig,"Methods",tight=False)
+
 def build_html():
  PANELS=[
  ("P0",None,"Does the RCC immunoregulatory B-aggregate bias generalize across kidney disease?",
    "Three Xenium cohorts (two ccRCC, one DKD), harmonized on a reliably-detected gene set, asked whether the Treg-favoring B-aggregate bias reproduces."),
  ("P1",f"{OUT}/P1_cohorts.png","Meet the cohorts","Three Xenium kidney datasets — all imaged on Xenium, integrated to ask one question."),
  ("P2",f"{OUT}/P2_funnel.png","The gene funnel (honest reduction)","123 name-intersection → 104 measured on DKD Xenium → 68 reliably above ambient in all three. The cost is stated up front; most drops are DKD-driven sparsity."),
- ("P3a",f"{PF}/INTrel_umap.png","Integration is sound — embedding","Harmony UMAP on the 68-gene set: the three cohorts MIX (left), lineages RESOLVE (middle), and the two RCC cohorts merge as a batch baseline (right)."),
- ("P3b",f"{PF}/INTrel_dotplot.png","Integration is sound — typing","Per-cohort marker dot-plot: each lineage is defined by the right markers in EVERY cohort — typing is consistent, not blended."),
+ ("P3",f"{PF}/INTrel_umap.png","Integration is sound — embedding","Harmony UMAP on the 68-gene set: the three cohorts MIX (left), lineages RESOLVE (middle), and the two RCC cohorts merge as a batch baseline (right)."),
+ ("P3-pre",f"{OUT}/P3pre_umap.png","Was integration necessary? (pre vs post)","UMAP on the SAME 68-gene features before vs after Harmony. Before, cohorts segregate by batch; after, they mix — integration was necessary and did something real."),
+ ("P3-assoc",f"{OUT}/P3assoc_heatmap.png","Clustering recovers cell types (without a clean UMAP)","Leiden cluster × cell-type contingency (row-normalized): each cluster maps to a dominant lineage with its defining marker. The 68-gene UMAP is noisy by design, but clustering still recovers coherent populations — shown directly."),
+ ("P3-type",f"{PF}/INTrel_dotplot.png","Integration is sound — typing","Per-cohort marker dot-plot: each lineage is defined by the right markers in EVERY cohort — typing is consistent, not blended."),
  ("P4",f"{OUT}/P4_lineage.png","Lineage availability (what reliability cost)","Typing stays marker-faithful, but NK collapses to KLRD1-only and the Treg gate loses IL2RA — stated, not hidden."),
- ("P5",f"{OUT}/P5_spatial.png","The B-aggregate object","One representative section per cohort, region-cropped: DBSCAN B-aggregates (blue, hulls) with Treg (red) and cytotoxic (green) cells in and around them — the spatial substrate of Readout A."),
+ ("B1",f"{OUT}/P5b1_umap.png","From the embedding — the populations we follow","B/plasma, Treg and cytotoxic cells highlighted in the integrated UMAP — the same populations we now trace from embedding into tissue."),
+ ("P5-context",f"{OUT}/P5_context.png","Back to the slides — overview (where the zooms come from)","Whole tissue sections (all cells, light grey) with B-aggregate locations BOXED, and the same sections colored by lineage. Section-scale immune organization and the origin of every zoom."),
+ ("P5-detail",f"{OUT}/P5_gallery.png","To the aggregates — detail gallery (9 examples)","Nine B-aggregates spanning all three cohorts, region-cropped: DBSCAN B-core (blue, hull) with Treg (red) and cytotoxic (green) in & around it. The reproducible spatial object behind Readout A."),
+ ("P5→P6",f"{OUT}/P5_scoring.png","Object → number (the scoring, transparently)","On one representative aggregate: count Treg/cytotoxic inside vs background (S2) → enrichment (S3) → Δlog₂ for that aggregate (S4) → pool + bootstrap → per-cohort Δlog₂ with CI (S5). Real values, fully traceable into P6."),
  ("P6",f"{OUT}/P6_pillars.png","Readout A — replication vs separation (the core)","Two complementary pillars, NOT the same claim. LEFT (integrated, reliable set): the Treg-favoring direction REPLICATES across two independent RCC cohorts, but the direct cohort−DKD difference CIs INCLUDE zero (underpowered at this depth — CIs shown, not hidden). RIGHT (native depth): the magnitude/separation (Δ≈+2.6 vs +0.24, non-overlapping CIs)."),
  ("P7",f"{OUT}/P7_readoutB.png","Readout B — a panel limitation","ANGPT2/CXCL9/CXCL10 are sub-ambient on the DKD Xenium panel → the vascular/inflammatory axis is not measurable cross-cohort; the within-RCC signal is null. Reported as a limitation, not a result."),
  ("P8",f"{OUT}/P8_synthesis.png","Synthesis","What generalizes (conserved scaffold + replicated Treg direction) vs what is established only at native depth (the magnitude/separation)."),
+ ("Methods",f"{OUT}/Methods.png","Methods & packages (appendix)","Per-step packages and the exact functions — scanpy (IO/normalize/PCA/neighbors/Leiden/UMAP), harmonypy (Harmony, called directly), scikit-learn (DBSCAN), scipy (cKDTree/ConvexHull), numpy (bootstrap), squidpy (native-depth nhood), matplotlib + figstyle (figures)."),
  ]
  cards=[]
  for pid,path,title,cap in PANELS:
@@ -218,6 +408,10 @@ footer{{max-width:1080px;margin:0 auto;padding:0 18px 60px;color:#8a93a3;font-si
  print(f"wrote integration_walkthrough.html ({len(HTML)//1024} KB)")
 
 if __name__=="__main__":
-    P1(); P2(); P4(); P5(); P6(); P7(); P8()
+    m=build_model(); df=pd.read_parquet(f"{INT}/cells_labeled_reliable.parquet")
+    P1(); P2(); P4()
+    P3pre(m); P3assoc(m); B1_umap(m)
+    P5_context(df); P5_gallery(df); S_scoring(df)
+    P6(); P7(); P8(); Methods()
     build_html()   # assemble last so it embeds fresh figures
     print("== walkthrough done ==")
