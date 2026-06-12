@@ -110,9 +110,11 @@ Detection conditioned on **producers** (not a tissue-wide average) and on **spac
   and endothelium 2.86× rise just like stromal 2.44×, density flat) → a **local spillover field**, not
   stromal production. Myeloid BAFF is tissue-wide (0.66–1.14× near).
 - Verdict (revised): a measurable BAFF **producer** signal exists (**myeloid tissue-wide**, 7.9× the
-  epithelial floor) and B cells express BAFF-R; but there is **no localized peri-aggregate stromal
-  production**. The BAFF-R aggregate-concentration (1.6×) is **not yet spillover-controlled** and is
-  flagged as an open item.
+  epithelial floor; **anchored** — see `REPORT_baff_receptor.md`: cell-intrinsic 24× per-transcriptome,
+  reproducible 16/16) and B/plasma cells **constitutively** express the receptors; but there is **no
+  localized peri-aggregate stromal production** AND **no aggregate-specific receptor concentration** —
+  the BAFF-R "1.6×" did **not** survive nCount/control-gene rigor (`REPORT_baff_receptor.md`). Net: a
+  real tissue-wide myeloid BAFF producer with constitutive B-lineage receptors, **no localized niche**.
 
 **APRIL (TNFSF13) → NO-GO (global null confirmed under conditioning).**
 - **Not producer-specific:** myeloid 5.4% is **below** the epithelial floor 6.8% → APRIL is broad/
