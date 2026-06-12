@@ -84,6 +84,13 @@ Discipline:
   before every commit.
 - Commit small figures (outputs/figures/*.png) and tables (outputs/tables/*.csv) that
   document results; git-ignore large objects (outputs/objects/).
+- NEVER commit base64-embedded artifacts: rasterized matplotlib SVGs embed base64 PNGs, and
+  self-contained HTMLs embed base64 JPEGs — random image bytes trip GitHub secret scanning
+  (false-positive Tencent/AWS/etc.) and bloat history. **PNG is the committed figure format**;
+  `.gitignore` excludes `*.svg`. Regenerate SVG from build scripts on demand. For emailable
+  self-contained HTML deliverables (see the emailable-HTML convention), **name the file
+  `*_summary.html`** so `.gitignore` auto-excludes it; send it via the file tool, don't commit it.
+  Lightweight HTMLs that reference figures by relative path (no embedded base64) are fine to commit.
 - No secrets, no .Rhistory/.RData. Use descriptive, conventional commit messages.
 - Keep README.md and DATA.md accurate as the work evolves — they are the public face.
 
