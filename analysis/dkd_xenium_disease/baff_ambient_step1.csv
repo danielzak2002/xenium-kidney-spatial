@@ -1,0 +1,5 @@
+zone,cell_type,baff_det_pct,n,pos
+near,Stromal,1.96,1326,26
+near,Epithelial (non-producer),0.62,812,5
+far,Stromal,0.8,48369,389
+far,Epithelial (non-producer),0.29,116772,335

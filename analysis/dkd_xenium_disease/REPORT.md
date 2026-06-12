@@ -104,11 +104,15 @@ Detection conditioned on **producers** (not a tissue-wide average) and on **spac
   0.62% — the average had washed it out). Fibroblast 0.88% (2.2×).
 - **Receptor axis real and aggregate-concentrated:** BAFF-R on B cells **35.7%**, and **elevated in
   B-aggregates (35.4% near vs 22.1% far, 1.6×)**.
-- **Peri-aggregate ligand source = stroma:** stromal BAFF is **enriched near B-aggregates (2.1–2.5×)**;
-  myeloid BAFF is abundant but **tissue-wide, not aggregate-focal** (0.66× near) — the honest nuance.
-- Verdict: a measurable BAFF–BAFF-R niche signal exists (producer + B-cell receptor, receptor
-  concentrated in aggregates, stromal ligand peri-aggregate). The naive "myeloid BAFF localised at
-  aggregates" picture is **not** supported; the localised ligand is stromal.
+- ~~**Peri-aggregate ligand source = stroma:** stromal BAFF enriched near B-aggregates (2.1–2.5×).~~
+  **⚠ RETRACTED** — this localized-stromal claim did **not** survive an ambient/spillover stress-test
+  (`REPORT_baff_ambient.md`): the near/far BAFF rise is **non-specific** (non-producer epithelium 2.15×
+  and endothelium 2.86× rise just like stromal 2.44×, density flat) → a **local spillover field**, not
+  stromal production. Myeloid BAFF is tissue-wide (0.66–1.14× near).
+- Verdict (revised): a measurable BAFF **producer** signal exists (**myeloid tissue-wide**, 7.9× the
+  epithelial floor) and B cells express BAFF-R; but there is **no localized peri-aggregate stromal
+  production**. The BAFF-R aggregate-concentration (1.6×) is **not yet spillover-controlled** and is
+  flagged as an open item.
 
 **APRIL (TNFSF13) → NO-GO (global null confirmed under conditioning).**
 - **Not producer-specific:** myeloid 5.4% is **below** the epithelial floor 6.8% → APRIL is broad/
@@ -122,7 +126,9 @@ Detection conditioned on **producers** (not a tissue-wide average) and on **spac
 The B-rich DKD subgroup **reproduces** from our validated labels (B-rich = {1006, HK2695}, 100%
 concordant with the authors' B-predom niche). IgAN **lacks** B-aggregates (distinct from B-rich DKD);
 MN **forms** aggregates but of a **plasma/myeloid-mixed**, non-B-follicular type. The conditioned
-ligand re-test **splits the prior global null**: **BAFF/BAFF-R is a real, measurable, receptor-
-aggregate-concentrated axis** (with stromal — not myeloid — peri-aggregate ligand), whereas **APRIL
-remains an ambient null**. All comparisons are descriptive (n=8 vs 3; references n=1–2; one patient
+ligand re-test **splits the prior global null**: **BAFF has a real tissue-wide myeloid producer
+signal** (7.9× the epithelial floor) and B cells express BAFF-R, whereas **APRIL remains an ambient
+null**. NOTE: a follow-up stress-test (`REPORT_baff_ambient.md`) **retracted the localized
+peri-aggregate stromal-BAFF claim** as ambient/spillover — keep myeloid tissue-wide BAFF, drop the
+spatial-niche-production reading. All comparisons are descriptive (n=8 vs 3; references n=1–2; one patient
 per sample) and inherit the CD8/iPT typing caveats.

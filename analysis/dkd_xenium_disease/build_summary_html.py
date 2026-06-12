@@ -54,7 +54,7 @@ footer{{max-width:980px;margin:0 auto;padding:0 18px 50px;color:#8a93a3;font-siz
 <div class="card"><h2><span class="s">RESULT</span>Headline numbers</h2>
 <div class="kpi">
 <div><b>{{1006, HK2695}}</b><span>B-rich DKD subgroup &mdash; 100% concordant (8/8) with authors' B-predom niche</span></div>
-<div><b>BAFF: GO</b><span>myeloid 7.9&times; epithelial floor; BAFF-R on B 36%, aggregate-elevated 1.6&times;</span></div>
+<div><b>BAFF: producer GO</b><span>myeloid 7.9&times; epithelial floor (tissue-wide); localized-stromal-niche claim retracted (spillover &mdash; see stress-test)</span></div>
 <div><b>APRIL: NO-GO</b><span>myeloid below epithelial floor &mdash; ambient, not a producer/niche signal</span></div>
 </div>
 <p class="cap"><b>All comparisons descriptive / underpowered:</b> DKD n=8 vs Control n=3; non-DKD references n=1&ndash;2; one patient per sample. Architecture work inherits the reannotation typing caveats (CD8 recall 0.58, iPT/iTAL soft boundaries).</p>
@@ -76,7 +76,8 @@ footer{{max-width:980px;margin:0 auto;padding:0 18px 50px;color:#8a93a3;font-siz
 <div class="card"><h2><span class="s">STEP 5</span>BAFF/APRIL conditioned re-assessment</h2>
 {img(f"{FIG}/baff_april_panel.png",1500,86)}
 <p>All five genes are on-panel and measured on Xenium. Detection was conditioned on <b>producers</b> (not a tissue-wide average, which washes out producer signal) and on <b>space</b> (near vs far from B-aggregates).</p>
-<div class="go"><b>BAFF (TNFSF13B) &rarr; GO &mdash; overturns the prior global null.</b> Myeloid detect <b>3.1% vs 0.39% epithelial floor = 7.9&times;</b> (global rate was 0.62% &mdash; the average hid it). Receptor <b>BAFF-R on B cells 35.7%, elevated in aggregates (1.6&times;)</b>. Peri-aggregate ligand is <b>stromal</b> (BAFF enriched 2.1&ndash;2.5&times; near aggregates); myeloid BAFF is abundant but tissue-wide, not aggregate-focal &mdash; the honest nuance.</div>
+<div class="go"><b>BAFF (TNFSF13B) &rarr; partial GO &mdash; overturns the prior global null at the producer level.</b> Myeloid detect <b>3.1% vs 0.39% epithelial floor = 7.9&times;</b> (global rate was 0.62% &mdash; the average hid it); B cells express BAFF-R (35.7%). A real <b>tissue-wide myeloid producer</b> signal.</div>
+<div class="flag"><b>&#9888; Retracted sub-claim:</b> the earlier "peri-aggregate <b>stromal</b> BAFF (2.1&ndash;2.5&times;)" did <b>not</b> survive an ambient/spillover stress-test (<code>REPORT_baff_ambient.md</code>): the near/far BAFF rise is non-specific &mdash; non-producer epithelium (2.15&times;) and endothelium (2.86&times;) rise like stromal (2.44&times;), with flat transcript density &rarr; a <b>local spillover field, not stromal production</b>. Keep myeloid tissue-wide BAFF; drop the localized-niche reading. The BAFF-R aggregate-concentration is not yet spillover-controlled (open item).</div>
 <div class="nogo"><b>APRIL (TNFSF13) &rarr; NO-GO &mdash; global null confirmed.</b> Myeloid 5.4% is <b>below</b> the epithelial floor (6.8%) &rarr; broad/ambient, not producer-specific. BCMA on plasma is real (17%) but not aggregate-concentrated.</div></div>
 
 <div class="card"><h2><span class="s">DATA</span>Per-sample B-lineage substrate</h2>
