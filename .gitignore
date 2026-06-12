@@ -29,6 +29,10 @@ Demoulin26/data/
 *.npy
 *.npz
 
+# Run logs (regenerable; not deliverables)
+*.log
+outputs/logs/
+
 # Large generated objects (regenerate from scripts; document in README)
 outputs/objects/
 
