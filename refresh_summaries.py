@@ -44,6 +44,10 @@ SUMMARIES=[
   "07_Blineage_mechanism_across_nephropathies_anecdotal.html","B-lineage mechanism across nephropathies (anecdotal)",
   "Extends 02 with B:Plasma split, Ig isotype, TLS organization, localization, damage coupling, cell state — n=1 per non-DKD, descriptive only.",
   "Three apparent programs: DKD B-rich organized-lymphoid · MN antibody-mediated/plasma-skewed · IgAN diffuse/unorganized (n=1, not tested).",False),
+ ("analysis/dkd_xenium_disease/build_composition_html.py","analysis/dkd_xenium_disease/composition_by_group_summary.html",
+  "08_composition_by_disease_group.html","Cell-type composition per sample by disease group",
+  "Walkthrough top-level layer: per-sample fractions (coarse lineage + immune subtypes) on the validated labels; dotplots with CLR sensitivity.",
+  "Control epithelial-dominant (74%) / near-bare immune (2.8%); every disease loses epithelium, gains immune+stroma; descriptive, n=1 flagged.",False),
 ]
 
 def main():
