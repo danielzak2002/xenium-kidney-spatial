@@ -48,6 +48,10 @@ SUMMARIES=[
   "08_composition_by_disease_group.html","Cell-type composition per sample by disease group",
   "Walkthrough top-level layer: per-sample fractions (coarse lineage + immune subtypes) on the validated labels; dotplots with CLR sensitivity.",
   "Control epithelial-dominant (74%) / near-bare immune (2.8%); every disease loses epithelium, gains immune+stroma; descriptive, n=1 flagged.",False),
+ ("presentation/figures/dkd_walkthrough/build_walkthrough_summary.py","presentation/figures/dkd_walkthrough/dkd_walkthrough_summary.html",
+  "09_WALKTHROUGH_one_story_for_a_bench_biologist.html","WALKTHROUGH — the whole arc as one story",
+  "Step-by-step (S0–S8) for a bench biologist new to spatial: what Xenium can show across IgAN/MN/AA vs DKD/control, and where it stops — with object→number scoring panels and the two self-corrections.",
+  "▶ Read this for the narrative: validated typing, two spatial programs, single-section claims flagged, panel limits shown.",True),
 ]
 
 def main():
