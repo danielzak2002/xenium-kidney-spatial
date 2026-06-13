@@ -1,0 +1,6 @@
+gene,PT_detect,immune_floor,ratio,usable
+VCAM1,0.1625,0.0226,7.2,True
+HAVCR1,0.0787,0.0033,24.05,True
+PROM1,0.1031,0.0045,23.14,True
+SPP1,0.6843,0.0452,15.14,True
+ITGB6,0.0214,0.0033,6.56,False
