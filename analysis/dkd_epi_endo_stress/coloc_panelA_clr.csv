@@ -1,0 +1,5 @@
+test,rho,lo,hi
+clr(iPT) ~ clr(B_lineage),0.147,-0.316,0.526
+clr(iPT) ~ clr(Myeloid),0.388,-0.119,0.747
+clr(iPT) ~ clr(T_NK_other),0.141,-0.33,0.584
+clr(iPT) ~ clr(B) | nonB-immune (amalg),-0.054,-0.652,0.481
