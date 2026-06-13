@@ -40,6 +40,10 @@ SUMMARIES=[
   "06_injury_immune_colocalization.html","Injury ↔ immune co-localization across nephropathies",
   "Which cells participate: de-circularized specificity, cross-disease, epithelial + immune composition.",
   "Injury co-localizes with myeloid (ρ 0.82), not B-lineage; near-injury infiltrate is myeloid-skewed.",False),
+ ("analysis/dkd_xenium_disease/build_bcell_anecdotal_html.py","analysis/dkd_xenium_disease/bcell_anecdotal_summary.html",
+  "07_Blineage_mechanism_across_nephropathies_anecdotal.html","B-lineage mechanism across nephropathies (anecdotal)",
+  "Extends 02 with B:Plasma split, Ig isotype, TLS organization, localization, damage coupling, cell state — n=1 per non-DKD, descriptive only.",
+  "Three apparent programs: DKD B-rich organized-lymphoid · MN antibody-mediated/plasma-skewed · IgAN diffuse/unorganized (n=1, not tested).",False),
 ]
 
 def main():
