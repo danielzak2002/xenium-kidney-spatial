@@ -91,3 +91,6 @@ analysis/three_cohort_integration/cells_labeled_reliable.parquet
 presentation/figures/integration_walkthrough/model.parquet
 analysis/three_cohort_integration/cells_labeled_reliable_tumoronly.parquet
 analysis/three_cohort_integration/model_tumoronly.parquet
+
+# Collected emailable HTML summaries (base64-embedded; local convenience folder, never committed)
+summaries/
