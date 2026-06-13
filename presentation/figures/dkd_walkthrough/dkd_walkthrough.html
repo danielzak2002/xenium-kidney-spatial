@@ -1,0 +1,121 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DKD spatial transcriptomics — a walkthrough</title><style>
+body{margin:0;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;color:#1c1c1c;line-height:1.6}
+header{background:#15203a;color:#fff;padding:26px 32px} header h1{margin:0;font-size:23px}
+header p{margin:9px 0 0;color:#b9c6e0;font-size:14.5px;max-width:980px}
+main{max-width:1020px;margin:0 auto;padding:22px 18px 80px}
+.card{background:#fff;border-radius:13px;box-shadow:0 1px 5px rgba(0,0,0,.10);margin:18px 0;padding:20px 26px}
+.card.title{background:#f7f5fb;border-left:6px solid #6A3D9A}
+h2{font-size:18.5px;margin:0 0 12px} h2 .pid{background:#6A3D9A;color:#fff;border-radius:6px;padding:2px 10px;font-size:13px;margin-right:9px}
+img{width:100%;height:auto;border-radius:9px;border:1px solid #e6e8ec;display:block;margin:10px 0 2px}
+p,li{font-size:14px;color:#2b3040} .lead{font-size:15.5px;color:#15203a}
+.cap{font-size:12.6px;color:#6a7180;margin:3px 2px 10px}
+.frame{background:#f3eef8;border:1px solid #d4c4ea;border-radius:9px;padding:13px 17px;margin:10px 0;font-size:13.4px}
+.frame.warn{background:#fdeaea;border-color:#e3a6a6;color:#7a1a1a}
+.frame ul{margin:7px 0 0;padding-left:20px} ul{margin:6px 0}
+table.meth{border-collapse:collapse;width:100%;font-size:12.7px;margin:10px 0}
+table.meth th,table.meth td{border-bottom:1px solid #eceef2;padding:5px 9px;text-align:left} table.meth th{color:#6a7180}
+footer{max-width:1020px;margin:0 auto;padding:0 18px 60px;color:#7a828f;font-size:12px}
+.chk{background:#eef6ee;border:1px solid #b9d9b9;border-radius:9px;padding:12px 18px;margin:14px 0} .chk li{font-size:12.7px;color:#244d24}
+</style></head><body>
+<header><h1>Diabetic kidney disease & nephropathy references — a spatial-transcriptomics walkthrough</h1>
+<p>One story for a bench biologist new to spatial: what Xenium can show about how IgAN, MN and AA differ from
+DKD and controls — and where the method stops. Validated labels · descriptive · single-section references flagged · raw data read-only.</p></header>
+<main><section class="card title"><h2><span class="pid">S0</span> Can spatial transcriptomics tell these diseases apart — and where does it stop?</h2>
+<p class="lead">This walks one question through 16 human-kidney <b>Xenium</b> sections: <b>can in-situ,
+single-cell, ~5,000-gene spatial transcriptomics show how IgAN, MN and AA-amyloid differ from diabetic
+kidney disease (DKD) and from controls — and where does the method run out of road?</b></p>
+<div class="frame"><b>Read this first — the honest frame, which is load-bearing:</b>
+<ul>
+<li><b>DKD vs control is the powered backbone</b> (8 DKD, 3 control). Real replicate spread, shown everywhere.</li>
+<li><b>IgAN (1003), MN (1005), C3GN (1007) are SINGLE SECTIONS</b> — reconnaissance, hypothesis-generating,
+<b>nothing is statistically tested</b>. AA-amyloid is n=2. One patient per section, no donor replication.</li>
+<li><b>Two headline axes are panel-limited and we say so where they bite:</b> the IgA isotype (the defining
+axis of IgAN) is <b>not measurable</b> on this panel; the follicular-TLS marker CXCL13 is <b>presence-only</b>.</li>
+<li><b>The credibility comes from two things a slide reader can audit:</b> our cell calls are
+<b>validated blind</b> against the published atlas, and we <b>caught and reversed two of our own
+over-claims</b> (shown in S7, not hidden).</li>
+</ul></div>
+<p class="cap">Plain-language bridges used throughout — <b>segmentation</b> = drawing each cell's boundary on
+the image; <b>typing</b> = calling identity from expression; <b>aggregate / DBSCAN</b> = an unbiased way to
+find cell clusters (shown beside the image so you can see it's a real lymphoid aggregate); <b>ambient /
+spillover</b> = transcripts misassigned across cell boundaries, the failure mode we actively control for.</p></section><section class="card"><h2><span class="pid">S1</span> The data, for a slide person</h2>
+<p>Xenium is <b>in-situ</b>: the tissue is never dissociated. Each transcript is imaged at its location,
+assigned to a segmented cell, and ~5,000 genes are measured per cell <b>with the architecture intact</b> —
+the spatial equivalent of a multiplexed IHC you can re-stain 5,000 ways. That is the whole reason a
+glomerulus stays a glomerulus and an immune aggregate stays an aggregate.</p>
+<img src="wt_pipeline.png" loading="lazy"><p class="cap">From image to cells we can follow: (1) segmentation draws boundaries; (2) typing calls identity from the ~5K-gene profile; (3) the immune subtypes we trace downstream, still in tissue context. One ~460 µm region of sample 1006.</p>
+<p class="cap">Cohort: 16 sections — 8 DKD, 3 control, plus IgAN / MN / AA-amyloid (×2) / C3GN as references.
+Large image and per-transcript files stay on disk; we work from the cell-by-gene matrix + coordinates.</p></section><section class="card"><h2><span class="pid">S2</span> Trust the calls: blind re-annotation, validated against the atlas</h2>
+<p>Before any biology: are the cell-type calls real? We re-integrated <b>within this atlas</b> (Harmony on
+sample) and re-annotated the whole object <b>blind</b> to the authors' labels, then compared. <b>This is
+NOT the separate 68-gene three-cohort integration</b> — that coarser cross-platform exercise is kept apart;
+here we use the full ~5K panel.</p>
+<img src="../../../analysis/dkd_xenium_reannotation/figures/concordance_matrices.png" loading="lazy"><p class="cap">Our blind labels vs the authors' published annotation. Segment-level ARI 0.78, immune ARI 0.68 — strong agreement, achieved without looking at their calls.</p>
+<img src="../../../analysis/dkd_xenium_reannotation/figures/umap_yours_vs_theirs.png" loading="lazy"><p class="cap">Same cells, our typing vs theirs, on the integrated embedding — the populations land in the same places.</p>
+<p><b>Takeaway a bench biologist can hold onto:</b> "their published calls and our independent, blind calls
+agree" — so everything downstream rests on validated identities, not on our say-so.</p></section><section class="card"><h2><span class="pid">S3</span> Top-level composition, by disease group</h2>
+<p>Start where IHC starts: what is the tissue made of? Every dot is <b>one section</b>, grouped by disease;
+a median bar is drawn <b>only where n&gt;1</b>, so the single IgAN/MN/C3GN dots can't masquerade as a group.</p>
+<img src="wt_scoring_composition.png" loading="lazy"><p class="cap">Object → number for composition: count cells of each type, divide by all cells. Transparent, and the basis of every dot below.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/composition_by_group_coarse.png" loading="lazy"><p class="cap">Coarse lineage. Control is epithelial-dominant (74%) with a near-bare immune compartment (2.8%); every disease loses epithelium and gains immune + stroma. The CLR row (closure-aware) tracks the raw ordering.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/composition_by_group_immune.png" loading="lazy"><p class="cap">Immune drill-down. Single-section standouts: MN most immune/plasma-skewed, C3GN most T-skewed, AA highest B-fraction. NK/DC are not separately typed in the validated labels — not invented.</p>
+<p class="cap"><b>Closure noted:</b> fractions sum to one, so they are compositional; we read them descriptively
+and show a CLR sensitivity view rather than testing them.</p></section><section class="card"><h2><span class="pid">S4</span> Organization, not just composition — finding aggregates</h2>
+<p>Composition says <i>how much</i> immune; it doesn't say whether the immune cells are <b>organized</b>. To
+ask that without cherry-picking, we run <b>DBSCAN</b> — an unbiased clustering that either finds a dense cell
+cluster or doesn't. Here is the object→number, shown beside the image so you can see the hull is a real
+lymphoid aggregate — and, crucially, the <b>negative control</b>: the same algorithm on IgAN finds nothing.</p>
+<img src="wt_scoring_aggregate.png" loading="lazy"><p class="cap">B-lineage cells → local density → DBSCAN core/hull (the scored object) → burden per 10k → threshold. Sample 1006 scores 202/10k (B-rich); the SAME algorithm on IgAN 1003 returns ZERO clusters — B cells are present but not organized.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/dkd_subgroup.png" loading="lazy"><p class="cap">Within DKD, aggregate burden has a clean ~3× gap → a B-rich subgroup = {1006, HK2695}. This reproduces the authors' B-cell-rich subgroup: 8/8 concordant with their B-predominant immune niche.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/b_lineage_gallery_16.png" loading="lazy"><p class="cap">Every section, grouped: B (blue) + Plasma (orange) with aggregate hulls. B-rich DKD show compact follicular-looking aggregates; IgAN and controls have none under the identical algorithm.</p></section><section class="card"><h2><span class="pid">S5</span> Two spatial programs (the centerpiece — robust within a section)</h2>
+<p>This is where spatial earns its keep, and it holds at n=1 because it is measured <b>within each section</b>
+(every cell relative to its own neighbors). Two <b>orthogonal</b> logics:</p>
+<img src="wt_scoring_distance.png" loading="lazy"><p class="cap">Distance object→number: in 1006, B cells sit ~34 µm from glomeruli but ~94 µm from injured tubules, while myeloid sit ~30 µm from injury. B-lineage organizes near GLOMERULI; myeloid tracks INJURY.</p>
+<img src="../../../analysis/dkd_epi_endo_stress/coloc_fig_A_specificity.png" loading="lazy"><p class="cap">Across sections, tubular injury co-localizes with MYELOID infiltration (ρ = 0.82 [0.46, 0.95]); the B-lineage association does not survive de-circularization (partial 0.13, CI spans 0).</p>
+<img src="../../../analysis/dkd_epi_endo_stress/coloc_fig_C2_immune_injury.png" loading="lazy"><p class="cap">The near-injury immune compartment is myeloid-skewed in 12/16 sections; B-lineage is depleted near injury — consistent with the distance picture.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/bcell_fig_C_localization_coupling.png" loading="lazy"><p class="cap">The same B-vs-myeloid distance contrast across all samples (from the B-lineage analysis): B-to-glomerulus ≪ B-to-injury; myeloid hugs injury everywhere.</p>
+<p><b>One sentence:</b> injury recruits myeloid; B-lineage organizes around glomeruli/aggregates — two
+different spatial programs in the same kidney.</p></section><section class="card"><h2><span class="pid">S6</span> B-lineage programs across nephropathies (reconnaissance)</h2>
+<p>Layering mechanism onto the single-section references gives <b>three apparent B-lineage programs</b>.
+These are anecdotes to test, not results — and the panel limits are stated exactly where they bite.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/bcell_fig_A_split_isotype.png" loading="lazy"><p class="cap">Splitting B vs Plasma: MN is the one plasma-skewed glomerular disease with IgG-dominant plasma. LIMIT: IgA (the defining IgAN isotype) is below panel detection in plasma — the IgA axis is NOT testable here; only the IgG arm is.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/bcell_fig_B_tls_state.png" loading="lazy"><p class="cap">TLS organization + cell state: only DKD B-rich (HK2695) carries substantial follicular CXCL13. LIMIT: CXCL13 is below the quantitative floor → reported presence-only; CCL19 is the quantitative TLS marker.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/bcell_fig_D_glom_crops.png" loading="lazy"><p class="cap">Region crops — IgAN / MN / DKD B-rich. DKD B-rich = organized, B-skewed, follicular-flagged; MN = plasma-skewed, IgG-dominant, mixed/T-zone; IgAN = diffuse, peri-vascular, no aggregate, mature plasma.</p>
+<div class="frame warn"><b>n = 1 per non-DKD condition. Descriptive. Hypothesis-generating. NOT tested.</b>
+The IgAN read rests on architecture + plasma maturity, NOT on isotype (which is unmeasurable on this panel).</div></section><section class="card"><h2><span class="pid">S7</span> How we avoided fooling ourselves (two self-corrections)</h2>
+<p><b>Ambient / spillover</b> in one line: transcripts occasionally get assigned to the wrong neighboring
+cell across a segmentation boundary, creating a faint smear of signal where it isn't really produced. If you
+don't control for it, you "discover" things that are just spillover. We did — and it cost us two claims.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/baff_ambient_control.png" loading="lazy"><p class="cap">Self-correction 1: we initially read a peri-aggregate STROMAL BAFF niche. Under an ambient stress-test it did not survive — non-producer epithelium and endothelium rise just like stroma near aggregates → a local spillover field, not stromal production. The localized-niche claim is RETRACTED.</p>
+<img src="../../../analysis/dkd_xenium_disease/figures/baff_myeloid_anchor.png" loading="lazy"><p class="cap">What survives (the canonical BAFF result, 03/04): a tissue-wide MYELOID producer, cell-intrinsic and reproducible (16/16), ~24× the epithelial floor per-transcriptome — but with NO aggregate-specific niche. APRIL is a NO-GO (sub-floor).</p>
+<img src="../../../analysis/dkd_epi_endo_stress/coloc_fig_B1_disease.png" loading="lazy"><p class="cap">Self-correction 2: an earlier 'tubular injury sits near B-aggregates' reading. De-circularized, the injury association is MYELOID, not B-lineage (S5). The B-specific claim is RETRACTED; the myeloid one is stated in its own right.</p>
+<p><b>Why this matters to a skeptic:</b> the analysis visibly disproves two of its own attractive stories.
+That same discipline is what makes the surviving claims — validated typing, the two spatial programs —
+trustworthy.</p></section><section class="card"><h2><span class="pid">S8</span> Synthesis, honest limits, and the study this motivates</h2>
+<p><b>What spatial transcriptomics CAN do here:</b> (1) reproduce published cell identities <b>blind</b>
+(ARI 0.78/0.68); (2) quantify composition and <b>organization</b> (DBSCAN aggregates) per section; (3) reveal
+<b>two orthogonal spatial programs</b> — injury↔myeloid, B-lineage↔glomeruli — robust within a section.</p>
+<p><b>Where it STOPS (stated, not hidden):</b></p>
+<ul>
+<li><b>Single-section disease claims are hypotheses.</b> IgAN/MN/C3GN n=1; AA n=2; one patient per section; no donor column → no biological replication for the references.</li>
+<li><b>Panel limits.</b> IgA isotype unmeasurable (IGHA1 sub-floor; IGHM/IGKC/IGLC absent) → the defining IgAN axis can't be tested; CXCL13 presence-only → follicular-TLS is flagged, not quantified.</li>
+<li><b>Typing caveats.</b> iPT (injured PT) recall ≈ 0.64 → injury distances are conservative; CD8 recall ~0.58.</li>
+<li><b>Associational.</b> All co-localization is correlational within fixed tissue — no dynamics, no causation.</li>
+</ul>
+<p><b>The powered study this motivates:</b> a multi-donor cohort per nephropathy (IgAN, MN, AA, C3GN) on a
+panel carrying the missing isotype + follicular markers (IGHA/IGHM/IGKC, CXCL13/CXCR5/CR2), to TEST the three
+candidate B-lineage programs and the injury↔myeloid vs B↔glomeruli dissociation that this reconnaissance generated.</p>
+<table class="meth"><tr><th>step</th><th>tool</th><th>what it does</th></tr>
+<tr><td>typing / integration</td><td>scanpy · harmonypy</td><td>within-atlas Harmony(sample) + blind re-annotation (full ~5K panel)</td></tr>
+<tr><td>validation</td><td>scikit-learn</td><td>ARI / confusion vs the authors' published labels</td></tr>
+<tr><td>aggregates</td><td>scikit-learn DBSCAN · scipy</td><td>eps=50 µm, minPts=20; cKDTree neighborhoods; ConvexHull</td></tr>
+<tr><td>co-localization</td><td>scipy · numpy</td><td>Spearman + bootstrap CIs; de-circularized partials; within-section permutation</td></tr>
+<tr><td>composition / state</td><td>pandas · numpy</td><td>per-section fractions; CLR sensitivity; producer-conditioned, ambient-gated detection</td></tr>
+<tr><td>figures</td><td>matplotlib · figstyle</td><td>slide-grade panels; region crops; committed PNG</td></tr></table></section>
+<div class="chk"><b>Panel checklist (design rules met):</b><ul><li>object→number scoring shown for composition (S3), aggregates (S4), distance (S5)</li><li>individual replicates grouped by condition (Control/DKD/IgAN/MN/AA/C3GN) in S3 &amp; S4</li><li>all spatial zooms are region-crops (S1, S4, S5, S6)</li><li>aggregate determination incl. the ZERO-cluster IgAN case (S4)</li><li>two self-corrections DISPLAYED — BAFF niche + damage→B (S7)</li><li>panel limits displayed where they bite — IgA untestable, CXCL13 presence-only (S6, S8)</li><li>one canonical BAFF (03/04 myeloid anchor; not 02&#x27;s earlier panel)</li><li>numbers sourced from committed CSVs/REPORTs</li><li>lightweight: images referenced by RELATIVE PATH (no base64) → committable</li></ul></div>
+</main>
+<footer>Generated narrative + scoring panels (this folder) · reused figures referenced by relative path from
+summaries 01/02/03/04/06 + the B-lineage and composition analyses · pure science · figures are committed PNGs
+(no base64) · numbers sourced from the committed CSVs/REPORTs.</footer>
+</body></html>
