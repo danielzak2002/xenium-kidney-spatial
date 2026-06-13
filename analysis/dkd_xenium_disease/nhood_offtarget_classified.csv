@@ -1,0 +1,202 @@
+type_a,type_b,dom,DKD_n,DKD_repro,Ctrl_dom,DKD_null_repro,class,disease_specific_survivor
+iPT,EC_glom,avoided,8,0.75,0.0,0.0,DISEASE-SPECIFIC candidate (review),True
+iPT,Fibroblast,avoided,8,1.0,1.0,0.0,DISEASE-SPECIFIC candidate (review),True
+PT,EC_glom,avoided,8,0.75,1.0,0.0,DISEASE-SPECIFIC candidate (review),False
+B,PT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+B,TAL,avoided,8,1.0,-1.0,0.25,compartmentalization (immune avoids epi/structure),False
+B,iTAL,avoided,8,0.88,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+B,DCT,avoided,8,0.88,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+B,CNT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+B,PC,avoided,8,0.88,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+B,IC A,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+B,MC,avoided,8,0.88,0.0,0.12,compartmentalization (immune avoids epi/structure),False
+B,EC_Peritub,avoided,8,0.75,1.0,0.0,compartmentalization (immune avoids epi/structure),False
+B,EC_DVR,avoided,8,0.75,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Plasma,PT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Plasma,CNT,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+Plasma,PC,avoided,8,0.88,0.0,0.0,compartmentalization (immune avoids epi/structure),False
+Plasma,IC A,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Plasma,MC,avoided,8,0.75,0.0,0.0,compartmentalization (immune avoids epi/structure),False
+Myeloid,PT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Myeloid,TAL,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+Myeloid,DCT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Myeloid,CNT,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+Myeloid,PC,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Myeloid,IC A,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+Myeloid,MC,avoided,8,0.75,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+Myeloid,EC_glom,avoided,8,0.75,1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD4 T,PT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,iPT,avoided,8,0.75,1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD4 T,TAL,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,iTAL,avoided,8,1.0,-1.0,0.25,compartmentalization (immune avoids epi/structure),False
+CD4 T,DCT,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD4 T,CNT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,PC,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,IC A,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD4 T,Podo,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD4 T,MC,avoided,8,0.88,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,PEC,avoided,8,0.75,1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,VSMC,avoided,8,0.75,1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,EC_Peritub,avoided,8,0.88,1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD4 T,EC_DVR,avoided,8,1.0,1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD8 T,PT,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD8 T,TAL,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD8 T,iTAL,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD8 T,DCT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD8 T,CNT,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD8 T,PC,avoided,8,1.0,-1.0,0.12,compartmentalization (immune avoids epi/structure),False
+CD8 T,IC A,avoided,8,1.0,-1.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD8 T,MC,avoided,8,0.75,0.0,0.0,compartmentalization (immune avoids epi/structure),False
+CD8 T,EC_glom,avoided,8,0.75,0.0,0.0,compartmentalization (immune avoids epi/structure),False
+Myeloid,CD4 T,enriched,8,1.0,1.0,0.12,constitutive adjacency (also in controls),False
+Myeloid,CD8 T,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+Myeloid,Fibroblast,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+CD4 T,CD8 T,enriched,8,1.0,1.0,0.12,constitutive adjacency (also in controls),False
+CD4 T,Fibroblast,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+CD8 T,Fibroblast,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+TAL,iTAL,enriched,8,0.88,1.0,0.12,constitutive adjacency (also in controls),False
+CNT,PC,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+CNT,IC A,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+PC,IC A,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+Podo,MC,enriched,8,1.0,1.0,0.12,constitutive adjacency (also in controls),False
+Podo,PEC,enriched,8,0.88,1.0,0.0,constitutive adjacency (also in controls),False
+Fibroblast,VSMC,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+Fibroblast,EC_Peritub,enriched,8,0.75,1.0,0.0,constitutive adjacency (also in controls),False
+VSMC,EC_Peritub,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+VSMC,EC_DVR,enriched,8,1.0,1.0,0.0,constitutive adjacency (also in controls),False
+EC_Peritub,EC_DVR,enriched,8,0.88,1.0,0.0,constitutive adjacency (also in controls),False
+PT,TAL,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,iTAL,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+PT,DCT,avoided,8,0.75,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+PT,CNT,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,PC,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+PT,IC A,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,Podo,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,PEC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,Fibroblast,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,VSMC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PT,EC_DVR,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,TAL,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,iTAL,avoided,8,1.0,-1.0,0.25,"control-underpowered (same direction, weaker)",False
+iPT,DCT,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,CNT,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,PC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,IC A,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+iPT,Podo,avoided,8,0.75,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,VSMC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,EC_Peritub,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iPT,EC_DVR,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+TAL,CNT,avoided,8,0.88,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+TAL,PC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+TAL,IC A,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+TAL,Podo,avoided,8,0.88,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+TAL,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+TAL,EC_glom,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+TAL,Fibroblast,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+TAL,EC_Peritub,avoided,8,0.88,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+TAL,EC_DVR,avoided,8,0.75,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+iTAL,DCT,avoided,8,0.88,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+iTAL,CNT,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iTAL,PC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iTAL,IC A,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iTAL,Podo,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iTAL,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+iTAL,EC_glom,avoided,8,0.88,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+iTAL,Fibroblast,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+iTAL,VSMC,avoided,8,0.75,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+iTAL,EC_Peritub,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+DCT,CNT,avoided,8,0.88,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+DCT,PC,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+DCT,MC,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+DCT,PEC,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+DCT,EC_glom,avoided,8,0.75,-1.0,0.25,"control-underpowered (same direction, weaker)",False
+DCT,Fibroblast,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+DCT,VSMC,avoided,8,0.75,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+DCT,EC_Peritub,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+DCT,EC_DVR,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+CNT,Podo,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+CNT,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+CNT,PEC,avoided,8,1.0,-1.0,0.25,"control-underpowered (same direction, weaker)",False
+CNT,EC_glom,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+CNT,Fibroblast,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+CNT,VSMC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+CNT,EC_Peritub,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+CNT,EC_DVR,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PC,Podo,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PC,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PC,PEC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PC,EC_glom,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PC,Fibroblast,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PC,VSMC,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+PC,EC_Peritub,avoided,8,1.0,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+PC,EC_DVR,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+IC A,Podo,avoided,8,0.75,-1.0,0.12,"control-underpowered (same direction, weaker)",False
+IC A,MC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+IC A,PEC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+IC A,EC_glom,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+IC A,Fibroblast,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+IC A,VSMC,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+IC A,EC_DVR,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+MC,EC_glom,avoided,8,0.75,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+MC,Fibroblast,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PEC,VSMC,avoided,8,0.88,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+PEC,EC_Peritub,avoided,8,1.0,-1.0,0.0,"control-underpowered (same direction, weaker)",False
+DCT,IC A,enriched,8,1.0,0.0,0.0,nephron anatomy (segment/vascular neighbours),False
+MC,EC_DVR,enriched,8,1.0,0.0,0.0,nephron anatomy (segment/vascular neighbours),False
+B,iPT,avoided,8,0.5,1.0,0.0,no reproducible DKD sign,False
+B,Podo,avoided,8,0.5,0.0,0.0,no reproducible DKD sign,False
+B,PEC,avoided,8,0.62,-1.0,0.0,no reproducible DKD sign,False
+B,EC_glom,avoided,8,0.38,-1.0,0.12,no reproducible DKD sign,False
+B,VSMC,avoided,8,0.5,0.0,0.12,no reproducible DKD sign,False
+Plasma,iPT,avoided,8,0.62,-1.0,0.0,no reproducible DKD sign,False
+Plasma,TAL,avoided,8,0.38,-1.0,0.0,no reproducible DKD sign,False
+Plasma,DCT,avoided,8,0.62,-1.0,0.0,no reproducible DKD sign,False
+Plasma,Podo,avoided,8,0.25,1.0,0.0,no reproducible DKD sign,False
+Plasma,PEC,avoided,8,0.38,1.0,0.0,no reproducible DKD sign,False
+Plasma,EC_glom,avoided,8,0.25,0.0,0.12,no reproducible DKD sign,False
+Plasma,EC_Peritub,avoided,8,0.38,0.0,0.0,no reproducible DKD sign,False
+Plasma,EC_DVR,avoided,8,0.25,1.0,0.0,no reproducible DKD sign,False
+Myeloid,Podo,avoided,8,0.62,-1.0,0.12,no reproducible DKD sign,False
+Myeloid,PEC,avoided,8,0.62,1.0,0.0,no reproducible DKD sign,False
+Myeloid,EC_Peritub,avoided,8,0.62,1.0,0.12,no reproducible DKD sign,False
+CD4 T,EC_glom,avoided,8,0.38,0.0,0.0,no reproducible DKD sign,False
+CD8 T,iPT,avoided,8,0.62,1.0,0.0,no reproducible DKD sign,False
+CD8 T,Podo,avoided,8,0.38,1.0,0.12,no reproducible DKD sign,False
+CD8 T,PEC,avoided,8,0.62,1.0,0.0,no reproducible DKD sign,False
+CD8 T,VSMC,avoided,8,0.5,1.0,0.0,no reproducible DKD sign,False
+CD8 T,EC_Peritub,avoided,8,0.5,1.0,0.0,no reproducible DKD sign,False
+CD8 T,EC_DVR,avoided,8,0.62,1.0,0.12,no reproducible DKD sign,False
+PT,iPT,avoided,8,0.62,1.0,0.12,no reproducible DKD sign,False
+PT,EC_Peritub,avoided,8,0.38,0.0,0.0,no reproducible DKD sign,False
+TAL,DCT,avoided,8,0.62,-1.0,0.12,no reproducible DKD sign,False
+TAL,PEC,avoided,8,0.62,-1.0,0.12,no reproducible DKD sign,False
+TAL,VSMC,avoided,8,0.38,-1.0,0.0,no reproducible DKD sign,False
+iTAL,EC_DVR,avoided,8,0.62,0.0,0.0,no reproducible DKD sign,False
+DCT,Podo,avoided,8,0.62,-1.0,0.12,no reproducible DKD sign,False
+IC A,EC_Peritub,avoided,8,0.5,0.0,0.12,no reproducible DKD sign,False
+Podo,EC_glom,avoided,8,0.5,0.0,0.0,no reproducible DKD sign,False
+Podo,Fibroblast,avoided,8,0.62,-1.0,0.0,no reproducible DKD sign,False
+Podo,VSMC,avoided,8,0.12,-1.0,0.12,no reproducible DKD sign,False
+PEC,Fibroblast,avoided,8,0.38,1.0,0.0,no reproducible DKD sign,False
+PEC,EC_DVR,avoided,8,0.25,-1.0,0.12,no reproducible DKD sign,False
+EC_glom,Fibroblast,avoided,8,0.62,1.0,0.12,no reproducible DKD sign,False
+EC_glom,EC_DVR,avoided,8,0.12,1.0,0.0,no reproducible DKD sign,False
+B,Fibroblast,enriched,8,0.5,1.0,0.0,no reproducible DKD sign,False
+Plasma,iTAL,enriched,8,0.38,0.0,0.0,no reproducible DKD sign,False
+Plasma,Fibroblast,enriched,8,0.62,1.0,0.12,no reproducible DKD sign,False
+Myeloid,VSMC,enriched,8,0.38,1.0,0.0,no reproducible DKD sign,False
+Myeloid,EC_DVR,enriched,8,0.25,1.0,0.0,no reproducible DKD sign,False
+iPT,PEC,enriched,8,0.62,-1.0,0.0,no reproducible DKD sign,False
+iTAL,PEC,enriched,8,0.62,-1.0,0.0,no reproducible DKD sign,False
+Podo,EC_DVR,enriched,8,0.25,-1.0,0.0,no reproducible DKD sign,False
+MC,PEC,enriched,8,0.62,1.0,0.12,no reproducible DKD sign,False
+MC,VSMC,enriched,8,0.5,-1.0,0.0,no reproducible DKD sign,False
+MC,EC_Peritub,enriched,8,0.5,-1.0,0.12,no reproducible DKD sign,False
+EC_glom,VSMC,enriched,8,0.12,-1.0,0.0,no reproducible DKD sign,False
+EC_glom,EC_Peritub,enriched,8,0.38,0.0,0.0,no reproducible DKD sign,False
+Fibroblast,EC_DVR,enriched,8,0.38,1.0,0.0,no reproducible DKD sign,False
+Plasma,VSMC,~0,8,0.12,1.0,0.25,no reproducible DKD sign,False
+Podo,EC_Peritub,~0,8,0.25,-1.0,0.0,no reproducible DKD sign,False
+PEC,EC_glom,~0,8,0.25,0.0,0.0,no reproducible DKD sign,False

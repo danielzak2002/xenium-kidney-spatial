@@ -52,6 +52,10 @@ SUMMARIES=[
   "09_WALKTHROUGH_one_story_for_a_bench_biologist.html","WALKTHROUGH — the whole arc as one story",
   "Step-by-step (S0–S8) for a bench biologist new to spatial: what Xenium can show across IgAN/MN/AA vs DKD/control, and where it stops — with object→number scoring panels and the two self-corrections.",
   "▶ Read this for the narrative: validated typing, two spatial programs, single-section claims flagged, panel limits shown.",True),
+ ("analysis/dkd_xenium_disease/build_nhood_summary.py","analysis/dkd_xenium_disease/nhood_enrichment_summary.html",
+  "10_squidpy_nhood_enrichment_screen.html","Unbiased neighbourhood-enrichment screen (squidpy)",
+  "The hypothesis-free all-pairs co-localization check: per-section Delaunay graph + nhood_enrichment, read by sign/reproducibility. Architecture + known biology recovered; honest null for new niches.",
+  "Honest null — recovers tissue architecture + reproduces known biology; no new disease-specific immune niche.",False),
 ]
 
 def main():

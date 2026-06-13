@@ -1,0 +1,33 @@
+section,group,pair,peak_dist,peak_ratio,colocalized_to_um
+HK2753,Control,iPT×EC_glom,5.0,4.14,95.0
+HK2753,Control,iPT×Fibroblast,55.0,1.28,195.0
+HK3106,Control,iPT×EC_glom,55.0,1.09,65.0
+HK3106,Control,iPT×Fibroblast,75.0,1.41,195.0
+HK3626,Control,iPT×EC_glom,195.0,1.18,195.0
+HK3626,Control,iPT×Fibroblast,35.0,1.62,195.0
+1001,DKD,iPT×EC_glom,45.0,1.12,195.0
+1001,DKD,iPT×Fibroblast,155.0,1.13,195.0
+1006,DKD,iPT×EC_glom,185.0,0.85,
+1006,DKD,iPT×Fibroblast,75.0,1.06,195.0
+1008,DKD,iPT×EC_glom,5.0,0.88,
+1008,DKD,iPT×Fibroblast,125.0,1.08,195.0
+1010,DKD,iPT×EC_glom,5.0,1.21,195.0
+1010,DKD,iPT×Fibroblast,55.0,1.06,145.0
+1011,DKD,iPT×EC_glom,145.0,0.9,
+1011,DKD,iPT×Fibroblast,35.0,1.14,195.0
+1012,DKD,iPT×EC_glom,15.0,0.78,
+1012,DKD,iPT×Fibroblast,55.0,0.63,
+1013,DKD,iPT×EC_glom,105.0,0.96,
+1013,DKD,iPT×Fibroblast,125.0,1.06,195.0
+HK2695,DKD,iPT×EC_glom,65.0,1.26,195.0
+HK2695,DKD,iPT×Fibroblast,75.0,1.01,75.0
+1003,IgAN,iPT×EC_glom,135.0,0.83,
+1003,IgAN,iPT×Fibroblast,65.0,1.11,195.0
+1005,MN,iPT×EC_glom,75.0,1.03,195.0
+1005,MN,iPT×Fibroblast,65.0,1.03,145.0
+1004,AA amyloid,iPT×EC_glom,75.0,0.74,
+1004,AA amyloid,iPT×Fibroblast,115.0,1.07,195.0
+1009,AA amyloid,iPT×EC_glom,45.0,1.05,185.0
+1009,AA amyloid,iPT×Fibroblast,75.0,1.21,195.0
+1007,C3GN,iPT×EC_glom,195.0,1.15,195.0
+1007,C3GN,iPT×Fibroblast,95.0,0.92,
