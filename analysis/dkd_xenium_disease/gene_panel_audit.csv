@@ -1,0 +1,42 @@
+gene,role,target,overall_pct,target_pct,ambient_pct,fold,call
+CD79A,B-marker,B,0.602,43.94,0.239,183.6,measurable (passes)
+CD79B,B-marker,B,0.398,20.42,0.231,88.5,measurable (passes)
+MS4A1,B-marker,B,0.784,64.18,0.253,253.5,measurable (passes)
+MZB1,Plasma,Plasma,0.392,56.99,0.207,275.5,measurable (passes)
+PRDM1,Plasma,Plasma,0.873,15.82,0.824,19.2,measurable (passes)
+SDC1,Plasma,,,,,,ABSENT (not in panel)
+TNFRSF17,Plasma,Plasma,0.121,16.95,0.066,255.1,measurable (passes)
+XBP1,Plasma,Plasma,14.001,75.82,13.799,5.5,measurable (passes)
+IGHA1,Plasma-Ig,Plasma,0.039,0.97,0.036,27.2,sub-floor / ambient
+IGHG1,Plasma-Ig,Plasma,1.211,62.54,1.011,61.9,measurable (passes)
+C1QA,Myeloid,Myeloid,3.872,40.42,1.989,20.3,measurable (passes)
+CD14,Myeloid,Myeloid,3.763,35.03,2.152,16.3,measurable (passes)
+CD68,Myeloid,Myeloid,3.935,15.87,3.321,4.8,measurable (passes)
+LYZ,Myeloid,Myeloid,0.0,0.0,0.0,0.0,OFF-PANEL (0 on Xenium; CosMx-only)
+CUBN,PT,PT,20.625,74.19,5.356,13.9,measurable (passes)
+LRP2,PT,PT,21.532,74.45,6.447,11.5,measurable (passes)
+HAVCR1,iPT-injury,iPT,2.445,29.34,0.636,46.2,measurable (passes)
+VCAM1,iPT-injury,iPT,6.981,47.01,4.288,11.0,measurable (passes)
+NPHS1,Podo,,,,,,ABSENT (not in panel)
+NPHS2,Podo,Podo,0.0,0.0,0.0,0.0,OFF-PANEL (0 on Xenium; CosMx-only)
+CR2,TLS-follicle,B,2.217,7.32,2.174,3.4,measurable (passes)
+CXCL13,TLS-follicle,B,0.081,3.75,0.05,74.8,measurable (passes)
+CXCR5,TLS-follicle,B,0.106,5.45,0.061,89.0,measurable (passes)
+AICDA,TLS-GC,B,0.072,0.33,0.07,4.7,sub-floor / ambient
+BCL6,TLS-GC,B,1.662,1.03,1.668,0.6,sub-floor / ambient
+MKI67,TLS-GC,B,0.062,0.05,0.062,0.8,sub-floor / ambient
+CCL19,TLS-Tzone,Stroma_lin,0.995,2.1,0.783,2.7,presence-only (sub-floor)
+CCL21,TLS-Tzone,Stroma_lin,0.0,0.0,0.0,0.0,OFF-PANEL (0 on Xenium; CosMx-only)
+CCR7,TLS-Tzone,Stroma_lin,0.082,0.02,0.094,0.2,sub-floor / ambient
+SELL,HEV-ish,Endothelial_lin,0.44,0.19,0.474,0.4,sub-floor / ambient
+NELL1,MN-antigen,Podo,1.48,8.45,1.425,5.9,measurable (passes)
+PLA2R1,MN-antigen,Podo,3.146,83.22,2.507,33.2,measurable (passes)
+THSD7A,MN-antigen,,,,,,ABSENT (not in panel)
+C3,complement,,,,,,ABSENT (not in panel)
+C4A,complement,,13.824,,,,measurable
+C4B,complement,,10.904,,,,measurable
+CFB,complement,,4.96,,,,measurable
+CD46,compl-reg,,20.039,,,,measurable
+CD55,compl-reg,,2.619,,,,measurable
+CD59,compl-reg,,22.634,,,,measurable
+CFH,compl-reg,,3.575,,,,measurable
