@@ -52,6 +52,19 @@ neighbours more than a label-shuffle expects) — a stricter, different question
 co-abundance. Squidpy's z is computed against an abundance-preserving label-permutation null; we add an
 explicit label-shuffle null and a spillover cross-check (analysis 06 flags).</div></div>
 
+<div class="card"><h2><span class="s">HOW</span>Reading the heatmap — where the z comes from (worked on section 1006)</h2>
+{img(f"{FIG}/nhood_explain_buildup.png")}
+<p>The heatmap is just <b>observed touches normalised by random-labelling expectation</b>: (1) the Delaunay
+graph pruned ≤50 µm — "neighbours = who touches whom" (mean degree 5.9); (2) <code>interaction_matrix</code>
+raw A–B neighbour counts (the numerator); (3) the z-matrix — those counts normalised.</p>
+{img(f"{FIG}/nhood_explain_permnull.png")}
+<p>The normalisation worked twice against a label-shuffle null: <b>Myeloid×Fibroblast obs 6,127 vs null 4,691 → z = +22.6 (enriched)</b>;
+<b>iTAL×Myeloid obs 903 vs null 1,169 → z = −8.3 (avoided)</b>. z = how many SDs above/below random labelling — sign/scale, not importance.</p>
+{img(f"{FIG}/nhood_explain_cooccurrence.png")}
+<p><b>The scale reconciliation:</b> <code>co_occurrence</code> for iTAL×Myeloid starts ~0.33 at the touch scale (z&lt;0)
+and rises through 1.0 at the interstitial radius — so cell-TOUCH avoidance and section-level co-abundance
+(analysis 06, ρ 0.82) are different length-scales, not a contradiction. B×Plasma is a tight-positive contrast.</p></div>
+
 <div class="card"><h2><span class="s">FIG 1</span>Control vs DKD sign-reproducibility — the shift is mostly empty</h2>
 {img(f"{FIG}/nhood_dkd_vs_control_sign.png")}
 <p>Signed fraction of sections enriched (red) − avoided (blue), NOT z-magnitude. Control (left) and DKD
